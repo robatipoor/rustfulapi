@@ -1,0 +1,26 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+configure = { path = "../configure"}
+server = { path = "../server"}
+error = { path = "../error"}
+state = { path = "../state"}
+router = { path = "../router"}
+service = { path = "../service"}
+constant = { path = "../constant"}
+handler = { path = "../handler"}
+client = { path = "../client"}
+actix-web = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-appender = { workspace = true }
+tracing-actix-web = { workspace = true }
+tracing-bunyan-formatter = { workspace = true }
+tracing-subscriber = { workspace = true }
+sentry-actix = { workspace = true }
+sqlx = { workspace = true }
+uuid = { workspace = true }
+test-context = { workspace = true }

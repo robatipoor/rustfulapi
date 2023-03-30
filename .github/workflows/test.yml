@@ -1,0 +1,131 @@
+name: test
+on:
+  push:
+    branches: ["main","develop"]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_LOG: info
+
+jobs:
+  test:
+    name: Cargo test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres_user
+          POSTGRES_PASSWORD: postgres_pass
+          POSTGRES_DB: postgres_db
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+      mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
+      mockserver:
+        image: mockserver/mockserver:latest
+        env:
+          MOCKSERVER_LOG_LEVEL: DEBUG
+          SERVER_PORT: 8026
+        ports:
+          - 8026:8026
+    env:
+      APP_PROFILE: test
+      SQLX_VERSION: 0.6.3
+      SQLX_FEATURES: postgres
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Cache sqlx-cli
+        uses: actions/cache@v2
+        id: cache-sqlx
+        with:
+          path: |
+            ~/.cargo/bin/sqlx
+            ~/.cargo/bin/cargo-sqlx
+          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+
+      - name: Install sqlx-cli
+        uses: actions-rs/cargo@v1
+        if: steps.cache-sqlx.outputs.cache-hit == false
+        with:
+          command: install
+          args: >
+            sqlx-cli
+            --force
+            --version=${{ env.SQLX_VERSION }}
+            --features=native-tls,${{ env.SQLX_FEATURES }}
+            --no-default-features
+            --locked
+
+      - name: Migrate database
+        run: |
+          sudo apt-get install libpq-dev -y
+          ./scripts/init_postgres.sh
+
+      - name: Check sqlx-data.json is up-to-date
+        run: |
+          cargo sqlx prepare --check --merged
+
+      - name: Add mockserver expections
+        run: |
+          ./scripts/init_mockserver.sh
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+      # - name: Test Success
+      #   uses: rjstone/discord-webhook-notify@v1
+      #   if: success()
+      #   with:
+      #     severity: info
+      #     details: Test Succeeded!
+      #     webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
+      # - name: Test Failure
+      #   uses: rjstone/discord-webhook-notify@v1
+      #   if: failure()
+      #   with:
+      #     severity: error
+      #     details: Test Failed!
+      #     webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
+      # - name: Test Cancelled
+      #   uses: rjstone/discord-webhook-notify@v1
+      #   if: cancelled()
+      #   with:
+      #     severity: warn
+      #     details: Test Cancelled!
+      #     webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+

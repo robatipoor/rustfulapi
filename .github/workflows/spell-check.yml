@@ -1,0 +1,17 @@
+name: spell check
+on:
+  push:
+    branches: ["main","develop"]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_LOG: info
+
+jobs:
+  typos:
+    name: Spell check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Actions Repository
+        uses: actions/checkout@v3

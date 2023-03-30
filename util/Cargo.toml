@@ -1,0 +1,32 @@
+[package]
+name = "util"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+entity = { path = "../entity"}
+constant = { path = "../constant"}
+error = { path = "../error"}
+model = { path = "../model"}
+actix-web = { workspace = true }
+tokio = { workspace = true }
+jsonwebtoken = { workspace = true }
+chrono = { workspace = true }
+fake = { workspace = true }
+serde = { workspace = true }
+utoipa = { workspace = true }
+uuid = { workspace = true }
+reqwest = { workspace = true }
+async-trait = { workspace = true }
+anyhow = { workspace = true }
+redis = { workspace = true }
+sha2 = { workspace = true }
+serde_json = { workspace = true }
+itertools = { workspace = true }
+once_cell = { workspace = true }
+rand = { workspace = true }
+rand_core = { workspace = true }
+tracing = { workspace = true }
+test-context = { workspace = true }
+openssl = { workspace = true }
+argon2 = { workspace = true }

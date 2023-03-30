@@ -1,0 +1,23 @@
+[package]
+name = "model"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+entity = { path = "../entity" }
+constant = { path = "../constant" }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+fake = { workspace = true }
+lettre = { workspace = true }
+tera = { workspace = true }
+once_cell = { workspace = true }
+rand = { workspace = true }
+rand_core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+strum = { workspace = true }
+url = { workspace = true }
+utoipa = { workspace = true }
+uuid = { workspace = true }
+validator = { workspace = true }

@@ -1,0 +1,108 @@
+name: test coverage
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  test:
+    name: coverage
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres_user
+          POSTGRES_PASSWORD: postgres_pass
+          POSTGRES_DB: postgres_db
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+      mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
+      mockserver:
+        image: mockserver/mockserver:latest
+        env:
+          MOCKSERVER_LOG_LEVEL: DEBUG
+          SERVER_PORT: 8026
+        ports:
+          - 8026:8026
+    env:
+      APP_PROFILE: test
+      SQLX_VERSION: 0.6.3
+      SQLX_FEATURES: postgres
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+
+      - name: Cache sqlx-cli
+        uses: actions/cache@v3
+        id: cache-sqlx
+        with:
+          path: |
+            ~/.cargo/bin/sqlx
+            ~/.cargo/bin/cargo-sqlx
+          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+
+      - name: Install sqlx-cli
+        uses: actions-rs/cargo@v1
+        if: steps.cache-sqlx.outputs.cache-hit == false
+        with:
+          command: install
+          args: >
+            sqlx-cli
+            --force
+            --version=${{ env.SQLX_VERSION }}
+            --features=native-tls,${{ env.SQLX_FEATURES }}
+            --no-default-features
+            --locked
+
+      - name: Cache tarpaulin
+        uses: actions/cache@v3
+        id: cache-tarpaulin
+        with:
+          path: |
+            ~/.cargo/bin/cargo-tarpaulin
+          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+
+      - name: Install tarpaulin
+        uses: actions-rs/cargo@v1
+        if: steps.cache-sqlx.outputs.cache-hit == false
+        with:
+          command: install
+          args: >
+            cargo-tarpaulin
+      
+      - name: Migrate database
+        run: |
+          sudo apt-get install -y libpq-dev
+          ./scripts/init_postgres.sh
+
+      - name: Add mockserver expections
+        run: |
+          ./scripts/init_mockserver.sh
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Generate code coverage
+        run: |
+          cargo +nightly tarpaulin --verbose --all-features --workspace --timeout 120 --out Xml
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v3
+        with:
+          #token: ${{secrets.CODECOV_TOKEN}} # not required for public repos
+          fail_ci_if_error: true

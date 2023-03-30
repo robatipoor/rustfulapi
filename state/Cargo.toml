@@ -1,0 +1,16 @@
+[package]
+name = "state"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+configure = { path = "../configure"}
+client = { path = "../client"}
+error = { path = "../error"}
+actix-web = { workspace = true }
+tokio = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+

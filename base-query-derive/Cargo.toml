@@ -1,0 +1,16 @@
+[package]
+name = "base-query-derive"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+proc-macro= true
+
+[dependencies]
+base-query = { path = "../base-query"}
+model = { path = "../model"}
+syn = "2.0.11"
+quote = "1.0.26"
+proc-macro2 = "1.0.54"
+itertools = { workspace = true }
+sqlx = { workspace = true }

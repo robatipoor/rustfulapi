@@ -1,0 +1,40 @@
+[package]
+name = "client"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+model = { path = "../model"}
+entity = { path = "../entity"}
+constant = { path = "../constant"}
+configure = { path = "../configure"}
+error = { path = "../error"}
+util = { path = "../util"}
+strum = { workspace = true }
+chrono = { workspace = true }
+fake = { workspace = true }
+serde = { workspace = true }
+sqlx = { workspace = true }
+async-trait = { workspace = true }
+utoipa = { workspace = true }
+lettre = { workspace = true }
+uuid = { workspace = true }
+reqwest = { workspace = true }
+tera = { workspace = true }
+anyhow = { workspace = true }
+redis = { workspace = true }
+tokio = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+test-context = { workspace = true }
+hmac = { workspace = true }
+serde_json= { workspace = true }
+itertools= { workspace = true }
+once_cell = { workspace = true }
+rand = { workspace = true }
+rand_core = { workspace = true }
+tracing = { workspace = true }
+tracing-bunyan-formatter = { workspace = true }
+tracing-log = { workspace = true }
+tracing-subscriber = { workspace = true }
+sentry = { workspace = true }

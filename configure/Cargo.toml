@@ -1,0 +1,29 @@
+[package]
+name = "configure"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+model = { path = "../model"}
+entity = { path = "../entity"}
+util = { path = "../util"}
+constant = { path = "../constant"}
+chrono = { workspace = true }
+fake = { workspace = true }
+serde = { workspace = true }
+sqlx = { workspace = true }
+utoipa = { workspace = true }
+uuid = { workspace = true }
+tera = { workspace = true }
+anyhow = { workspace = true }
+redis = { workspace = true }
+tokio = { workspace = true }
+once_cell = { workspace = true }
+config = { workspace = true }
+rand = { workspace = true }
+rand_core = { workspace = true }
+tracing = { workspace = true }
+tracing-bunyan-formatter = { workspace = true }
+tracing-log = { workspace = true }
+tracing-subscriber = { workspace = true }
+sentry = { workspace = true }

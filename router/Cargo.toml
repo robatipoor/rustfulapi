@@ -1,0 +1,24 @@
+[package]
+name = "router"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+model = { path = "../model"}
+entity = { path = "../entity"}
+constant = { path = "../constant"}
+configure = { path = "../configure"}
+error = { path = "../error"}
+util = { path = "../util"}
+client = { path = "../client"}
+handler = { path = "../handler"}
+state = { path = "../state"}
+service = { path = "../service"}
+actix-web = { workspace = true }
+tokio = { workspace = true }
+actix-web-grants = { workspace = true }
+uuid = { workspace = true }
+fake = { workspace = true }
+rand = { workspace = true }
+rand_core = { workspace = true }
+tracing = { workspace = true }

@@ -1,0 +1,38 @@
+@startuml
+hide circle
+skinparam linetype ortho
+
+entity "**_sqlx_migrations**" {
+  + ""version"": //bigint [PK]//
+  --
+  *""description"": //text //
+  *""installed_on"": //timestamp with time zone //
+  *""success"": //boolean //
+  *""checksum"": //bytea //
+  *""execution_time"": //bigint //
+}
+
+entity "**file**" {
+  + ""id"": //uuid [PK]//
+  --
+  *""user_id"": //uuid [FK]//
+  *""name"": //character varying(255) //
+  ""create_at"": //timestamp with time zone //
+  ""update_at"": //timestamp with time zone //
+}
+
+entity "**users**" {
+  + ""id"": //uuid [PK]//
+  --
+  *""username"": //character varying(255) //
+  *""password"": //character varying(255) //
+  *""email"": //character varying(255) //
+  *""role_name"": //roleuser //
+  *""is_active"": //boolean //
+  *""is_tfa"": //boolean //
+  ""create_at"": //timestamp with time zone //
+  ""update_at"": //timestamp with time zone //
+}
+
+"**file**"   }--  "**users**"
+@enduml

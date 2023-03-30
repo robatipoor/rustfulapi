@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot-service
+    restart: "no"
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email rustfulapi@email.com -d rustfulapi.com --agree-tos
+

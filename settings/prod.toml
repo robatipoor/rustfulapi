@@ -1,0 +1,42 @@
+profile = "prod"
+
+[server]
+addr = "0.0.0.0"
+port = 8_080
+
+[db]
+host = "127.0.0.1"
+port = 5_432
+username = "postgres_user"
+password = "postgres_pass"
+max_connections = 10
+database_name = "postgres_db"
+
+[redis]
+username = "redis_user"
+password = ""
+host = "127.0.0.1"
+port = 6_379
+database_name = ""
+
+[email]
+username = "email_user"
+password = "email_pass"
+host = "smtp.gmail.com"
+port = 1_025
+
+[sentry]
+key = "https://92654da696494bd2b88f06438aef9fb3@o1055779.ingest.sentry.io/6583480"
+
+[secret]
+private_access_key = "static/key/private_access_rsa_key.pem"
+public_access_key = "static/key/public_access_rsa_key.pem"
+private_refresh_key = "static/key/private_refresh_rsa_key.pem"
+public_refresh_key = "static/key/public_refresh_rsa_key.pem"
+
+[worker]
+failed_task_delay = 100
+
+[http]
+timeout = 10
+

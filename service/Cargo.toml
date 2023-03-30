@@ -1,0 +1,49 @@
+[package]
+name = "service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+model = { path = "../model"}
+entity = { path = "../entity"}
+constant = { path = "../constant"}
+configure = { path = "../configure"}
+error = { path = "../error"}
+query = { path = "../query"}
+client = { path = "../client"}
+state = { path = "../state"}
+util = { path = "../util"}
+actix-web = { workspace = true }
+actix-cors = { workspace = true }
+actix-service = { workspace = true }
+actix-web-grants = { workspace = true }
+actix-multipart = {workspace = true }
+actix-files = {workspace = true }
+chrono = { workspace = true }
+base64 = { workspace = true }
+fake = { workspace = true }
+serde = { workspace = true }
+sqlx = { workspace = true }
+async-trait = { workspace = true }
+utoipa = { workspace = true }
+jsonwebtoken = { workspace = true }
+lettre = { workspace = true }
+validator = { workspace = true }
+uuid = { workspace = true }
+reqwest = { workspace = true }
+tera = { workspace = true }
+anyhow = { workspace = true }
+redis = { workspace = true }
+tokio = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+hmac = { workspace = true }
+futures = { workspace = true }
+serde_json= { workspace = true }
+itertools= { workspace = true }
+once_cell = { workspace = true }
+test-context = { workspace = true }
+rand = { workspace = true }
+rand_core = { workspace = true }
+tracing = { workspace = true }
+sanitize-filename = { workspace = true }
