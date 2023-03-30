@@ -1,6 +1,7 @@
 use crate::AppState;
 use actix_web::web;
 use async_trait::async_trait;
+use error::TaskError;
 
 #[derive(Debug)]
 pub struct TaskResult {
@@ -13,9 +14,6 @@ pub enum TaskStatus {
   Completed,
   QueueEmpty,
 }
-
-#[derive(Debug)]
-pub enum TaskError {}
 
 #[async_trait]
 pub trait AppTask: Send + Sync {

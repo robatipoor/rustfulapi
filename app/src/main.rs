@@ -1,11 +1,8 @@
-use std::fmt::{Debug, Display};
-
 use client::postgres::migrate_database;
 use configure::{self, sentry, AppConfig};
 use error::AppResult;
 use server::Server;
-use tokio::task::JoinError;
-use tracing::{error, info};
+use tracing::info;
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::EnvFilter;
 
@@ -18,39 +15,19 @@ async fn main() -> AppResult<()> {
     EnvFilter::from_default_env(),
     file_appender,
   ))?;
+  info!("config tracing");
   let config = AppConfig::read()?;
+  info!("read config file");
   let _sentry_guard = sentry::init_sentry(&config.sentry);
+  info!("init sentry");
   let server = Server::new(config.clone()).await?;
+  info!("create server");
   migrate_database(&server.state.postgres).await?;
   let state = server.state.clone();
   let server = server.run().await?;
+  info!("run server");
   let server_task = tokio::task::spawn(server);
-  let worker_task = server::worker::start(state);
-  tokio::select! {
-      o = server_task => report_exit("main task server", o),
-      o = worker_task =>  report_exit("background task worker", o),
-  };
+  let _worker_task = server::worker::spawn(state);
+  let _ = server_task.await;
   Ok(())
-}
-
-fn report_exit(task_name: &str, outcome: Result<Result<(), impl Debug + Display>, JoinError>) {
-  match outcome {
-    Ok(Ok(())) => {
-      info!("{task_name} has exited")
-    }
-    Ok(Err(e)) => {
-      error!(
-          error.cause_chain = ?e,
-          error.message = %e,
-          "{task_name} failed",
-      )
-    }
-    Err(e) => {
-      error!(
-          error.cause_chain = ?e,
-          error.message = %e,
-          "{task_name} task failed to complete",
-      )
-    }
-  }
 }

@@ -24,4 +24,5 @@ actix-web-grants = { workspace = true }
 actix-files = { workspace = true }
 sentry-actix = { workspace = true }
 test-context = { workspace = true }
+async-trait = { workspace = true }
 utoipa-swagger-ui= { workspace = true }

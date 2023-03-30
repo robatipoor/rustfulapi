@@ -1,25 +1,26 @@
 use actix_web::web;
 use configure::worker::WorkerConfig;
+use error::TaskError;
 use futures::future::join_all;
 use state::{
-  worker::{AppTask, TaskStatus},
+  worker::{AppTask, TaskResult, TaskStatus},
   AppState,
 };
 use std::time::Duration;
 use tokio::task::JoinHandle;
 use tracing::{error, info};
 
-pub fn start(state: web::Data<AppState>) -> JoinHandle<std::io::Result<()>> {
+pub fn spawn(state: web::Data<AppState>) -> JoinHandle<std::io::Result<()>> {
   tokio::task::spawn(worker(state))
 }
 
-async fn worker(_state: web::Data<AppState>) -> std::io::Result<()> {
-  let jhs: Vec<JoinHandle<()>> = vec![];
+async fn worker(state: web::Data<AppState>) -> std::io::Result<()> {
+  let jhs: Vec<JoinHandle<()>> = vec![doing_job(state.config.worker.clone(), SampleTask)];
   join_all(jhs).await;
   Ok(())
 }
 
-fn _doing_job<T: AppTask + 'static + Send>(config: WorkerConfig, task: T) -> JoinHandle<()> {
+fn doing_job<T: AppTask + 'static + Send>(config: WorkerConfig, task: T) -> JoinHandle<()> {
   tokio::task::spawn(async move {
     info!("*** start task: {} ***", T::NAME);
     loop {
@@ -41,4 +42,22 @@ fn _doing_job<T: AppTask + 'static + Send>(config: WorkerConfig, task: T) -> Joi
       }
     }
   })
+}
+
+pub struct SampleTask;
+
+#[async_trait::async_trait]
+impl AppTask for SampleTask {
+  const NAME: &'static str = "SAMPLE_TASK";
+
+  fn new(_state: web::Data<AppState>) -> Self {
+    Self
+  }
+
+  async fn run(&self) -> Result<TaskResult, TaskError> {
+    Ok(TaskResult {
+      delay: 100000,
+      status: TaskStatus::Completed,
+    })
+  }
 }

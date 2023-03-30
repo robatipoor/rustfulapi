@@ -230,3 +230,19 @@ pub async fn permission_denied_error() -> AppResult<HttpResponse> {
     "This User Does Not Have Access".to_string(),
   ))
 }
+
+#[derive(Debug, thiserror::Error, ToSchema)]
+pub enum TaskError {
+  #[error(transparent)]
+  IoError(#[from] std::io::Error),
+  #[error(transparent)]
+  DatabaseError(#[from] sqlx::Error),
+  #[error(transparent)]
+  HttpClientError(#[from] reqwest::Error),
+  #[error(transparent)]
+  RedisError(#[from] redis::RedisError),
+  #[error(transparent)]
+  ConfigError(#[from] config::ConfigError),
+  #[error(transparent)]
+  SpawnTaskError(#[from] tokio::task::JoinError),
+}
