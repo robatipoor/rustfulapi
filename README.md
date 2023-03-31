@@ -40,11 +40,19 @@ To use this template as your project starting point, click "Use this template" a
 * Nginx as reverse proxy and secure connections with SSL certificates [Nginx](https://www.nginx.com/)
 * Dependabot configuration
 
-### Project structure
+### build and run
 
 ```bash
+./run.sh
+# open swagger panel
+xdg-open http://127.0.0.1:8080/api/v1/swagger-ui/
 ```
+### run with docker image
 
+```bash
+# with docker image
+cd ./docker/dev/ && ./up.sh
+```
 ### Test
 To run tests make sure Postgres is up and running.
 ```

@@ -15,11 +15,11 @@ async fn main() -> AppResult<()> {
     EnvFilter::from_default_env(),
     file_appender,
   ))?;
-  info!("config tracing");
+  info!("config tracing done");
   let config = AppConfig::read()?;
-  info!("read config file");
+  info!("read config file done");
   let _sentry_guard = sentry::init_sentry(&config.sentry);
-  info!("init sentry");
+  info!("init sentry done");
   let server = Server::new(config.clone()).await?;
   info!("create server");
   migrate_database(&server.state.postgres).await?;
@@ -27,7 +27,9 @@ async fn main() -> AppResult<()> {
   let server = server.run().await?;
   info!("run server");
   let server_task = tokio::task::spawn(server);
+  info!("swpan server");
   let _worker_task = server::worker::spawn(state);
+  info!("spawn worker");
   let _ = server_task.await;
   Ok(())
 }
