@@ -40,14 +40,14 @@ To use this template as your project starting point, click "Use this template" a
 * Nginx as reverse proxy and secure connections with SSL certificates [Nginx](https://www.nginx.com/)
 * Dependabot configuration
 
-### build and run
+### Build and run
 
 ```bash
 ./run.sh
 # open swagger panel
 xdg-open http://127.0.0.1:8080/api/v1/swagger-ui/
 ```
-### run with docker image
+### Run with docker image
 
 ```bash
 # with docker image
@@ -60,7 +60,7 @@ To run tests make sure Postgres is up and running.
 ```
 ![RUSTfulapi grid](https://codecov.io/gh/robatipoor/rustfulapi/branch/main/graphs/tree.svg?token=BIMUKRJPE7)
 
-### update sqlx data json
+### Update sqlx data json
 ```bash
 
 cargo sqlx prepare --merged -- --all-features
