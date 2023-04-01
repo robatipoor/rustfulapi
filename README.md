@@ -50,11 +50,9 @@ xdg-open http://127.0.0.1:8080/api/v1/swagger-ui/
 ### Run with docker image
 
 ```bash
-# with docker image
 cd ./docker/dev/ && ./up.sh
 ```
 ### Test
-To run tests make sure Postgres is up and running.
 ```
 ./test.sh
 ```

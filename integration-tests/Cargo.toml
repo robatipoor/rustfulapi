@@ -22,10 +22,6 @@ tokio = { workspace = true }
 async-trait = { workspace = true }
 futures = { workspace = true }
 anyhow = { workspace = true }
-tracing = { workspace = true }
-tracing-actix-web = { workspace = true }
-tracing-log = { workspace = true }
-tracing-subscriber = { workspace = true }
 actix-files = { workspace = true }
 fake = { workspace = true }
 wiremock = { workspace = true }
@@ -42,3 +38,9 @@ test-context = { workspace = true }
 uuid = { workspace = true }
 scraper = { workspace = true }
 strum = { workspace = true }
+log = { workspace = true }
+log-derive = { workspace = true }
+tracing = { workspace = true }
+tracing-bunyan-formatter = { workspace = true }
+tracing-log = { workspace = true }
+tracing-subscriber = { workspace = true }

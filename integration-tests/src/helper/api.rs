@@ -1,5 +1,6 @@
 use actix_web::http;
 use configure::server::ServerConfig;
+use log_derive::logfn;
 use model::request::*;
 use model::response::*;
 use once_cell::sync::Lazy;
@@ -13,7 +14,7 @@ pub struct Api {
   client: &'static Client,
   addr: String,
 }
-// TODO add logger
+
 impl Api {
   pub fn new(config: &ServerConfig) -> Self {
     Self {
@@ -22,6 +23,7 @@ impl Api {
     }
   }
 
+  #[logfn(Info)]
   pub async fn server_state(
     &self,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<ServiceStatusResponse>)> {
@@ -33,6 +35,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn health_check(&self) -> anyhow::Result<(StatusCode, AppResponseResult)> {
     let resp = self
       .client
@@ -42,6 +45,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn register(
     &self,
     req: &RegisterRequest,
@@ -55,6 +59,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn invitation(
     &self,
     req: &InvitationRequest,
@@ -68,6 +73,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn active(
     &self,
     req: &ActiveRequest,
@@ -81,6 +87,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn login(
     &self,
     req: &LoginRequest,
@@ -94,6 +101,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn logout(&self, token: &str) -> anyhow::Result<(StatusCode, AppResponseResult)> {
     let resp = self
       .client
@@ -104,6 +112,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn refresh_token(
     &self,
     refresh_token: &str,
@@ -120,6 +129,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn forget_password(
     &self,
     email: &str,
@@ -135,6 +145,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn reset_password(
     &self,
     req: &SetPasswordRequest,
@@ -148,6 +159,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn validate(
     &self,
     owner_token: &str,
@@ -163,6 +175,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn get_profile(
     &self,
     token: &str,
@@ -176,6 +189,7 @@ impl Api {
     Ok((resp.status(), resp.json().await?))
   }
 
+  #[logfn(Info)]
   pub async fn update_profile(
     &self,
     token: &str,
