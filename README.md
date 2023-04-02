@@ -1,4 +1,4 @@
-# RESTfulapi
+# RUSTfulapi
 RESTful API template built with Rust language. It uses [PostgreSQL](https://www.postgresql.org/)
 database and [Actix](https://actix.rs/) HTTP framework.
 

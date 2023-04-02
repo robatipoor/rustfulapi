@@ -13,8 +13,7 @@ use tracing::error;
     get,
     path = "/api/v1/server/health_check",
     responses(
-        (status = 200, description = "check service is up", body = [MessageResponse]),
-        (status = 500, description = "internal server error", body = [AppResponseError])
+        (status = 200, description = "check service is up", body = [MessageResponse])
     )
 )]
 pub async fn health_check() -> Result<HttpResponse, AppError> {

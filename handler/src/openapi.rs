@@ -68,7 +68,7 @@ pub static API_DOC: Lazy<utoipa::openapi::OpenApi> = Lazy::new(ApiDoc::openapi);
         )
     ),
     tags(
-        (name = "crate::server", description = "health check server endpoints."),
+        (name = "crate::server", description = "server endpoints."),
         (name = "crate::user", description = "user endpoints."),
     ),
     modifiers(&SecurityAddon)
