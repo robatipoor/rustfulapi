@@ -1,114 +1,5 @@
 {
   "db": "PostgreSQL",
-  "048dd5f9c93e64a4a46c3d4e183cc5787dd829e5ecd19a633fc496d0ecb090f2": {
-    "describe": {
-      "columns": [
-        {
-          "name": "total",
-          "ordinal": 0,
-          "type_info": "Int8"
-        }
-      ],
-      "nullable": [
-        null
-      ],
-      "parameters": {
-        "Left": []
-      }
-    },
-    "query": "SELECT COUNT(1) AS total FROM file"
-  },
-  "1f9e0765237650263da611d0f9f0701cb075bd31869845c9797a4b16e0d0cfbb": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 2,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "create_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "update_at",
-          "ordinal": 4,
-          "type_info": "Timestamptz"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Text",
-          "Int8",
-          "Int8"
-        ]
-      }
-    },
-    "query": "SELECT * FROM file ORDER BY \n        (CASE WHEN $1 = 'create_at' AND $2 = 'ASC' THEN create_at END) ASC LIMIT $3 OFFSET $4"
-  },
-  "4150431e3562cd0b5c3d1998169eb112796dcc1d4a535d99907df638de568f62": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 2,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "create_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "update_at",
-          "ordinal": 4,
-          "type_info": "Timestamptz"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      }
-    },
-    "query": "SELECT * FROM file WHERE user_id = $1"
-  },
   "4185139694447ad34e67bced01d9ed23206f6b4e53374905fb07a92ea863ff38": {
     "describe": {
       "columns": [
@@ -130,18 +21,6 @@
       }
     },
     "query": "SELECT EXISTS(SELECT 1 FROM users WHERE (is_active = $1 OR $1 IS NULL) \n            AND (username = $2 OR email = $3)) AS exist"
-  },
-  "476b5489b82222dfe0880ed5ecc29710e1d067d003edd44478424c182ada43e0": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      }
-    },
-    "query": "DELETE FROM file WHERE id = $1"
   },
   "53c39e4726d1d4d07329df495c1a41e7ae8c6e21c92f7336b0007cc4e6002bab": {
     "describe": {
@@ -343,20 +222,6 @@
     },
     "query": "SET statement_timeout=1000;"
   },
-  "dda96c987766eb766a955ff5d73230e77b9987ea7464b7c044ac1bc40aec7426": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid",
-          "Varchar"
-        ]
-      }
-    },
-    "query": "INSERT INTO file (id,user_id,name) VALUES ($1,$2,$3)"
-  },
   "df1f1d15d442789a5b9c81cdddf44d88d5748499cc48865023ddc1ff1587d0f6": {
     "describe": {
       "columns": [
@@ -403,50 +268,6 @@
       }
     },
     "query": "UPDATE users SET username=$1,password=$2,email=$3,role_name=$4,is_active=$5,is_tfa=$6 WHERE id = $7"
-  },
-  "f8cee2d663100ff13f0784bcf0aa779ea8ee27d14e7698fa5a158bfaa11d027c": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 2,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "create_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "update_at",
-          "ordinal": 4,
-          "type_info": "Timestamptz"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid"
-        ]
-      }
-    },
-    "query": "SELECT * FROM file WHERE id = $1"
   },
   "f91dd64c2181b4d5591cbee740a58830c3ff0a3ff03c1af97953b03fc55b6927": {
     "describe": {

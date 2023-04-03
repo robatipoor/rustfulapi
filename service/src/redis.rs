@@ -174,55 +174,50 @@ pub async fn check_exist_key(redis: &RedisClient, key: &impl RedisKey) -> AppRes
 
 #[cfg(test)]
 mod tests {
+  use client::redis::REDIS;
   use fake::{Fake, Faker};
 
   use super::*;
-  use query::RedisTestContext;
-  use test_context::test_context;
 
-  #[test_context(RedisTestContext)]
   #[tokio::test]
-  async fn test_set_and_get_str_redis_service(ctx: &mut RedisTestContext) {
+  async fn test_set_and_get_str_redis_service() {
     let key: SessionKey = Faker.fake();
     let value: SessionValue = Faker.fake();
-    set(&ctx.redis, (&key, &value)).await.unwrap();
-    let actual_value = get(&ctx.redis, &key).await.unwrap().unwrap();
+    set(&REDIS, (&key, &value)).await.unwrap();
+    let actual_value = get(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
   }
 
-  #[test_context(RedisTestContext)]
   #[tokio::test]
-  async fn test_pull_redis_service(ctx: &mut RedisTestContext) {
+  async fn test_pull_redis_service() {
     let key: SessionKey = Faker.fake();
     let value: SessionValue = Faker.fake();
-    set(&ctx.redis, (&key, &value)).await.unwrap();
-    let actual_value = pull(&ctx.redis, &key).await.unwrap().unwrap();
+    set(&REDIS, (&key, &value)).await.unwrap();
+    let actual_value = pull(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
-    let actual_value = get(&ctx.redis, &key).await.unwrap();
+    let actual_value = get(&REDIS, &key).await.unwrap();
     assert!(actual_value.is_none());
   }
 
-  #[test_context(RedisTestContext)]
   #[tokio::test]
-  async fn test_delete_redis_service(ctx: &mut RedisTestContext) {
+  async fn test_delete_redis_service() {
     let key: TwoFactorLoginKey = Faker.fake();
     let value: UserValue = Faker.fake();
-    set(&ctx.redis, (&key, &value)).await.unwrap();
-    let actual_value = get(&ctx.redis, &key).await.unwrap().unwrap();
+    set(&REDIS, (&key, &value)).await.unwrap();
+    let actual_value = get(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
-    let actual_value = del(&ctx.redis, &key).await.unwrap();
+    let actual_value = del(&REDIS, &key).await.unwrap();
     assert!(actual_value);
-    let actual_value = get(&ctx.redis, &key).await.unwrap();
+    let actual_value = get(&REDIS, &key).await.unwrap();
     assert!(actual_value.is_none());
   }
 
-  #[test_context(RedisTestContext)]
   #[tokio::test]
-  async fn test_set_and_get_value_redis_service(ctx: &mut RedisTestContext) {
+  async fn test_set_and_get_value_redis_service() {
     let key: InvitationKey = Faker.fake();
     let value: UserValue = Faker.fake();
-    set(&ctx.redis, (&key, &value)).await.unwrap();
-    let actual_value = get(&ctx.redis, &key).await.unwrap().unwrap();
+    set(&REDIS, (&key, &value)).await.unwrap();
+    let actual_value = get(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
   }
 }

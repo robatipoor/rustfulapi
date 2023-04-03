@@ -1,32 +1,56 @@
 use async_trait::async_trait;
-use configure::redis::RedisConfig;
+use configure::{redis::RedisConfig, CONFIG};
 use redis::{Client, RedisError};
 use std::time::Duration;
+use test_context::AsyncTestContext;
 use tracing::log::info;
+
+pub static REDIS: once_cell::sync::Lazy<RedisClient> =
+  once_cell::sync::Lazy::new(|| RedisClient::new(&CONFIG.redis).unwrap());
 
 pub type RedisClient = redis::Client;
 
 #[async_trait]
 pub trait RedisClientExt: Sized {
-  async fn new(config: &RedisConfig) -> Result<Self, RedisError>;
+  fn new(config: &RedisConfig) -> Result<Self, RedisError>;
   async fn ping(&self) -> Result<Option<String>, RedisError>;
   async fn set(&self, key: &str, value: &str, expire: Duration) -> Result<(), RedisError>;
   async fn exist(&self, key: &str) -> Result<bool, RedisError>;
   async fn get(&self, key: &str) -> Result<Option<String>, RedisError>;
   async fn del(&self, key: &str) -> Result<bool, RedisError>;
-  async fn ttl(&self, key: &str) -> Result<i32, RedisError>;
+  async fn ttl(&self, key: &str) -> Result<i64, RedisError>;
+}
+
+pub struct RedisTestContext {
+  pub config: RedisConfig,
+  pub redis: RedisClient,
+}
+
+#[async_trait::async_trait]
+impl AsyncTestContext for RedisTestContext {
+  async fn setup() -> Self {
+    let config = CONFIG.redis.clone();
+    info!("setup redis config for the test");
+    // let database_name = util::string::generate_random_string_with_prefix("test_db");
+    let redis = RedisClient::new(&config).unwrap();
+    Self { config, redis }
+  }
+
+  async fn teardown(self) {
+    // TODO drop db
+  }
 }
 
 #[async_trait]
 impl RedisClientExt for Client {
-  async fn new(config: &RedisConfig) -> Result<Self, RedisError> {
+  fn new(config: &RedisConfig) -> Result<Self, RedisError> {
     redis::Client::open(config.get_url())
   }
 
   async fn ping(&self) -> Result<Option<String>, RedisError> {
     let mut conn = self.get_async_connection().await?;
     let value: Option<String> = redis::cmd("PING").query_async(&mut conn).await?;
-    info!("ping redis");
+    info!("ping redis server");
     Ok(value)
   }
 
@@ -48,27 +72,27 @@ impl RedisClientExt for Client {
   async fn exist(&self, key: &str) -> Result<bool, RedisError> {
     let mut conn = self.get_async_connection().await?;
     let value: bool = redis::cmd("EXISTS").arg(key).query_async(&mut conn).await?;
-    info!("check key exists in redis: {key}");
+    info!("check key exists: {key}");
     Ok(value)
   }
 
   async fn get(&self, key: &str) -> Result<Option<String>, RedisError> {
     let mut conn = self.get_async_connection().await?;
     let value: Option<String> = redis::cmd("GET").arg(key).query_async(&mut conn).await?;
-    info!("get value redis: {key}");
+    info!("get value: {key}");
     Ok(value)
   }
 
   async fn del(&self, key: &str) -> Result<bool, RedisError> {
     let mut conn = self.get_async_connection().await?;
     let value: i32 = redis::cmd("DEL").arg(key).query_async(&mut conn).await?;
-    info!("del value redis: {key}");
+    info!("delete value: {key}");
     Ok(value == 1)
   }
-  async fn ttl(&self, key: &str) -> Result<i32, RedisError> {
+  async fn ttl(&self, key: &str) -> Result<i64, RedisError> {
     let mut conn = self.get_async_connection().await?;
-    let value: i32 = redis::cmd("TTL").arg(key).query_async(&mut conn).await?;
-    info!("TTL value redis: {key}");
+    let value: i64 = redis::cmd("TTL").arg(key).query_async(&mut conn).await?;
+    info!("get TTL value: {key}");
     Ok(value)
   }
 }
@@ -77,70 +101,79 @@ impl RedisClientExt for Client {
 mod tests {
   use super::*;
 
-  use configure::CONFIG;
+  use fake::{Fake, Faker};
+  use uuid::Uuid;
 
   #[tokio::test]
-  async fn test_redis_ping() {
-    let client = RedisClient::new(&CONFIG.redis).await.unwrap();
-    assert_eq!(client.ping().await.unwrap().unwrap(), "PONG");
+  async fn test_ping_redis_server() {
+    let resp = REDIS.ping().await.unwrap();
+    let pong = "PONG";
+    assert!(matches!(resp, Some(p) if p == pong));
   }
 
-  // #[test_context(RedisTestContext)]
-  // #[tokio::test]
-  // async fn set_key_redis_test(ctx: &mut RedisTestContext) {
-  //   let key: String = Faker.fake();
-  //   let uuid = util::string::generate_random_name(None);
-  //   set(&ctx.redis, &key, &uuid, Duration::from_secs(50))
-  //     .await
-  //     .unwrap();
-  //   let actual_uuid = get(&ctx.redis, &key).await.unwrap();
-  //   assert_eq!(actual_uuid.unwrap(), uuid);
-  //   let result = ttl(&ctx.redis, &key).await.unwrap();
-  //   assert!(result > 0);
-  // }
+  #[tokio::test]
+  async fn test_set_key_redis() {
+    let key: String = Faker.fake();
+    let value = Uuid::new_v4().to_string();
+    REDIS
+      .set(&key, &value, Duration::from_secs(5))
+      .await
+      .unwrap();
+    let resp = REDIS.get(&key).await.unwrap();
+    assert!(matches!(resp, Some(v) if v == value));
+    let resp = REDIS.ttl(&key).await.unwrap();
+    assert!(resp > 0);
+  }
 
-  // #[test_context(RedisTestContext)]
-  // #[tokio::test]
-  // async fn exist_key_redis_test(ctx: &mut RedisTestContext) {
-  //   let key: String = Faker.fake();
-  //   let value: String = Faker.fake();
-  //   set(&ctx.redis, &key, &value, Duration::from_secs(10))
-  //     .await
-  //     .unwrap();
-  //   let actual_value = exist(&ctx.redis, &key).await.unwrap();
-  //   assert!(actual_value);
-  //   let key: String = Faker.fake();
-  //   let actual_value = exist(&ctx.redis, &key).await.unwrap();
-  //   assert!(!actual_value);
-  // }
+  #[tokio::test]
+  async fn test_exist_key_redis() {
+    let key: String = Faker.fake();
+    let value = Uuid::new_v4().to_string();
+    REDIS
+      .set(&key, &value, Duration::from_secs(4))
+      .await
+      .unwrap();
+    let resp = REDIS.get(&key).await.unwrap();
+    assert!(matches!(resp, Some(v) if v == value));
+    let resp = REDIS.exist(&key).await.unwrap();
+    assert!(resp);
+    let key: String = Faker.fake();
+    let resp = REDIS.exist(&key).await.unwrap();
+    assert!(!resp);
+  }
 
-  // #[test_context(RedisTestContext)]
-  // #[tokio::test]
-  // async fn del_key_redis_test(ctx: &mut RedisTestContext) {
-  //   let key: String = Faker.fake();
-  //   let uuid = util::string::generate_random_name(None);
-  //   set(&ctx.redis, &key, &uuid, Duration::from_secs(3))
-  //     .await
-  //     .unwrap();
-  //   let actual_uuid = get(&ctx.redis, &key).await.unwrap();
-  //   assert_eq!(actual_uuid.unwrap(), uuid);
-  //   let result = del(&ctx.redis, &key).await.unwrap();
-  //   assert!(result);
-  //   let actual_uuid = get(&ctx.redis, &key).await.unwrap();
-  //   assert!(actual_uuid.is_none());
-  // }
+  #[tokio::test]
+  async fn test_del_key_redis() {
+    let key: String = Faker.fake();
+    let value = Uuid::new_v4().to_string();
+    REDIS
+      .set(&key, &value, Duration::from_secs(4))
+      .await
+      .unwrap();
+    let resp = REDIS.get(&key).await.unwrap();
+    assert!(matches!(resp, Some(v) if v == value));
+    let resp = REDIS.exist(&key).await.unwrap();
+    assert!(resp);
+    REDIS.del(&key).await.unwrap();
+    let resp = REDIS.exist(&key).await.unwrap();
+    assert!(!resp);
+  }
 
-  // #[test_context(RedisTestContext)]
-  // #[tokio::test]
-  // async fn ttl_key_redis_test(ctx: &mut RedisTestContext) {
-  //   let key: String = Faker.fake();
-  //   let uuid = util::string::generate_random_name(None);
-  //   set(&ctx.redis, &key, &uuid, Duration::from_secs(60))
-  //     .await
-  //     .unwrap();
-  //   let actual_uuid = get(&ctx.redis, &key).await.unwrap();
-  //   assert_eq!(actual_uuid.unwrap(), uuid);
-  //   let result = ttl(&ctx.redis, &key).await.unwrap();
-  //   assert!(result > 0 && result <= 60);
-  // }
+  #[tokio::test]
+  async fn test_key_ttl_redis() {
+    let key: String = Faker.fake();
+    let ttl = 4;
+    let value = Uuid::new_v4().to_string();
+    REDIS
+      .set(&key, &value, Duration::from_secs(ttl))
+      .await
+      .unwrap();
+    let resp = REDIS.get(&key).await.unwrap();
+    assert!(matches!(resp, Some(v) if v == value));
+    let resp = REDIS.ttl(&key).await.unwrap();
+    assert!(resp <= ttl as i64 && resp > 0);
+    REDIS.del(&key).await.unwrap();
+    let resp = REDIS.ttl(&key).await.unwrap();
+    assert!(resp < 0);
+  }
 }

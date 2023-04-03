@@ -3,7 +3,7 @@ use lettre::transport::smtp::authentication::Credentials;
 use lettre::transport::smtp::client::Tls;
 use lettre::{AsyncSmtpTransport, Tokio1Executor};
 use lettre::{AsyncTransport, Message};
-use tracing::{event, Level};
+use tracing::info;
 
 use configure::email::EmailConfig;
 use error::AppResult;
@@ -33,7 +33,7 @@ impl EmailClientExt for EmailClient {
   }
   async fn send_email(&self, email: &Email) -> AppResult {
     let resp = self.send(Message::try_from(email)?).await?;
-    event!(Level::INFO, "email sent successfully {:?}", resp.code());
+    info!("sent email successfully code: {:?}", resp.code());
     Ok(())
   }
 }

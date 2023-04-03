@@ -3,14 +3,10 @@ use sqlx::{PgConnection, PgPool, Postgres, Transaction};
 use test_context::AsyncTestContext;
 use tracing::info;
 
-use client::{
-  postgres::{drop_database, migrate_database, setup_new_database, PgClient, PgPoolExt},
-  redis::{RedisClient, RedisClientExt},
-};
-use configure::{db::DatabaseConfig, redis::RedisConfig, CONFIG};
+use client::postgres::{drop_database, migrate_database, setup_new_database, PgClient, PgPoolExt};
+use configure::{db::DatabaseConfig, CONFIG};
 use error::AppError;
 
-pub mod file;
 pub mod user;
 
 #[tracing::instrument(skip(f))]
@@ -48,26 +44,6 @@ impl AsyncTestContext for TransactionTestContext {
 
   async fn teardown(self) {
     self.tx.rollback().await.unwrap();
-  }
-}
-
-pub struct RedisTestContext {
-  pub config: RedisConfig,
-  pub redis: RedisClient,
-}
-
-#[async_trait::async_trait]
-impl AsyncTestContext for RedisTestContext {
-  async fn setup() -> Self {
-    let config = CONFIG.redis.clone();
-    info!("setup redis config for the test");
-    // let database_name = util::string::generate_random_string_with_prefix("test_db");
-    let redis = RedisClient::new(&config).await.unwrap();
-    Self { config, redis }
-  }
-
-  async fn teardown(self) {
-    // TODO drop db
   }
 }
 

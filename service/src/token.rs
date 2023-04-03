@@ -185,16 +185,14 @@ fn get_refresh_token_decoding_key(config: &SecretConfig) -> anyhow::Result<&'sta
 mod tests {
   use std::time::Duration;
 
+  use client::redis::REDIS;
   use configure::CONFIG;
   use fake::{Fake, Faker};
-  use test_context::test_context;
   use uuid::Uuid;
 
   use crate::token::*;
   use entity::role::RoleUser;
-  use query::RedisTestContext;
 
-  use super::*;
   use crate::redis::*;
 
   #[test]
@@ -237,9 +235,8 @@ mod tests {
     assert!(result.is_err());
   }
 
-  #[test_context(RedisTestContext)]
   #[tokio::test]
-  async fn test_verify_token_access(ctx: &mut RedisTestContext) {
+  async fn test_verify_token_access() {
     let user_id: Uuid = Faker.fake();
     let (key, session) = generate_session(user_id);
     let claims = UserClaims::new(
@@ -249,17 +246,16 @@ mod tests {
       RoleUser::User,
     );
     let token = encode_access_token(&CONFIG.secret, &claims).unwrap();
-    set(&ctx.redis, (&key, &session)).await.unwrap();
-    let claims = verify_token(&ctx.redis, &CONFIG.secret, &token, "/api/v1/resource")
+    set(&REDIS, (&key, &session)).await.unwrap();
+    let claims = verify_token(&REDIS, &CONFIG.secret, &token, "/api/v1/resource")
       .await
       .unwrap()
       .claims;
     assert_eq!(claims.uid, user_id.to_string());
   }
 
-  #[test_context(RedisTestContext)]
   #[tokio::test]
-  async fn test_verify_refresh_token(ctx: &mut RedisTestContext) {
+  async fn test_verify_refresh_token() {
     let user_id: Uuid = Faker.fake();
     let (key, session) = generate_session(user_id);
     let claims = UserClaims::new(
@@ -269,8 +265,8 @@ mod tests {
       RoleUser::System,
     );
     let token = encode_refresh_token(&CONFIG.secret, &claims).unwrap();
-    set(&ctx.redis, (&key, &session)).await.unwrap();
-    let claims = verify_token(&ctx.redis, &CONFIG.secret, &token, REFRESH_TOKEN_ROUTE)
+    set(&REDIS, (&key, &session)).await.unwrap();
+    let claims = verify_token(&REDIS, &CONFIG.secret, &token, REFRESH_TOKEN_ROUTE)
       .await
       .unwrap()
       .claims;
