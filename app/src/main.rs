@@ -15,9 +15,9 @@ async fn main() -> AppResult<()> {
     EnvFilter::from_default_env(),
     file_appender,
   ))?;
-  info!("config tracing done");
+  info!("init tracing success");
   let config = AppConfig::read()?;
-  info!("read config file done");
+  info!("read config file success");
   let _sentry_guard = sentry::init_sentry(&config.sentry);
   info!("init sentry done");
   let server = Server::new(config.clone()).await?;
@@ -27,9 +27,9 @@ async fn main() -> AppResult<()> {
   let server = server.run().await?;
   info!("run server");
   let server_task = tokio::task::spawn(server);
-  info!("swpan server");
+  info!("swpan server task");
   let _worker_task = server::worker::spawn(state);
-  info!("spawn worker");
+  info!("spawn worker task");
   let _ = server_task.await;
   Ok(())
 }

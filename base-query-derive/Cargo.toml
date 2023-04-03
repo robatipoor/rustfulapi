@@ -9,8 +9,8 @@ proc-macro= true
 [dependencies]
 base-query = { path = "../base-query"}
 model = { path = "../model"}
-syn = "2.0.12"
+syn = "2.0.13"
 quote = "1.0.26"
-proc-macro2 = "1.0.54"
+proc-macro2 = "1.0.55"
 itertools = { workspace = true }
 sqlx = { workspace = true }

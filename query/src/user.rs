@@ -178,6 +178,7 @@ mod tests {
     assert_eq!(result.password, user.password);
     assert_eq!(result.email, user.email);
     assert_eq!(result.is_active, user.is_active);
+    assert_eq!(result.is_tfa, user.is_tfa);
   }
 
   #[test_context(UserTxRepoTestContext)]

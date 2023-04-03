@@ -19,7 +19,7 @@ pub struct AppState {
 
 impl AppState {
   pub async fn new(config: AppConfig) -> AppResult<Self> {
-    let redis = RedisClient::new(&config.redis).await?;
+    let redis = RedisClient::new(&config.redis)?;
     let email = EmailClient::new(&config.email).await?;
     let postgres = PgClient::new(&config.db).await?;
     let http = HttpClient::build(&config.http)?;

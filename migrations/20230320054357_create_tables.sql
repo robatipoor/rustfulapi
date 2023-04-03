@@ -15,17 +15,6 @@ CREATE TABLE users (
   PRIMARY KEY(id)
 );
 
--- files
-CREATE TABLE file (
-  id uuid NOT NULL,
-  user_id uuid NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  create_at timestamptz DEFAULT current_timestamp,
-  update_at timestamptz DEFAULT current_timestamp,
-  PRIMARY KEY(id),
-  CONSTRAINT fk_file_user FOREIGN KEY(user_id) REFERENCES users(id)
-);
-
 CREATE OR REPLACE FUNCTION set_update_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -39,7 +28,6 @@ END;
 $$ language 'plpgsql';
 
 CREATE TRIGGER update_user_date_time BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE set_update_at_column();
-CREATE TRIGGER update_file_date_time BEFORE UPDATE ON file FOR EACH ROW EXECUTE PROCEDURE set_update_at_column();
 
 DO $$
 DECLARE
