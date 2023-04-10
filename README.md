@@ -54,6 +54,7 @@ curl -X GET http://127.0.0.1:8080/api/v1/server/health_check
 cd ./docker/dev/ && ./up.sh
 ```
 ### Run tests
+Some of the integration tests use docker to spin up dependencies on demand (ie a postgres db) so just be aware that docker is needed to run the tests.
 ```
 ./test.sh
 ```
