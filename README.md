@@ -1,6 +1,5 @@
 # RUSTfulapi
-RESTful API template built with Rust language. It uses [PostgreSQL](https://www.postgresql.org/)
-database and [Actix](https://actix.rs/) HTTP framework.
+Reusable template for building REST Web Services in Rust. Uses [Actix-Web](https://actix.rs/) HTTP web framework and [SQLX](https://github.com/launchbadge/sqlx) Toolkit and [PostgreSQL](https://www.postgresql.org/)
 
 ![License](https://img.shields.io/github/license/robatipoor/rustfulapi)
 ![Lines of code](https://img.shields.io/tokei/lines/github/robatipoor/rustfulapi)
@@ -40,19 +39,22 @@ To use this template as your project starting point, click "Use this template" a
 * Nginx as reverse proxy and secure connections with SSL certificates [Nginx](https://www.nginx.com/)
 * Dependabot configuration
 
-### Build and run
+### Running locally
 
 ```bash
 ./run.sh
 # open swagger panel
 xdg-open http://127.0.0.1:8080/api/v1/swagger-ui/
+# manually testing your API routes with curl commands
+curl -X GET http://127.0.0.1:8080/api/v1/server/health_check
 ```
-### Run with docker image
+### Running via docker
 
 ```bash
 cd ./docker/dev/ && ./up.sh
 ```
-### Test
+### Run tests
+Some of the integration tests use docker to spin up dependencies on demand (ie a postgres db) so just be aware that docker is needed to run the tests.
 ```
 ./test.sh
 ```

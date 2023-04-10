@@ -223,10 +223,16 @@ mod tests {
     let email: Email = Faker.fake();
     let email_client = EmailClient::new(&CONFIG.email).await.unwrap();
     email_client.send_email(&email).await.unwrap();
-    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     let mailer = MailHogClient::new(&CONFIG.email);
-    let r = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
-    assert!(r.total > 0);
+    let mut resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
+    for _ in 0..10 {
+      if resp.total > 0 {
+        break;
+      }
+      tokio::time::sleep(std::time::Duration::from_nanos(1000)).await;
+      resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
+    }
+    assert!(resp.total > 0);
   }
 
   #[tokio::test]
@@ -242,10 +248,16 @@ mod tests {
     email.body = body;
     let email_client = EmailClient::new(&CONFIG.email).await.unwrap();
     email_client.send_email(&email).await.unwrap();
-    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     let mailer = MailHogClient::new(&CONFIG.email);
-    let result = mailer.get_code_from_email(&email.to).await.unwrap();
-    assert_eq!(result, code);
+    let mut resp: Option<String> = None;
+    for _ in 0..10 {
+      if let Ok(r) = mailer.get_code_from_email(&email.to).await {
+        resp = Some(r);
+        break;
+      }
+      tokio::time::sleep(std::time::Duration::from_nanos(1000)).await;
+    }
+    assert!(matches!(resp, Some(c) if c == code));
   }
 
   #[tokio::test]
@@ -255,7 +267,14 @@ mod tests {
     email_client.send_email(&email).await.unwrap();
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     let mailer = MailHogClient::new(&CONFIG.email);
-    let resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
+    let mut resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
+    for _ in 0..10 {
+      if resp.total > 0 {
+        break;
+      }
+      tokio::time::sleep(std::time::Duration::from_nanos(1000)).await;
+      resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
+    }
     assert!(resp.total > 0);
     mailer.get(resp.items[0].id.clone()).await.unwrap();
   }
@@ -265,9 +284,15 @@ mod tests {
     let email: Email = Faker.fake();
     let email_client = EmailClient::new(&CONFIG.email).await.unwrap();
     email_client.send_email(&email).await.unwrap();
-    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     let mailer = MailHogClient::new(&CONFIG.email);
-    let resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
+    let mut resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
+    for _ in 0..10 {
+      if resp.total > 0 {
+        break;
+      }
+      tokio::time::sleep(std::time::Duration::from_nanos(1000)).await;
+      resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
+    }
     assert!(resp.total > 0);
     mailer.delete(resp.items[0].id.clone()).await.unwrap();
   }
