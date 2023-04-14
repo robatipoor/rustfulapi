@@ -10,6 +10,7 @@ Reusable template for building REST Web Services in Rust. Uses [Actix-Web](https
 [![Docker Image](https://github.com/robatipoor/rustfulapi/actions/workflows/build.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/build.yml)
 [![Test Coverage](https://github.com/robatipoor/rustfulapi/actions/workflows/coverage.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/coverage.yml)
 [![Codecov](https://codecov.io/gh/robatipoor/rustfulapi/branch/main/graph/badge.svg?token=BIMUKRJPE7)](https://codecov.io/gh/robatipoor/rustfulapi)
+[![Dependency status](https://deps.rs/repo/github/robatipoor/rustfulapi/status.svg)](https://deps.rs/repo/github/robatipoor/rustfulapi)
 ![RUSTfulapi-logo](/static/images/logo.jpg)
 ### Requirements
 
@@ -59,14 +60,45 @@ Some of the integration tests use docker to spin up dependencies on demand (ie a
 ./test.sh
 ```
 ![RUSTfulapi grid](https://codecov.io/gh/robatipoor/rustfulapi/branch/main/graphs/tree.svg?token=BIMUKRJPE7)
-
-### Update sqlx data json
+### Configuration
+This project uses [config-rs](https://github.com/mehcode/config-rs) to manage configuration.
+#### Configure with toml files
 ```bash
+settings
+├── base.toml # default config file 
+├── dev.toml # development config file 
+├── prod.toml # production config file
+└── test.toml # test config file
 
+```
+#### Configure with environment variables
+```bash
+export APP_SERVER__PORT=8080
+export APP_SERVER__ADDR=127.0.0.1
+```
+#### Switching profiles
+```bash
+export APP_PROFILE=prod # switch to production profile
+```
+### Update sqlx data json 
+```bash
+# https://crates.io/crates/sqlx-cli
 cargo sqlx prepare --merged -- --all-features
 
 ```
+### Check code formatting at commit time
+```
+cp ./scripts/git ./.git/hooks/
+```
+## License
+
+Licensed under either of
+
+ * MIT license
+   ([LICENSE-MIT](LICENSE) or http://opensource.org/licenses/MIT)
+
 ## Contributing
 
 Contributors are welcome, please fork and send pull requests! If you find a bug
 or have any ideas on how to improve this project please submit an issue.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
