@@ -90,6 +90,10 @@ cargo sqlx prepare --merged -- --all-features
 ```
 cp ./scripts/git ./.git/hooks/
 ```
+### Update ERD use [planter](https://github.com/achiku/planter)
+```bash
+planter postgres://postgres_user:postgres_pass@localhost:5432/postgres_db\?sslmode=disable -o docs/schema.puml
+```
 ## License
 
 Licensed under either of
@@ -101,4 +105,5 @@ Licensed under either of
 
 Contributors are welcome, please fork and send pull requests! If you find a bug
 or have any ideas on how to improve this project please submit an issue.
+
 See [CONTRIBUTING.md](CONTRIBUTING.md).
