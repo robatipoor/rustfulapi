@@ -3,6 +3,7 @@ use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Registry};
 
 pub mod api;
+pub mod assert;
 pub mod email;
 pub mod http;
 pub mod result;

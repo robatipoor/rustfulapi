@@ -6,7 +6,7 @@ use reqwest::StatusCode;
 use service;
 use test_context::test_context;
 
-use crate::context::app::AppTestContext;
+use crate::{assert_err, assert_ok, context::app::AppTestContext};
 
 #[test_context(AppTestContext)]
 #[tokio::test]
@@ -23,8 +23,8 @@ pub async fn test_validate_token(ctx: &mut AppTestContext) {
     token: access_token.clone(),
   };
   let (status, body) = ctx.api.validate(&access_token, &req).await.unwrap();
-  assert_eq!(status, StatusCode::OK);
-  assert!(body.is_ok());
+  assert_ok!(body);
+  assert!(status.is_success(), "staus: {status}");
 }
 
 #[test_context(AppTestContext)]
@@ -41,6 +41,6 @@ pub async fn test_validate_token_with_invalid_access(ctx: &mut AppTestContext) {
     token: token.clone(),
   };
   let (status, body) = ctx.api.validate(&token, &req).await.unwrap();
+  assert_err!(body);
   assert_eq!(status, StatusCode::FORBIDDEN);
-  assert!(body.is_err());
 }

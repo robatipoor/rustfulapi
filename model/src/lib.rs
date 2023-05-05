@@ -1,7 +1,6 @@
 use fake::faker::internet::en::*;
 use fake::faker::lorem::en::*;
 use fake::Dummy;
-use fake::Fake;
 use lettre::Message;
 use serde::{Deserialize, Serialize};
 use validator::Validate;

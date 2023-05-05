@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use fake::{Dummy, Fake};
+use fake::Dummy;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
