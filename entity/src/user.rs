@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use fake::faker::internet::en::{FreeEmail, Password, Username};
-use fake::{Dummy, Fake};
+use fake::Dummy;
 use sqlx::FromRow;
 use uuid::Uuid;
 

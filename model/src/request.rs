@@ -1,6 +1,5 @@
 use fake::faker::internet::en::{Password, SafeEmail, Username};
 use fake::Dummy;
-use fake::Fake;
 use serde::{Deserialize, Serialize};
 use strum::Display;
 use utoipa::{IntoParams, ToSchema};

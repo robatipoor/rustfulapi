@@ -4,7 +4,7 @@ use actix_web::http::header::HeaderMap;
 use actix_web::{HttpMessage, HttpRequest};
 use anyhow::anyhow;
 use chrono::Utc;
-use fake::{Dummy, Fake};
+use fake::Dummy;
 use jsonwebtoken::Header;
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, TokenData, Validation};
 use once_cell::sync::Lazy;
@@ -156,7 +156,7 @@ mod tests {
       HeaderValue::from_str(&bearer).unwrap(),
     );
     let result = parse_bearer_token_from_header(&headers);
-    assert!(result.is_err());
+    assert!(result.is_err(), "result: {result:?}");
     let bearer = format!("b {token}");
     let mut headers = HeaderMap::new();
     headers.insert(
@@ -164,6 +164,6 @@ mod tests {
       HeaderValue::from_str(&bearer).unwrap(),
     );
     let result = parse_bearer_token_from_header(&headers);
-    assert!(result.is_err())
+    assert!(result.is_err(), "result: {result:?}");
   }
 }

@@ -5,7 +5,7 @@ use std::time::Duration;
 use client::redis::RedisClientExt;
 use constant::*;
 use fake::Dummy;
-use fake::Fake;
+
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use tracing::info;

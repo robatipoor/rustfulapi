@@ -17,11 +17,16 @@ impl<T> AppResponseResult<T> {
   pub fn is_err(&self) -> bool {
     matches!(*self, Self::Err(_))
   }
+}
 
-  pub fn unwrap(self) -> T {
-    match self {
-      Self::Ok(t) => t,
-      Self::Err(e) => panic!("called `AppResult::unwrap()` on an `Err` value {:?}", &e),
+#[macro_export]
+macro_rules! unwrap {
+  ($result:expr) => {
+    match $result {
+      $crate::helper::result::AppResponseResult::Ok(resp) => resp,
+      $crate::helper::result::AppResponseResult::Err(e) => {
+        panic!("called `common::unwrap!()` on an `Err` value {e:?}")
+      }
     }
-  }
+  };
 }
