@@ -246,3 +246,13 @@ pub enum TaskError {
   #[error(transparent)]
   SpawnTaskError(#[from] tokio::task::JoinError),
 }
+
+pub trait ToAppResult<T> {
+  fn to_result(self) -> AppResult<T>;
+}
+
+impl<T> ToAppResult<T> for Option<T> {
+  fn to_result(self) -> AppResult<T> {
+    self.ok_or_else(|| AppError::NotFound(format!("{} not found", std::any::type_name::<T>())))
+  }
+}

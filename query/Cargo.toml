@@ -1,28 +1,28 @@
 [package]
+edition.workspace = true
 name = "query"
 version = "0.1.0"
-edition = "2021"
 
 [dependencies]
-model = { path = "../model"}
-entity = { path = "../entity"}
-constant = { path = "../constant"}
-configure = { path = "../configure"}
-error = { path = "../error"}
-client = { path = "../client"}
-util = { path = "../util"}
-base-query = { path = "../base-query"}
-base-query-derive = { path = "../base-query-derive"}
-tokio = { workspace = true }
-sqlx = { workspace = true }
-futures = { workspace = true }
-chrono = { workspace = true }
-fake = { workspace = true }
-serde = { workspace = true }
-async-trait = { workspace = true }
-uuid = { workspace = true }
-anyhow = { workspace = true }
-test-context = { workspace = true }
-rand = { workspace = true }
-rand_core = { workspace = true }
-tracing = { workspace = true }
+anyhow = {workspace = true}
+async-trait = {workspace = true}
+base-query = {path = "../base-query"}
+base-query-derive = {path = "../base-query-derive"}
+chrono = {workspace = true}
+client = {path = "../client"}
+configure = {path = "../configure"}
+constant = {path = "../constant"}
+entity = {path = "../entity"}
+error = {path = "../error"}
+fake = {workspace = true}
+futures = {workspace = true}
+model = {path = "../model"}
+rand = {workspace = true}
+rand_core = {workspace = true}
+serde = {workspace = true}
+sqlx = {workspace = true}
+test-context = {workspace = true}
+tokio = {workspace = true}
+tracing = {workspace = true}
+util = {path = "../util"}
+uuid = {workspace = true}
