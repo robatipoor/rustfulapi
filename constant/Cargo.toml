@@ -1,8 +1,8 @@
 [package]
+edition.workspace = true
 name = "constant"
 version = "0.1.0"
-edition = "2021"
 
 [dependencies]
-once_cell = { workspace = true }
-project-root = {workspace = true }
+once_cell = {workspace = true}
+project-root = {workspace = true}

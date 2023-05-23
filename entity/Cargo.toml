@@ -1,15 +1,15 @@
 [package]
+edition.workspace = true
 name = "entity"
 version = "0.1.0"
-edition = "2021"
 
 [dependencies]
-sqlx = { workspace = true }
-strum = { workspace = true }
-chrono = { workspace = true }
-fake = { workspace = true }
-serde = { workspace = true }
-utoipa = { workspace = true }
-uuid = { workspace = true }
-rand = { workspace = true }
-rand_core = { workspace = true }
+chrono = {workspace = true}
+fake = {workspace = true}
+rand = {workspace = true}
+rand_core = {workspace = true}
+serde = {workspace = true}
+sqlx = {workspace = true}
+strum = {workspace = true}
+utoipa = {workspace = true}
+uuid = {workspace = true}

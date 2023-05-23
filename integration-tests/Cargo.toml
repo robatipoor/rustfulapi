@@ -1,46 +1,46 @@
 [package]
+edition.workspace = true
 name = "integration-tests"
 version = "0.1.0"
-edition = "2021"
 
 [dependencies]
-configure = { path = "../configure"}
-server = { path = "../server"}
-error = { path = "../error"}
-state = { path = "../state"}
-router = { path = "../router"}
-service = { path = "../service"}
-constant = { path = "../constant"}
-handler = { path = "../handler"}
-client = { path = "../client"}
-model = { path = "../model"}
-entity = { path = "../entity"}
-query = { path = "../query"}
-util = { path = "../util"}
-actix-web = { workspace = true }
-tokio = { workspace = true }
-async-trait = { workspace = true }
-futures = { workspace = true }
-anyhow = { workspace = true }
-actix-files = { workspace = true }
-fake = { workspace = true }
-wiremock = { workspace = true }
-itertools = { workspace = true }
-once_cell = { workspace = true }
-rand = { workspace = true }
-rand_core = { workspace = true }
-reqwest = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-sqlx = { workspace = true }
-tempfile = { workspace = true }
-test-context = { workspace = true }
-uuid = { workspace = true }
-scraper = { workspace = true }
-strum = { workspace = true }
-log = { workspace = true }
-log-derive = { workspace = true }
-tracing = { workspace = true }
-tracing-bunyan-formatter = { workspace = true }
-tracing-log = { workspace = true }
-tracing-subscriber = { workspace = true }
+actix-files = {workspace = true}
+actix-web = {workspace = true}
+anyhow = {workspace = true}
+async-trait = {workspace = true}
+client = {path = "../client"}
+configure = {path = "../configure"}
+constant = {path = "../constant"}
+entity = {path = "../entity"}
+error = {path = "../error"}
+fake = {workspace = true}
+futures = {workspace = true}
+handler = {path = "../handler"}
+itertools = {workspace = true}
+log = {workspace = true}
+log-derive = {workspace = true}
+model = {path = "../model"}
+once_cell = {workspace = true}
+query = {path = "../query"}
+rand = {workspace = true}
+rand_core = {workspace = true}
+reqwest = {workspace = true}
+router = {path = "../router"}
+scraper = {workspace = true}
+serde = {workspace = true}
+serde_json = {workspace = true}
+server = {path = "../server"}
+service = {path = "../service"}
+sqlx = {workspace = true}
+state = {path = "../state"}
+strum = {workspace = true}
+tempfile = {workspace = true}
+test-context = {workspace = true}
+tokio = {workspace = true}
+tracing = {workspace = true}
+tracing-bunyan-formatter = {workspace = true}
+tracing-log = {workspace = true}
+tracing-subscriber = {workspace = true}
+util = {path = "../util"}
+uuid = {workspace = true}
+wiremock = {workspace = true}

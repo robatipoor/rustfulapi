@@ -1,25 +1,25 @@
 [package]
+edition.workspace = true
 name = "handler"
 version = "0.1.0"
-edition = "2021"
 
 [dependencies]
-model = { path = "../model"}
-entity = { path = "../entity"}
-constant = { path = "../constant"}
-configure = { path = "../configure"}
-error = { path = "../error"}
-util = { path = "../util"}
-client = { path = "../client"}
-state = { path = "../state"}
-service = { path = "../service"}
-actix-web = { workspace = true }
-tokio = { workspace = true }
-actix-files = { workspace = true }
-uuid = { workspace = true }
-utoipa = { workspace = true }
-once_cell = { workspace = true }
-fake = { workspace = true }
-rand = { workspace = true }
-rand_core = { workspace = true }
-tracing = { workspace = true }
+actix-files = {workspace = true}
+actix-web = {workspace = true}
+client = {path = "../client"}
+configure = {path = "../configure"}
+constant = {path = "../constant"}
+entity = {path = "../entity"}
+error = {path = "../error"}
+fake = {workspace = true}
+model = {path = "../model"}
+once_cell = {workspace = true}
+rand = {workspace = true}
+rand_core = {workspace = true}
+service = {path = "../service"}
+state = {path = "../state"}
+tokio = {workspace = true}
+tracing = {workspace = true}
+util = {path = "../util"}
+utoipa = {workspace = true}
+uuid = {workspace = true}

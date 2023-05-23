@@ -1,16 +1,16 @@
 [package]
+edition.workspace = true
 name = "base-query-derive"
 version = "0.1.0"
-edition = "2021"
 
 [lib]
-proc-macro= true
+proc-macro = true
 
 [dependencies]
-base-query = { path = "../base-query"}
-model = { path = "../model"}
-syn = "2.0.16"
-quote = "1.0.27"
+base-query = {path = "../base-query"}
+itertools = {workspace = true}
+model = {path = "../model"}
 proc-macro2 = "1.0.58"
-itertools = { workspace = true }
-sqlx = { workspace = true }
+quote = "1.0.27"
+sqlx = {workspace = true}
+syn = "2.0.16"

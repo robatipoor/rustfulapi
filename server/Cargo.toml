@@ -1,28 +1,28 @@
 [package]
+edition.workspace = true
 name = "server"
 version = "0.1.0"
-edition = "2021"
 
 [dependencies]
-configure = { path = "../configure"}
-client = { path = "../client"}
-error = { path = "../error"}
-state = { path = "../state"}
-router = { path = "../router"}
-service = { path = "../service"}
-constant = { path = "../constant"}
-handler = { path = "../handler"}
-actix-web = { workspace = true }
-tokio = { workspace = true }
-futures = { workspace = true }
-anyhow = { workspace = true }
-tracing = { workspace = true }
-tracing-actix-web = { workspace = true }
-actix-cors = { workspace = true }
-actix-service = { workspace = true }
-actix-web-grants = { workspace = true }
-actix-files = { workspace = true }
-sentry-actix = { workspace = true }
-test-context = { workspace = true }
-async-trait = { workspace = true }
-utoipa-swagger-ui= { workspace = true }
+actix-cors = {workspace = true}
+actix-files = {workspace = true}
+actix-service = {workspace = true}
+actix-web = {workspace = true}
+actix-web-grants = {workspace = true}
+anyhow = {workspace = true}
+async-trait = {workspace = true}
+client = {path = "../client"}
+configure = {path = "../configure"}
+constant = {path = "../constant"}
+error = {path = "../error"}
+futures = {workspace = true}
+handler = {path = "../handler"}
+router = {path = "../router"}
+sentry-actix = {workspace = true}
+service = {path = "../service"}
+state = {path = "../state"}
+test-context = {workspace = true}
+tokio = {workspace = true}
+tracing = {workspace = true}
+tracing-actix-web = {workspace = true}
+utoipa-swagger-ui = {workspace = true}
