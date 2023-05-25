@@ -112,75 +112,75 @@ impl AppError {
       Self::UserNotActive(_) => "USER_NOT_ACTIVE",
       Self::InvalidInput(_) => "INVALID_INPUT",
       Self::MigrateError(err) => {
-        tracing::error!("migrate error details: {}", err);
+        tracing::error!("migrate error details: {err}");
         "MIGRATE_ERROR"
       }
       Self::IoError(err) => {
-        tracing::error!("io error details: {}", err);
+        tracing::error!("io error details: {err}");
         "IO_ERROR"
       }
       Self::ConfigError(err) => {
-        tracing::error!("config error details: {}", err);
+        tracing::error!("config error details: {err}");
         "CONFIG_ERROR"
       }
       Self::RedisError(err) => {
-        tracing::error!("redis error details: {}", err);
+        tracing::error!("redis error details: {err}");
         "REDIS_ERROR"
       }
       Self::JwtError(err) => {
-        tracing::error!("jwt error details: {}", err);
+        tracing::error!("jwt error details: {err}");
         "JWT_ERROR"
       }
       Self::UuidError(err) => {
-        tracing::error!("uuid error details: {}", err);
+        tracing::error!("uuid error details: {err}");
         "UUID_ERROR"
       }
       Self::SmtpError(err) => {
-        tracing::error!("smtp error details: {}", err);
+        tracing::error!("smtp error details: {err}");
         "SMTP_ERROR"
       }
       Self::HashError(err) => {
-        tracing::error!("hash error details: {}", err);
+        tracing::error!("hash error details: {err}");
         "HASH_ERROR"
       }
       Self::TeraError(err) => {
-        tracing::error!("tera error details: {}", err);
+        tracing::error!("tera error details: {err}");
         "TERA_ERROR"
       }
       Self::SerdeError(err) => {
-        tracing::error!("serde error details: {}", err);
+        tracing::error!("serde error details: {err}");
         "SERDE_ERROR"
       }
       Self::ParseFloatError(err) => {
-        tracing::error!("parse float number error details: {}", err);
+        tracing::error!("parse float number error details: {err}");
         "PARSE_FLOAT_ERROR"
       }
       Self::HttpClientError(err) => {
-        tracing::error!("reqwest error details: {}", err);
+        tracing::error!("reqwest error details: {err}");
         "HTTP_CLIENT_ERROR"
       }
       Self::DatabaseError(err) => {
-        tracing::error!("sqlx error details: {}", err);
+        tracing::error!("sqlx error details: {err}");
         "DATABASE_ERROR"
       }
       Self::SpawnTaskError(err) => {
-        tracing::error!("spawn task error details: {}", err);
+        tracing::error!("spawn task error details: {err}");
         "SPAWN_TASK_ERROR"
       }
       Self::LetterError(err) => {
-        tracing::error!("letter error details: {}", err);
+        tracing::error!("letter error details: {err}");
         "LETTER_ERROR"
       }
       Self::Base64Error(err) => {
-        tracing::error!("base64 error details: {}", err);
+        tracing::error!("base64 error details: {err}");
         "BASE64_ERROR"
       }
       Self::MultipartError(err) => {
-        tracing::error!("multipart error details: {}", err);
+        tracing::error!("multipart error details: {err}");
         "MULTIPART_ERROR"
       }
       Self::UnknownError(err) => {
-        tracing::error!("unknown error details: {}", err);
+        tracing::error!("unknown error details: {err}");
         "INTERNAL_SERVER_ERROR"
       }
     }
