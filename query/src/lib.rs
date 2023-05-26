@@ -25,7 +25,7 @@ where
     .await?;
   let (output, tx) = f(tx).await?;
   tx.commit().await?;
-  info!("sucess commit output: {output:?}");
+  info!("success commit output: {output:?}");
   Ok(output)
 }
 

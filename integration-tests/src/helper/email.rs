@@ -203,8 +203,6 @@ pub struct Raw {
   pub to: Vec<String>,
   #[serde(rename = "Data")]
   pub data: String,
-  #[serde(rename = "Helo")]
-  pub helo: String,
 }
 
 #[cfg(test)]

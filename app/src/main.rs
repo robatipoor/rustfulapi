@@ -27,7 +27,7 @@ async fn main() -> AppResult<()> {
   let server = server.run().await?;
   info!("run server");
   let server_task = tokio::task::spawn(server);
-  info!("swpan server task");
+  info!("spawn server task");
   let _worker_task = server::worker::spawn(state);
   info!("spawn worker task");
   let _ = server_task.await;

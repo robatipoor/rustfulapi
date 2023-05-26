@@ -1,7 +1,5 @@
 name: spell check
-on:
-  push:
-    branches: ["main","develop"]
+on: [pull_request]
 
 env:
   CARGO_TERM_COLOR: always
@@ -15,3 +13,6 @@ jobs:
     steps:
       - name: Checkout Actions Repository
         uses: actions/checkout@v3
+  
+      - name: Check spelling
+        uses: crate-ci/typos@master

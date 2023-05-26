@@ -24,7 +24,7 @@ pub async fn test_validate_token(ctx: &mut AppTestContext) {
   };
   let (status, body) = ctx.api.validate(&access_token, &req).await.unwrap();
   assert_ok!(body);
-  assert!(status.is_success(), "staus: {status}");
+  assert!(status.is_success(), "status: {status}");
 }
 
 #[test_context(AppTestContext)]
