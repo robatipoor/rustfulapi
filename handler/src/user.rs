@@ -96,7 +96,7 @@ pub async fn active(
     responses(
         (status = 200, description = "token is valid", body = [UserClaims]),
         (status = 400, description = "invalid token", body = [AppResponseError]),
-        (status = 401, description = "unautherized user", body = [AppResponseError]),
+        (status = 401, description = "unauthorized user", body = [AppResponseError]),
         (status = 500, description = "internal server error", body = [AppResponseError])
     ),
     security(("jwt" = []))
@@ -155,7 +155,7 @@ pub async fn login(
     responses(
         (status = 200, description = "success get new access token and refresh token", body = [TokenResponse]),
         (status = 400, description = "invalid data input", body = [AppResponseError]),
-        (status = 401, description = "unautherized user", body = [AppResponseError]),
+        (status = 401, description = "unauthorized user", body = [AppResponseError]),
         (status = 500, description = "internal server error", body = [AppResponseError])
     ),
     security(("jwt" = []))
@@ -184,7 +184,7 @@ pub async fn refresh_token(
     path = "/api/v1/users/logout",
     responses(
         (status = 200, description = "success logout user", body = [MessageResponse]),
-        (status = 401, description = "unautherized user", body = [AppResponseError]),
+        (status = 401, description = "unauthorized user", body = [AppResponseError]),
         (status = 500, description = "internal error", body = [AppResponseError])
     ),
     security(("jwt" = []))
@@ -270,7 +270,7 @@ pub async fn reset_password(
     path = "/api/v1/users/profile",
     responses(
         (status = 200, description = "success get user profile", body = [ProfileResponse]),
-        (status = 401, description = "unautherized user", body = [AppResponseError]),
+        (status = 401, description = "unauthorized user", body = [AppResponseError]),
         (status = 500, description = "internal server error", body = [AppResponseError])
     ),
     security(("jwt" = []))
@@ -298,7 +298,7 @@ pub async fn get_profile(state: web::Data<AppState>, req: HttpRequest) -> AppRes
     responses(
         (status = 200, description = "success update profile information", body = [MessageResponse]),
         (status = 400, description = "invalid data input", body = [AppResponseError]),
-        (status = 401, description = "unautherized user", body = [AppResponseError]),
+        (status = 401, description = "unauthorized user", body = [AppResponseError]),
         (status = 500, description = "internal server error", body = [AppResponseError])
     ),
     security(("jwt" = []))

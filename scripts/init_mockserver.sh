@@ -12,7 +12,7 @@ RESTART_CONTAINER="${RESTART_CONTAINER:=false}"
 RUNNING_CONTAINER=$(docker ps --filter 'name=mockserver' --format '{{.ID}}')
 
 function run_container() {
-  docker run -v "${SCRIPT_PATH}"/mockserver-expections:/expections \
+  docker run -v "${SCRIPT_PATH}"/mockserver-exceptions:/exceptions \
     -e MOCKSERVER_LOG_LEVEL=DEBUG \
     -e MOCKSERVER_INITIALIZATION_JSON_PATH="$CONFIG_PATH" \
     -e SERVER_PORT="${PORT}" \
@@ -30,7 +30,7 @@ if [[ -n $RUNNING_CONTAINER ]]; then
     echo >&2 "start new redis container"
     run_container
   else
-    echo >&2 "update expections"
+    echo >&2 "update exceptions"
     curl -X PUT -H "Content-Type: application/json" \
     -d @"${SCRIPT_PATH}"/mockserver-expections/init.json \
     localhost:"${PORT}"/mockserver/expectation

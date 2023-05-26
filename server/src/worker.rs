@@ -36,7 +36,7 @@ fn doing_job<T: AppTask + 'static + Send>(config: WorkerConfig, task: T) -> Join
           }
         },
         Err(e) => {
-          error!("job: {} faild error message: {e:?}", T::NAME);
+          error!("job: {} failed error message: {e:?}", T::NAME);
           tokio::time::sleep(Duration::from_secs(config.failed_task_delay)).await
         }
       }

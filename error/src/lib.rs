@@ -212,10 +212,10 @@ impl ResponseError for AppError {
   }
 }
 
-pub fn invalid_input_error(feild: &'static str, message: &'static str) -> AppError {
+pub fn invalid_input_error(field: &'static str, message: &'static str) -> AppError {
   let mut err = ValidationErrors::new();
   err.add(
-    feild,
+    field,
     validator::ValidationError {
       code: std::borrow::Cow::from("1"),
       message: Some(std::borrow::Cow::Borrowed(message)),
