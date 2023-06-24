@@ -13,4 +13,4 @@ model = {path = "../model"}
 proc-macro2 = "1.0.60"
 quote = "1.0.28"
 sqlx = {workspace = true}
-syn = "2.0.18"
+syn = "2.0.20"
