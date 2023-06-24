@@ -80,7 +80,7 @@ pub async fn active(
   match service::user::active(&state, req).await {
     Ok(_) => {
       info!("success active user");
-      Ok(HttpResponse::Ok().json(MessageResponse::new("user activeted")))
+      Ok(HttpResponse::Ok().json(MessageResponse::new("user activated")))
     }
     Err(e) => {
       info!("unsuccessfully active user: {e:?}");
@@ -230,7 +230,7 @@ pub async fn forget_password(
       Ok(HttpResponse::Created().json(resp))
     }
     Err(e) => {
-      warn!("unsuccess forget password user: {e:?}");
+      warn!("unsuccessful forget password user: {e:?}");
       Err(e)
     }
   }
@@ -258,7 +258,7 @@ pub async fn reset_password(
       Ok(HttpResponse::Ok().json(MessageResponse::new("the password has been updated")))
     }
     Err(e) => {
-      warn!("unsuccess set password user: {e:?}");
+      warn!("unsuccessful set password user: {e:?}");
       Err(e)
     }
   }
@@ -316,7 +316,7 @@ pub async fn update_profile(
       Ok(HttpResponse::Ok().json(MessageResponse::new("user profile updated")))
     }
     Err(e) => {
-      info!("unsuccess update profile user: {e:?}");
+      info!("unsuccessful update profile user: {e:?}");
       Err(e)
     }
   }
