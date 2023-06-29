@@ -1,6 +1,6 @@
 #!/bin/bash
 
-diff=$(typos)
+typos
 result=$?
 
 if [[ ${result} -ne 0 ]] ; then
