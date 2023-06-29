@@ -4,6 +4,5 @@ fmt=$?
 "$(git rev-parse --git-dir)/hooks/pre-commit-typos"
 typos=$?
 if [[ $fmt -ne 0 ]] || [[ $typos -ne 0 ]];then
-  # abort the commit
-  exit 1
+    exit 1
 fi
