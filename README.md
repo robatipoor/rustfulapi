@@ -1,5 +1,5 @@
 # RUSTfulapi
-Reusable template for building REST Web Services in Rust. Uses [Actix-Web](https://actix.rs/) HTTP web framework and [SQLX](https://github.com/launchbadge/sqlx) Toolkit and [PostgreSQL](https://www.postgresql.org/)
+Reusable template for building REST Web Services in Rust. Uses [Actix-Web](https://actix.rs/) HTTP web framework and [SQLX](https://github.com/launchbadge/sqlx) Toolkit and [PostgreSQL](https://www.postgresql.org/).
 
 ![License](https://img.shields.io/github/license/robatipoor/rustfulapi)
 ![Lines of code](https://img.shields.io/tokei/lines/github/robatipoor/rustfulapi)
@@ -54,8 +54,8 @@ curl -X GET http://127.0.0.1:8080/api/v1/server/health_check
 ```bash
 cd ./docker/dev/ && ./up.sh
 ```
-### Run tests
-Some of the integration tests use docker to spin up dependencies on demand (ie a postgres db) so just be aware that docker is needed to run the tests.
+### Running tests
+Some of the integration tests use Docker to spin up dependencies on demand (e.g., a postgres db),so please ensure Docker is installed before running the tests.
 ```
 ./test.sh
 ```
@@ -86,11 +86,11 @@ export APP_PROFILE=prod # switch to production profile
 cargo sqlx prepare --merged -- --all-features
 
 ```
-### Check code formatting at commit time
+### Check code formatting and typo at commit time
 ```
-cp ./scripts/git ./.git/hooks/
+cp ./scripts/git-hooks ./.git/hooks/
 ```
-### Update ERD use [planter](https://github.com/achiku/planter)
+### Update ERD (Entity-Relationship Diagram) use [planter](https://github.com/achiku/planter)
 ```bash
 planter postgres://postgres_user:postgres_pass@localhost:5432/postgres_db\?sslmode=disable -o docs/schema.puml
 ```
@@ -103,7 +103,7 @@ Licensed under either of
 
 ## Contributing
 
-Contributors are welcome, please fork and send pull requests! If you find a bug
+Contributors are welcome! please fork and send pull requests, If you find a bug
 or have any ideas on how to improve this project please submit an issue.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).

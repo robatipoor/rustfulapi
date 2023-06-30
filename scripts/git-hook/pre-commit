@@ -1,2 +1,0 @@
-#!/bin/bash
-"$(git rev-parse --git-dir)/hooks/pre-commit-cargo-fmt"
