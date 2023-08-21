@@ -11,8 +11,8 @@ jobs:
   check:
     name: cargo check
     runs-on: ubuntu-latest
-    # env:
-      # SQLX_OFFLINE: true
+    env:
+      SQLX_OFFLINE: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

@@ -92,9 +92,9 @@ jobs:
           sudo apt-get install libpq-dev -y
           ./scripts/init_postgres.sh
 
-      - name: Check sqlx-data.json is up-to-date
+      - name: Check .sqlx is up-to-date
         run: |
-          cargo sqlx prepare --check --merged
+          cargo sqlx prepare --check --workspace
 
       - name: Add mockserver expections
         run: |
