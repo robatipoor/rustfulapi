@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE users SET username=$1,password=$2,email=$3,role_name=$4,is_active=$5,is_tfa=$6 WHERE id = $7",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "roleuser",
+            "kind": {
+              "Enum": [
+                "Admin",
+                "User",
+                "System"
+              ]
+            }
+          }
+        },
+        "Bool",
+        "Bool",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e5273a19ea7dd740e2db0cd25a9265f0cd346e9e4eb01d76f58cf72f47648a63"
+}
