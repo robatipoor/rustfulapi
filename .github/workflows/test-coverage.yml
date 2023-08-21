@@ -35,7 +35,7 @@ jobs:
           - 8026:8026
     env:
       APP_PROFILE: test
-      SQLX_VERSION: 0.6.3
+      SQLX_VERSION: 0.7.1
       SQLX_FEATURES: postgres
     steps:
       - name: Checkout repository
