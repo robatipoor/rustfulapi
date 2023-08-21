@@ -21,7 +21,7 @@ where
   //     .execute(&mut tx)
   //     .await?;
   sqlx::query!(r#"SET statement_timeout=1000;"#)
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
   let (output, tx) = f(tx).await?;
   tx.commit().await?;

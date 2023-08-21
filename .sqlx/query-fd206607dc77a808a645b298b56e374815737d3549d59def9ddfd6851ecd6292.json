@@ -1,0 +1,84 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id,username,password,email,role_name as \"role_name:RoleUser\",is_active,\n    is_tfa,create_at,update_at FROM users ORDER BY \n            (CASE WHEN $1 = 'create_at' AND $2 = 'ASC' THEN create_at END) ASC,\n            (CASE WHEN $1 = 'create_at' AND $2 = 'DESC' THEN create_at END) DESC,\n            (CASE WHEN $1 = 'username' AND $2 = 'ASC' THEN username END) ASC,\n            (CASE WHEN $1 = 'username' AND $2 = 'DESC' THEN username END) DESC\n            LIMIT $3 OFFSET $4",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "password",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "role_name:RoleUser",
+        "type_info": {
+          "Custom": {
+            "name": "roleuser",
+            "kind": {
+              "Enum": [
+                "Admin",
+                "User",
+                "System"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "is_active",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "is_tfa",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "create_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "update_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "fd206607dc77a808a645b298b56e374815737d3549d59def9ddfd6851ecd6292"
+}

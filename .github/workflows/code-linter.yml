@@ -1,4 +1,4 @@
-name: clippy check
+name: code linter
 on:
   push:
     branches: ["main","develop"]
@@ -9,7 +9,7 @@ env:
 
 jobs:
   clippy:
-    name: Cargo clippy
+    name: cargo clippy
     runs-on: ubuntu-latest
     env:
       SQLX_OFFLINE: true

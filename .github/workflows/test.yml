@@ -9,7 +9,7 @@ env:
 
 jobs:
   test:
-    name: Cargo test
+    name: cargo test
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -38,7 +38,7 @@ jobs:
           - 8026:8026
     env:
       APP_PROFILE: test
-      SQLX_VERSION: 0.6.3
+      SQLX_VERSION: 0.7.1
       SQLX_FEATURES: postgres
     steps:
       - name: Checkout repository
@@ -92,9 +92,9 @@ jobs:
           sudo apt-get install libpq-dev -y
           ./scripts/init_postgres.sh
 
-      - name: Check sqlx-data.json is up-to-date
+      - name: Check .sqlx is up-to-date
         run: |
-          cargo sqlx prepare --check --merged
+          cargo sqlx prepare --check --workspace
 
       - name: Add mockserver expections
         run: |

@@ -8,9 +8,9 @@ pub async fn list(
 ) -> AppResult<PageResponse<GetUserResponse>> {
   query::get_transaction(pg_client, move |mut tx| async move {
     let data = query::user::find_page(page.clone())
-      .fetch_all(&mut tx)
+      .fetch_all(&mut *tx)
       .await?;
-    let total = query::user::count_all().fetch_one(&mut tx).await?;
+    let total = query::user::count_all().fetch_one(&mut *tx).await?;
     let resp = PageResponse {
       data: data
         .into_iter()

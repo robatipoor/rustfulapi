@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT EXISTS(SELECT 1 FROM users WHERE (is_active = $1 OR $1 IS NULL) \n            AND (username = $2 OR email = $3)) AS exist",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exist",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "4185139694447ad34e67bced01d9ed23206f6b4e53374905fb07a92ea863ff38"
+}
