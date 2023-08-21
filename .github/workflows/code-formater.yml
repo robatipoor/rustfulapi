@@ -1,4 +1,4 @@
-name: format check
+name: format checker
 on:
   push:
     branches: ["main","develop"]
@@ -9,7 +9,7 @@ env:
 
 jobs:
   fmt:
-    name: Cargo fmt
+    name: cargo fmt
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

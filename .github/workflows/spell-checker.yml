@@ -1,4 +1,4 @@
-name: spell check
+name: spell checker
 on: [pull_request]
 
 env:
@@ -7,9 +7,8 @@ env:
 
 jobs:
   typos:
-    name: Spell check
+    name: typos
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Actions Repository
         uses: actions/checkout@v3
