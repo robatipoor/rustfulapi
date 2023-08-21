@@ -151,7 +151,7 @@ mod tests {
       for user in users.iter_mut() {
         user.create_at = None;
         user.update_at = None;
-        save(user).execute(&mut tx_ctx.tx).await.unwrap();
+        save(user).execute(&mut *tx_ctx.tx).await.unwrap();
       }
       Self { tx_ctx, users }
     }
@@ -167,10 +167,10 @@ mod tests {
     let mut user: User = Faker.fake();
     user.create_at = None;
     user.update_at = None;
-    let result = save(&user).execute(&mut ctx.tx_ctx.tx).await.unwrap();
+    let result = save(&user).execute(&mut *ctx.tx_ctx.tx).await.unwrap();
     assert_eq!(result.rows_affected(), 1);
     let result = find_by_id(&user.id)
-      .fetch_one(&mut ctx.tx_ctx.tx)
+      .fetch_one(&mut *ctx.tx_ctx.tx)
       .await
       .unwrap();
     assert_eq!(result.id, user.id);
@@ -186,23 +186,23 @@ mod tests {
   async fn test_repo_exist_user_by_username_or_email_repo(ctx: &mut UserTxRepoTestContext) {
     let user = ctx.users.choose(&mut rand::thread_rng()).unwrap();
     let result = exist_by_username_or_email(&user.username, &user.email, Some(user.is_active))
-      .fetch_one(&mut ctx.tx_ctx.tx)
+      .fetch_one(&mut *ctx.tx_ctx.tx)
       .await
       .unwrap();
     assert!(result.exist.unwrap());
     let result = exist_by_username_or_email(&user.username, "fake_user1234@mail.com", None)
-      .fetch_one(&mut ctx.tx_ctx.tx)
+      .fetch_one(&mut *ctx.tx_ctx.tx)
       .await
       .unwrap();
     assert!(result.exist.unwrap());
     let result = exist_by_username_or_email(&user.username, &user.email, None)
-      .fetch_one(&mut ctx.tx_ctx.tx)
+      .fetch_one(&mut *ctx.tx_ctx.tx)
       .await
       .unwrap();
     assert!(result.exist.unwrap());
     let result =
       exist_by_username_or_email("fake_username", "fake_user@mail.com", Some(user.is_active))
-        .fetch_one(&mut ctx.tx_ctx.tx)
+        .fetch_one(&mut *ctx.tx_ctx.tx)
         .await
         .unwrap();
     assert!(!result.exist.unwrap());
@@ -213,7 +213,7 @@ mod tests {
   async fn test_repo_find_user_by_email(ctx: &mut UserTxRepoTestContext) {
     let user = ctx.users.choose(&mut rand::thread_rng()).unwrap();
     let result = find_by_email(&user.email, Some(user.is_active))
-      .fetch_one(&mut ctx.tx_ctx.tx)
+      .fetch_one(&mut *ctx.tx_ctx.tx)
       .await
       .unwrap();
     assert_eq!(result.username, user.username);
@@ -228,14 +228,14 @@ mod tests {
       sort_by: Some("username".to_string()),
       sort_direction: Some(Direction::ASC),
     };
-    let result1 = find_page(req).fetch_all(&mut ctx.tx_ctx.tx).await.unwrap();
+    let result1 = find_page(req).fetch_all(&mut *ctx.tx_ctx.tx).await.unwrap();
     let req = PageParamQuery {
       page_num: 2,
       page_size: 2,
       sort_by: Some("username".to_string()),
       sort_direction: Some(Direction::ASC),
     };
-    let result2 = find_page(req).fetch_all(&mut ctx.tx_ctx.tx).await.unwrap();
+    let result2 = find_page(req).fetch_all(&mut *ctx.tx_ctx.tx).await.unwrap();
     assert_eq!(result1.len(), 2);
     assert_eq!(result2.len(), 2);
   }
@@ -248,10 +248,10 @@ mod tests {
     let new_pass: String = Faker.fake();
     user.password = new_pass.clone();
     let expected_pass = new_pass.clone();
-    update(&user).execute(&mut ctx.tx_ctx.tx).await.unwrap();
+    update(&user).execute(&mut *ctx.tx_ctx.tx).await.unwrap();
     let user_id = user.id;
     let result = find_by_id(&user_id)
-      .fetch_one(&mut ctx.tx_ctx.tx)
+      .fetch_one(&mut *ctx.tx_ctx.tx)
       .await
       .unwrap();
     assert_eq!(result.password, expected_pass);

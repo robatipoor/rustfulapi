@@ -48,7 +48,7 @@ pub async fn register(
   };
   let state_clone = state.clone();
   let user_id = query::get_transaction(&state.postgres, move |mut tx| async move {
-    query::user::save(&user).execute(&mut tx).await?;
+    query::user::save(&user).execute(&mut *tx).await?;
     crate::email::send_email(
       &state_clone.email,
       &invitation,
@@ -94,7 +94,7 @@ pub async fn active(state: &AppState, req: ActiveRequest) -> AppResult {
   query::get_transaction(&state.postgres, move |mut tx| async move {
     let mut user = fetch_user_by_id(&mut tx, &value.user_id).await?;
     user.is_active = true;
-    query::user::update(&user).execute(&mut tx).await?;
+    query::user::update(&user).execute(&mut *tx).await?;
     Ok(((), tx))
   })
   .await?;
@@ -222,7 +222,7 @@ pub async fn reset_password(state: &AppState, req: SetPasswordRequest) -> AppRes
   query::get_transaction(&state.postgres, move |mut tx| async move {
     let mut user = fetch_active_user_by_id(&mut tx, &value.user_id).await?;
     user.password = password;
-    query::user::update(&user).execute(&mut tx).await?;
+    query::user::update(&user).execute(&mut *tx).await?;
     Ok(((), tx))
   })
   .await?;
@@ -266,7 +266,7 @@ pub async fn update_profile(
     if let Some(password) = req.password {
       user.password = password;
     }
-    query::user::update(&user).execute(&mut tx).await?;
+    query::user::update(&user).execute(&mut *tx).await?;
     Ok(((), tx))
   })
   .await?;
@@ -278,7 +278,7 @@ pub async fn fetch_user_by_id(
   user_id: &Uuid,
 ) -> AppResult<User> {
   let user = query::user::find_by_id(user_id)
-    .fetch_optional(tx)
+    .fetch_optional(&mut **tx)
     .await?
     .ok_or_else(|| AppError::NotFound("No User Found with This ID".to_string()))?;
   Ok(user)
