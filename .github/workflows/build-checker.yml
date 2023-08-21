@@ -1,4 +1,4 @@
-name: build check
+name: binary build check
 on:
   push:
     branches: ["main","develop"]
