@@ -5,4 +5,4 @@
 ./scripts/init_postgres.sh
 ./scripts/init_mockserver.sh
 export APP_PROFILE=dev
-cargo run
+cargo run --bin app

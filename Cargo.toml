@@ -1,25 +1,5 @@
-[workspace]
-members = [
-  "integration-tests",
-  "error",
-  "constant",
-  "entity",
-  "model",
-  "util",
-  "configure",
-  "client",
-  "state",
-  "base-query",
-  "base-query-derive",
-  "query",
-  "service",
-  "handler",
-  "router",
-  "server",
-  "app",
-]
-
-[workspace.package]
+[package]
+name = "rustfulapi"
 authors = ["Mahdi <mahdi.robatipoor@gmail.com>"]
 description = "RESTful API template built with Rust language"
 edition = "2021"
@@ -29,30 +9,34 @@ license = "MIT"
 repository = "https://github.com/robatipoor/rustfulapi"
 version = "0.1.0"
 
-[workspace.dependencies]
-actix-cors = "0.6.4"
-actix-files = "0.6.2"
-actix-multipart = "0.6.0"
-actix-service = "2.0.2"
-actix-web = "4.3.1"
-actix-web-grants = "3.0.2"
-actix-ws = "0.2.5"
-# actix-ratelimit = "*"
+[dependencies]
+axum = { git = "https://github.com/tokio-rs/axum", features = ["ws"] }
+axum-extra = { git = "https://github.com/tokio-rs/axum", package = "axum-extra", features = [
+  "typed-header",
+] }
+sea-orm = { version = "0.12.3", features = [
+  "sqlx-postgres",
+  "runtime-tokio-rustls",
+  "macros",
+] }
 anyhow = "1.0.75"
-argon2 = "0.5.1"
+argon2 = "0.5.2"
 async-trait = "0.1.73"
-base64 = "0.21.2"
-chrono = {version = "0.4.26", default-features = false, features = ["clock", "serde"]}
+base64 = "0.21.4"
+chrono = { version = "0.4.31", default-features = false, features = [
+  "clock",
+  "serde",
+] }
 config = "0.13.3"
 derive_more = "0.99.17"
-fake = {version = "2.7.0", features = ["derive", "uuid", "chrono"]}
+fake = { version = "2.8.0", features = ["derive", "uuid", "chrono"] }
 futures = "0.3.28"
 hex = "0.4.3"
 hex-literal = "0.4.1"
 hmac = "0.12.1"
 itertools = "0.11.0"
 jsonwebtoken = "8.3.0"
-lettre = {version = "0.10.4", features = ["tokio1-native-tls", "builder"]}
+lettre = { version = "0.10.4", features = ["tokio1-native-tls", "builder"] }
 log = "0.4.20"
 log-derive = "0.4.1"
 mockall = "0.11.4"
@@ -60,46 +44,37 @@ once_cell = "1.18.0"
 openssl = "0.10.56"
 project-root = "0.2.2"
 rand = "0.8.5"
-rand_core = {version = "0.6.4", features = ["std"]}
-redis = {version = "0.23.2", features = ["tokio-comp"]}
-reqwest = {version = "0.11.18", features = ["json", "multipart", "stream"]}
+rand_core = { version = "0.6.4", features = ["std"] }
+redis = { version = "0.23.2", features = ["tokio-comp"] }
+reqwest = { version = "0.11.18", features = ["json", "multipart", "stream"] }
 sanitize-filename = "0.5.0"
 scraper = "0.17.1"
 sentry = "0.31.5"
 sentry-actix = "0.31.5"
-serde = {version = "1.0.185", features = ["derive"]}
+serde = { version = "1.0.185", features = ["derive"] }
 serde_json = "1.0.105"
 sha2 = "0.10.7"
-sqlx = {version = "0.7.1", default-features = false, features = [
-  "postgres",
-  "runtime-tokio-rustls",
-  "chrono",
-  "uuid",
-  "macros",
-  "migrate",
-]}
-strum = {version = "0.25.0", features = ["derive"]}
+strum = { version = "0.25.0", features = ["derive"] }
 tempfile = "3.8.0"
 tera = "1.19.0"
 test-context = "0.1.4"
 thiserror = "1.0.47"
-tokio = {version = "1.32.0", features = ["full"]}
+tokio = { version = "1.32.0", features = ["full"] }
 tracing = "0.1.37"
 tracing-actix-web = "0.7.6"
 tracing-appender = "0.2.2"
 tracing-bunyan-formatter = "0.3.9"
 tracing-log = "0.1.3"
-tracing-subscriber = {version = "0.3.17", features = [
+tracing-subscriber = { version = "0.3.17", features = [
   "registry",
   "env-filter",
-]}
-url = "2.4.0"
-utoipa = {version = "3.5.0", features = ["actix_extras", "uuid", "chrono"]}
-utoipa-swagger-ui = {version = "3.1.5", features = ["actix-web"]}
-uuid = {version = "1.4.1", features = ["v4", "serde"]}
-validator = {version = "0.16.1", features = ["derive"]}
+] }
+url = "2.4.1"
+utoipa = { version = "3.5.0", features = ["axum_extras", "uuid", "chrono"] }
+utoipa-swagger-ui = { version = "3.1.5", features = ["axum"] }
+uuid = { version = "1.4.1", features = ["v4", "serde"] }
+validator = { version = "0.16.1", features = ["derive"] }
+tokio-tungstenite = "0.20.0"
 wiremock = "0.5.19"
-# phf = {version= "0.11.1",features = ["macros"]}
-# secrecy = "*"
-# listenfd = "*"
-# systemfd = "*"
+garde = "0.15.0"
+regex = "1.9.5"
