@@ -1,0 +1,5 @@
+.env
+.dockerignore
+Dockerfile
+target/
+scripts/
