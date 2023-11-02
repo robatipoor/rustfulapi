@@ -18,6 +18,7 @@ pub struct Model {
   #[dummy(faker = "FreeEmail()")]
   #[sea_orm(column_type = "Text", unique, indexed)]
   pub email: String,
+  pub role_id: Uuid,
   pub is_active: bool,
   pub is_tfa: bool,
   pub create_at: Option<DateTime<Utc>>,
@@ -26,7 +27,11 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-  #[sea_orm(has_many = "super::role::Entity")]
+  #[sea_orm(
+    belongs_to = "super::role::Entity",
+    from = "Column::RoleId",
+    to = "super::role::Column::Id"
+  )]
   Role,
 }
 

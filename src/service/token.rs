@@ -9,6 +9,7 @@ use crate::client::redis::RedisClient;
 use crate::configure::secret::SecretConfig;
 use crate::constant::*;
 use crate::dto::response::TokenResponse;
+use crate::entity::role::RoleUser;
 use crate::error::{AppError, AppResult};
 use crate::util::{self, claim::UserClaims};
 
@@ -89,37 +90,24 @@ pub async fn generate_token_response(
   redis: &RedisClient,
   config: &SecretConfig,
   expire_secs: u64,
-  user: &crate::entity::user::Model,
+  user_id: Uuid,
+  role: RoleUser,
 ) -> AppResult<(UserClaims, TokenResponse)> {
-  let (key, value) = generate_session(user.id);
+  let (key, value) = generate_session(user_id);
   crate::service::redis::set(redis, (&key, &value)).await?;
-  let claims = UserClaims::new(
-    Duration::from_secs(expire_secs),
-    &user.id,
-    &value.id,
-    user.role_name,
-  );
-  let token = generate_tokens(config, user, &value.id)?;
+  let claims = UserClaims::new(Duration::from_secs(expire_secs), user_id, value.id, role);
+  let token = generate_tokens(config, user_id, role, value.id)?;
   Ok((claims, token))
 }
 
 pub fn generate_tokens(
   config: &SecretConfig,
-  user: &User,
-  session_id: &Uuid,
+  user_id: Uuid,
+  role: RoleUser,
+  session_id: Uuid,
 ) -> AppResult<TokenResponse> {
-  let claims_access = UserClaims::new(
-    EXPIRE_BEARER_TOKEN_SECS,
-    &user.id,
-    session_id,
-    user.role_name,
-  );
-  let claims_refresh = UserClaims::new(
-    EXPIRE_REFRESH_TOKEN_SECS,
-    &user.id,
-    session_id,
-    user.role_name,
-  );
+  let claims_access = UserClaims::new(EXPIRE_BEARER_TOKEN_SECS, user_id, session_id, role);
+  let claims_refresh = UserClaims::new(EXPIRE_REFRESH_TOKEN_SECS, user_id, session_id, role);
   let access_token = encode_access_token(config, &claims_access)?;
   let refresh_token = encode_refresh_token(config, &claims_refresh)?;
   Ok(TokenResponse::new(
@@ -186,12 +174,7 @@ mod tests {
   fn test_generate_access_token() {
     let user_id: Uuid = Faker.fake();
     let session_id: Uuid = Faker.fake();
-    let claims = UserClaims::new(
-      Duration::from_secs(10),
-      &user_id,
-      &session_id,
-      RoleUser::User,
-    );
+    let claims = UserClaims::new(Duration::from_secs(10), user_id, session_id, RoleUser::User);
     let token = encode_access_token(&CONFIG.secret, &claims).unwrap();
     assert!(!token.is_empty())
   }
@@ -202,8 +185,8 @@ mod tests {
     let session_id: Uuid = Faker.fake();
     let claims = UserClaims::new(
       Duration::from_secs(100),
-      &user_id,
-      &session_id,
+      user_id,
+      session_id,
       RoleUser::User,
     );
     let token = encode_access_token(&CONFIG.secret, &claims).unwrap();
@@ -226,19 +209,14 @@ mod tests {
   async fn test_verify_token_access() {
     let user_id: Uuid = Faker.fake();
     let (key, session) = generate_session(user_id);
-    let claims = UserClaims::new(
-      Duration::from_secs(10),
-      &user_id,
-      &session.id,
-      RoleUser::User,
-    );
+    let claims = UserClaims::new(Duration::from_secs(10), user_id, session.id, RoleUser::User);
     let token = encode_access_token(&CONFIG.secret, &claims).unwrap();
     set(&REDIS_CLIENT, (&key, &session)).await.unwrap();
     let claims = verify_token(&REDIS_CLIENT, &CONFIG.secret, &token, "/api/v1/resource")
       .await
       .unwrap()
       .claims;
-    assert_eq!(claims.uid, user_id.to_string());
+    assert_eq!(claims.uid, user_id);
   }
 
   #[tokio::test]
@@ -247,8 +225,8 @@ mod tests {
     let (key, session) = generate_session(user_id);
     let claims = UserClaims::new(
       Duration::from_secs(10),
-      &user_id,
-      &session.id,
+      user_id,
+      session.id,
       RoleUser::System,
     );
     let token = encode_refresh_token(&CONFIG.secret, &claims).unwrap();
@@ -257,6 +235,6 @@ mod tests {
       .await
       .unwrap()
       .claims;
-    assert_eq!(claims.uid, user_id.to_string());
+    assert_eq!(claims.uid, user_id);
   }
 }

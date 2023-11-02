@@ -35,21 +35,21 @@ pub struct UserClaims {
   // expiration
   pub exp: i64,
   // user id
-  pub uid: String,
+  pub uid: Uuid,
   // session id
-  pub sid: String,
+  pub sid: Uuid,
   // role user
   pub rol: RoleUser,
 }
 
 impl UserClaims {
-  pub fn new(duration: Duration, user_id: &Uuid, session_id: &Uuid, role: RoleUser) -> Self {
+  pub fn new(duration: Duration, user_id: Uuid, session_id: Uuid, role: RoleUser) -> Self {
     let now = Utc::now().timestamp();
     Self {
       iat: now,
       exp: now + (duration.as_secs() as i64),
-      uid: user_id.to_string(),
-      sid: session_id.to_string(),
+      uid: user_id,
+      sid: session_id,
       rol: role,
     }
   }
@@ -104,8 +104,8 @@ impl UserClaimsRequest for axum::extract::Request {
     self
       .extensions()
       .get::<UserClaims>()
-      .map(|u| Uuid::parse_str(&u.uid).map_err(|e| e.into()))
-      .ok_or_else(|| AppError::UnauthorizedError("User Must Login".to_string()))?
+      .map(|u| u.uid)
+      .ok_or_else(|| AppError::UnauthorizedError("User Must Login".to_string()))
   }
 
   fn get_user_claims(&self) -> AppResult<UserClaims> {
@@ -133,8 +133,8 @@ mod tests {
     let pair_key = RsaPairKey::new(2048).unwrap();
     let claims = UserClaims::new(
       Duration::from_secs(100),
-      &user_id,
-      &session_id,
+      user_id,
+      session_id,
       RoleUser::User,
     );
     // println!(
