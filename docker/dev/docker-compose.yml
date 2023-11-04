@@ -1,0 +1,75 @@
+version: "3.9"
+services:
+  application:
+    image: "ghcr.io/robatipoor/rustfulapi:latest"
+    container_name: application
+    ports:
+      - "${APP_SERVER__PORT}:${APP_SERVER__PORT}"
+    networks:
+      - server-side
+    depends_on:
+      - postgres-db
+      - redis-db
+    env_file: ./.env
+    volumes:
+      - app_data:/log
+  postgres-db:
+    image: "postgres:latest"
+    container_name: postgres-database
+    restart: always
+    networks:
+      - server-side
+    environment:
+      - POSTGRES_USER=${APP_DB__USERNAME}
+      - POSTGRES_PASSWORD=${APP_DB__PASSWORD}
+      - POSTGRES_DB=${APP_DB__DATABASE_NAME}
+      - POSTGRES_HOST=${APP_DB__HOST}
+    ports:
+      - "${APP_DB__PORT}:${APP_DB__PORT}"
+  redis-db:
+    image: "redis:latest"
+    container_name: redis-database
+    restart: always
+    networks:
+      - server-side
+    environment:
+      - REDIS_USER=${APP_REDIS__USERNAME}
+      - REDIS_PASSWORD=${APP_REDIS__PASSWORD}
+      - REDIS_DB=${APP_REDIS__DATABASE_NAME}
+    ports:
+      - "${APP_REDIS__PORT}:${APP_REDIS__PORT}"
+  mailhog:
+    image: "mailhog/mailhog"
+    networks:
+      - server-side
+    restart: always
+    ports:
+      - "${APP_EMAIL__PORT}:${APP_EMAIL__PORT}"
+      - "8025:8025"
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    networks:
+      - server-side
+    ports:
+      - "5020:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: rustfulapi@email.com
+      PGADMIN_DEFAULT_PASSWORD: rustful-user
+  mockserver:
+    image: mockserver/mockserver:latest
+    networks:
+      - server-side
+    environment:
+      MOCKSERVER_LOG_LEVEL: DEBUG
+      MOCKSERVER_SERVER_PORT: 8026
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/init.json
+    volumes:
+      - ../../scripts/mockserver-expections:/config
+networks:
+  server-side: {}
+
+volumes:
+  app_data:
+    external: false

@@ -1,0 +1,77 @@
+version: "3.9"
+services:
+  application:
+    image: "ghcr.io/robatipoor/rustfulapi:latest"
+    container_name: application
+    networks:
+      - server-side
+    depends_on:
+      - postgres-db
+      - redis-db
+    env_file: ./.env
+    volumes:
+      - app_data:/logs
+  postgres-db:
+    image: "postgres:latest"
+    container_name: postgres-database
+    restart: always
+    networks:
+      - server-side
+    environment:
+      - POSTGRES_USER=${APP_DB__USERNAME}
+      - POSTGRES_PASSWORD=${APP_DB__PASSWORD}
+      - POSTGRES_DB=${APP_DB__DATABASE_NAME}
+      - POSTGRES_HOST=${APP_DB__HOST}
+    ports:
+      - "${APP_DB__PORT}:${APP_DB__PORT}"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+  redis-db:
+    image: "redis:latest"
+    container_name: redis-database
+    restart: "no"
+    networks:
+      - server-side
+    environment:
+      - REDIS_USER=${APP_REDIS__USERNAME}
+      - REDIS_PASSWORD=${APP_REDIS__PASSWORD}
+      - REDIS_DB=${APP_REDIS__DATABASE_NAME}
+    ports:
+      - "${APP_REDIS__PORT}:${APP_REDIS__PORT}"
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    networks:
+      - server-side
+    ports:
+      - "5020:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: rustfulapi@email.com
+      PGADMIN_DEFAULT_PASSWORD: rustfulapi-user
+    volumes:
+      - pg_admin_data:/var/lib/pgadmin
+  webserver:
+    image: nginx:latest
+    container_name: nginx-service
+    restart: always
+    networks:
+      - server-side
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+
+networks:
+  server-side: {}
+
+volumes:
+  app_data:
+    external: true
+  pg_data:
+    external: true
+  pg_admin_data:
+    external: true
