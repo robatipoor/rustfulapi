@@ -1,0 +1,6 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./migration/Cargo.toml",
+        "Cargo.toml"
+    ]
+}

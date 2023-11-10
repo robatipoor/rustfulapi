@@ -17,11 +17,12 @@ DB_NAME="${DATABASE_NAME:=database_name}"
 DB_PORT="${DATABASE_PORT:=5432}"
 DB_HOST="${DATABASE_HOST:=localhost}"
 RESTART_CONTAINER="${RESTART_CONTAINER:=false}"
-RUNNING_CONTAINER=$(docker ps --filter "name=$DATABASE" --format '{{.ID}}')
-CONTAINER_NAME="${DATABASE}_$(date '+%Y-%m-%d_%H-%M-%S')"
+RUNNING_CONTAINER=$(docker ps --filter "name=$DATABASE" --format '{{.Names}}')
+CONTAINER_NAME="${RUNNING_CONTAINER:-${DATABASE}_container}"
 
 function run_container() {
   docker run \
+    --rm \
     -e POSTGRES_USER="${DB_USER}" \
     -e POSTGRES_PASSWORD="${DB_PASSWORD}" \
     -e POSTGRES_DB="${DB_NAME}" \
@@ -33,7 +34,7 @@ function run_container() {
 }
 
 if [[ -n $RUNNING_CONTAINER ]]; then
-  echo >&2 "there is a database container $CONTAINER_NAME already running"
+  echo >&2 "there is a database container $RUNNING_CONTAINER already running"
   if ${RESTART_CONTAINER}; then
     echo >&2 "kill database container"
     docker kill "${RUNNING_CONTAINER}"
@@ -58,5 +59,5 @@ done
 echo >&2 "Database is up and running on port ${DB_PORT} - running migrations now!"
 
 export DATABASE_URL=${DATABASE}://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
-# sqlx database create
-# sea-orm-cli migrate refresh
+
+sea-orm-cli migrate refresh

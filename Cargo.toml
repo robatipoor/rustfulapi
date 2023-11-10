@@ -9,6 +9,10 @@ license = "MIT"
 repository = "https://github.com/robatipoor/rustfulapi"
 version = "0.1.0"
 
+[[bin]]
+name = "app"
+path = "./src/bin/app.rs"
+
 [dependencies]
 axum = { git = "https://github.com/tokio-rs/axum", features = ["ws"] }
 axum-extra = { git = "https://github.com/tokio-rs/axum", package = "axum-extra", features = [
