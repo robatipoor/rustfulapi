@@ -2,7 +2,7 @@ use axum::extract::{Query, Request, State};
 use axum::response::Response;
 use axum::Json;
 use garde::Validate;
-use tracing::{info, warn};
+use tracing::{info};
 
 use crate::dto::*;
 use crate::error::AppResult;
@@ -21,7 +21,7 @@ use crate::util::claim::{UserClaims, UserClaimsRequest};
     )
 )]
 pub async fn register(
-  State(state): State<AppState>,
+  State(_state): State<AppState>,
   Json(req): Json<RegisterRequest>,
 ) -> AppResult<Json<RegisterResponse>> {
   info!("register user with request: {req:?}");
@@ -50,7 +50,7 @@ pub async fn register(
     )
 )]
 pub async fn invitation(
-  State(state): State<AppState>,
+  State(_state): State<AppState>,
   Json(req): Json<InvitationRequest>,
 ) -> AppResult<Json<InvitationResponse>> {
   info!("invitation request user: {req:?}");
@@ -78,7 +78,7 @@ pub async fn invitation(
     )
 )]
 pub async fn active(
-  State(state): State<AppState>,
+  State(_state): State<AppState>,
   Json(req): Json<ActiveRequest>,
 ) -> AppResult<Response> {
   info!("active user with token: {req:?}");
@@ -109,8 +109,8 @@ pub async fn active(
     security(("jwt" = []))
 )]
 pub async fn validate(
-  State(state): State<AppState>,
-  Json(body): Json<ValidateRequest>,
+  State(_state): State<AppState>,
+  Json(_body): Json<ValidateRequest>,
   req: Request,
 ) -> AppResult<Response> {
   let user_id = req.get_user_id()?;
@@ -140,7 +140,7 @@ pub async fn validate(
     )
 )]
 pub async fn login(
-  State(state): State<AppState>,
+  State(_state): State<AppState>,
   Json(req): Json<LoginRequest>,
 ) -> AppResult<Response> {
   info!("login user with request req: {req:?}");
@@ -169,7 +169,7 @@ pub async fn login(
     ),
     security(("jwt" = []))
 )]
-pub async fn refresh_token(State(state): State<AppState>, user: UserClaims) -> AppResult<Response> {
+pub async fn refresh_token(State(_state): State<AppState>, user: UserClaims) -> AppResult<Response> {
   info!("refresh token with claims: {user:?}");
   // match service::user::refresh_token(&state, &claims).await {
   //   Ok(resp) => {
@@ -195,7 +195,7 @@ pub async fn refresh_token(State(state): State<AppState>, user: UserClaims) -> A
     ),
     security(("jwt" = []))
 )]
-pub async fn logout(State(state): State<AppState>, user: UserClaims) -> AppResult<Response> {
+pub async fn logout(State(_state): State<AppState>, user: UserClaims) -> AppResult<Response> {
   info!("logout user_id: {}", user.uid);
   // match service::user::logout(&state, user_id).await {
   //   Ok(_) => {
@@ -226,7 +226,7 @@ pub async fn logout(State(state): State<AppState>, user: UserClaims) -> AppResul
     )
 )]
 pub async fn forget_password(
-  State(state): State<AppState>,
+  State(_state): State<AppState>,
   query: Query<ForgetPasswordParamQuery>,
 ) -> AppResult<Response> {
   info!("forget password user query: {:?}", query.0);
@@ -254,7 +254,7 @@ pub async fn forget_password(
     )
 )]
 pub async fn reset_password(
-  State(state): State<AppState>,
+  State(_state): State<AppState>,
   Json(body): Json<SetPasswordRequest>,
 ) -> AppResult<Response> {
   info!("set password user request: {body:?}");
@@ -282,7 +282,7 @@ pub async fn reset_password(
     ),
     security(("jwt" = []))
 )]
-pub async fn get_profile(State(state): State<AppState>, user: UserClaims) -> AppResult<Response> {
+pub async fn get_profile(State(_state): State<AppState>, user: UserClaims) -> AppResult<Response> {
   info!("get profile user id: {}", user.uid);
   // match service::user::get_profile(&state, &user_id).await {
   //   Ok(resp) => {
@@ -311,9 +311,9 @@ pub async fn get_profile(State(state): State<AppState>, user: UserClaims) -> App
     security(("jwt" = []))
 )]
 pub async fn update_profile(
-  State(state): State<AppState>,
+  State(_state): State<AppState>,
   user: UserClaims,
-  Json(body): Json<UpdateProfileRequest>,
+  Json(_body): Json<UpdateProfileRequest>,
 ) -> AppResult<Response> {
   info!("update profile user_id: {}", user.uid);
   // match service::user::update_profile(&state, user_id, body).await {

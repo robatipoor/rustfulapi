@@ -2,14 +2,6 @@
 
 set -euxo pipefail
 
-if ! [ -x "$(command -v sea-orm-cli)" ]; then
-  echo >&2 "Error: sea-orm-cli is not installed."
-  echo >&2 "Use:"
-  echo >&2 "    cargo install sea-orm-cli"
-  echo >&2 "to install it."
-  exit 1
-fi
-
 DATABASE="postgres"
 DB_USER="${DATABASE_USER:=username}"
 DB_PASSWORD="${DATABASE_PASSWORD:=password}"
@@ -38,6 +30,7 @@ if [[ -n $RUNNING_CONTAINER ]]; then
   if ${RESTART_CONTAINER}; then
     echo >&2 "kill database container"
     docker kill "${RUNNING_CONTAINER}"
+    sleep 2
     echo >&2 "start new database container"
     run_container
   else
@@ -58,6 +51,5 @@ done
 
 echo >&2 "Database is up and running on port ${DB_PORT} - running migrations now!"
 
-export DATABASE_URL=${DATABASE}://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
-
-sea-orm-cli migrate refresh
+DATABASE_URL=${DATABASE}://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
+cargo run --manifest-path ./migration/Cargo.toml -- refresh -u $DATABASE_URL

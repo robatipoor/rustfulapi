@@ -1,6 +1,4 @@
-use sea_orm_migration::prelude::*;
-
-use super::m20220101_000002_seed_role_table::Role;
+use sea_orm_migration::{prelude::*, sea_orm::TransactionTrait};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -12,28 +10,42 @@ impl MigrationTrait for Migration {
     let tx = db.begin().await?;
     tx.execute_unprepared(
       r#"CREATE TABLE users (
-            id uuid NOT NULL PRIMARY KEY,
+            id UUID NOT NULL PRIMARY KEY,
             username VARCHAR(255) NOT NULL UNIQUE,
             password VARCHAR(255) NOT NULL,
             email VARCHAR(255) NOT NULL UNIQUE,
-            role_name RoleUser NOT NULL,
+            role_name ROLE_USER NOT NULL,
             is_active BOOLEAN NOT NULL,
             is_tfa BOOLEAN NOT NULL,
-            create_at timestamptz DEFAULT current_timestamp,
-            update_at timestamptz DEFAULT current_timestamp
+            create_at TIMESTAMPTZ DEFAULT current_timestamp,
+            update_at TIMESTAMPTZ DEFAULT current_timestamp
         )"#,
     )
     .await?;
-    tx.commit().await?;
     tx.execute_unprepared(
-      r#"INSERT INTO users (id,username,password,email,role_name,is_active,is_tfa) VALUES (gen_random_uuid(),
-      'test-user','$argon2id$v=19$m=4096,t=3,p=1$xj+gEfx2tF584ugWtZuZpw$t8MR3ns9T5n+0TsmUS3TGVQRmjRaoQVMyuBvvry1SbU',
-      'test-user@email.com','User',true,false)"#
-    );
+      r#"INSERT INTO users (id, username, password, email, role_name, is_active, is_tfa, create_at, update_at) VALUES
+   (
+      gen_random_uuid(),
+      'test-user',
+      '$argon2id$v=19$m=4096,t=3,p=1$xj+gEfx2tF584ugWtZuZpw$t8MR3ns9T5n+0TsmUS3TGVQRmjRaoQVMyuBvvry1SbU',
+      'test-user@email.com',
+      'User',
+      true,
+      false,
+      NOW(),
+      NOW()
+   )
+   "#
+    ).await?;
+    tx.commit().await?;
     Ok(())
   }
 
   async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-    manager.drop_table("DROP TABLE users").await
+    manager
+      .get_connection()
+      .execute_unprepared("DROP TABLE IF EXISTS users")
+      .await?;
+    Ok(())
   }
 }

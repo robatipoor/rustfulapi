@@ -1,9 +1,9 @@
 use crate::dto::MessageResponse;
-use crate::error::{AppError, AppResult};
+use crate::error::{AppResult};
 use crate::server::state::AppState;
 use axum::extract::State;
 use axum::Json;
-use tracing::error;
+
 
 // check server health check
 #[utoipa::path(
@@ -27,7 +27,7 @@ pub async fn health_check() -> AppResult<Json<MessageResponse>> {
     )
     // security(("jwt" = []))
 )]
-pub async fn server_state(State(state): State<AppState>) -> AppResult<Json<MessageResponse>> {
+pub async fn server_state(State(_state): State<AppState>) -> AppResult<Json<MessageResponse>> {
   // let postgres = state.postgres.version().await;
   // if let Err(e) = postgres.as_ref() {
   //   error!("postgres connection failed error: {e}");
@@ -51,7 +51,7 @@ pub async fn server_state(State(state): State<AppState>) -> AppResult<Json<Messa
 
 #[cfg(test)]
 pub mod tests {
-  use super::*;
+  
 
   #[tokio::test]
   async fn health_check_handler_test() {

@@ -4,6 +4,8 @@ use fake::Dummy;
 use sea_orm::entity::prelude::*;
 use uuid::Uuid;
 
+use super::role::RoleUser;
+
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Dummy, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
 pub struct Model {
@@ -18,7 +20,7 @@ pub struct Model {
   #[dummy(faker = "FreeEmail()")]
   #[sea_orm(column_type = "Text", unique, indexed)]
   pub email: String,
-  pub role_id: Uuid,
+  pub role: RoleUser,
   pub is_active: bool,
   pub is_tfa: bool,
   pub create_at: Option<DateTime<Utc>>,
@@ -26,20 +28,7 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-  #[sea_orm(
-    belongs_to = "super::role::Entity",
-    from = "Column::RoleId",
-    to = "super::role::Column::Id"
-  )]
-  Role,
-}
-
-impl Related<super::role::Entity> for Entity {
-  fn to() -> RelationDef {
-    Relation::Role.def()
-  }
-}
+pub enum Relation {}
 
 #[async_trait::async_trait]
 impl ActiveModelBehavior for ActiveModel {}

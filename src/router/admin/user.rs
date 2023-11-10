@@ -1,5 +1,5 @@
-use crate::entity::role::RoleUser;
-use axum::routing::{get, post, put};
+
+use axum::routing::{post};
 
 use crate::server::state::AppState;
 use crate::handler::user;
