@@ -1,7 +1,5 @@
-use crate::client::database::DatabaseClient;
 use tracing::info;
 use uuid::Uuid;
-use validator::Validate;
 
 use crate::service::redis::*;
 use crate::service::session;

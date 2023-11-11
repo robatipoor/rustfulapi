@@ -33,15 +33,45 @@ pub enum Relation {}
 #[async_trait::async_trait]
 impl ActiveModelBehavior for ActiveModel {}
 
-
 #[cfg(test)]
 pub mod tests {
 
+  use fake::{Fake, Faker};
+  use sea_orm::Set;
+  use test_context::test_context;
+
+  use crate::entity::TransactionTestContext;
+
   use super::*;
 
+  #[test_context(TransactionTestContext)]
   #[tokio::test]
-  async fn test_crud_user(){
-
+  async fn test_insert_and_find_user_entity(ctx: &mut TransactionTestContext) {
+    let id = Uuid::new_v4();
+    let username: String = Faker.fake();
+    let password: String = Faker.fake();
+    let email: String = Faker.fake();
+    ActiveModel {
+      id: Set(id),
+      username: Set(username.clone()),
+      password: Set(password.clone()),
+      email: Set(email.clone()),
+      role: Set(fake::Faker.fake()),
+      is_active: Set(fake::Faker.fake()),
+      is_tfa: Set(fake::Faker.fake()),
+      create_at: Set(fake::Faker.fake()),
+      update_at: Set(fake::Faker.fake()),
+    }
+    .insert(&**ctx)
+    .await
+    .unwrap();
+    let user = super::Entity::find_by_id(id)
+      .one(&**ctx)
+      .await
+      .unwrap()
+      .unwrap();
+    assert_eq!(user.password, password);
+    assert_eq!(user.username, username);
+    assert_eq!(user.email, email);
   }
-
 }

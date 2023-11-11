@@ -1,10 +1,9 @@
 use fake::faker::internet::en::SafeEmail;
 use fake::faker::lorem::en::{Paragraph, Sentence};
 use fake::Dummy;
+use garde::Validate;
 use lettre::Message;
 use serde::{Deserialize, Serialize};
-use validator::Validate;
-
 pub mod record;
 pub mod request;
 pub mod response;
@@ -15,15 +14,15 @@ pub use response::*;
 #[derive(Debug, Deserialize, Serialize, Dummy, Validate)]
 pub struct Email {
   #[dummy(faker = "SafeEmail()")]
-  #[validate(email)]
+  #[garde(email)]
   pub from: String,
   #[dummy(faker = "SafeEmail()")]
-  #[validate(email)]
+  #[garde(email)]
   pub to: String,
-  #[validate(length(min = 1))]
+  #[garde(length(min = 1))]
   #[dummy(faker = "Sentence(5..10)")]
   pub subject: String,
-  #[validate(length(min = 1))]
+  #[garde(length(min = 1))]
   #[dummy(faker = "Paragraph(5..10)")]
   pub body: String,
 }

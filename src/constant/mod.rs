@@ -1,6 +1,5 @@
 use jsonwebtoken::{DecodingKey, EncodingKey};
 use once_cell::sync::Lazy;
-use sea_orm::Database;
 use std::{path::PathBuf, time::Duration};
 
 use crate::{
@@ -63,10 +62,9 @@ pub static DECODE_KEY: Lazy<DecodingKey> = Lazy::new(|| {
   let key = CONFIG.secret.read_public_refresh_key().unwrap();
   DecodingKey::from_rsa_pem(key.as_bytes()).unwrap()
 });
-
-static DATABASE: tokio::sync::OnceCell<DatabaseClient> = tokio::sync::OnceCell::const_new();
-pub async fn get_database() -> AppResult<&'static DatabaseClient> {
-  DATABASE
-    .get_or_try_init(|| async { DatabaseClient::build_from_config(&CONFIG).await })
+#[allow(non_snake_case)]
+pub async fn DATABASE() -> AppResult<&'static DatabaseClient> {
+  static DB: tokio::sync::OnceCell<DatabaseClient> = tokio::sync::OnceCell::const_new();
+  DB.get_or_try_init(|| async { DatabaseClient::build_from_config(&CONFIG).await })
     .await
 }

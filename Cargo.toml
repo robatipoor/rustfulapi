@@ -77,7 +77,6 @@ url = "2.4.1"
 utoipa = { version = "4.0.0", features = ["axum_extras", "uuid", "chrono"] }
 utoipa-swagger-ui = { version = "4.0.0", features = ["axum"] }
 uuid = { version = "1.4.1", features = ["v4", "serde"] }
-validator = { version = "0.16.1", features = ["derive"] }
 tokio-tungstenite = "0.20.0"
 wiremock = "0.5.19"
 garde = "0.16.0"

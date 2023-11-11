@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use async_trait::async_trait;
-use sea_orm::{ConnectOptions, Database, DatabaseConnection, ExecResult};
+use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
 use crate::configure::AppConfig;
 use crate::error::AppResult;
@@ -67,12 +67,11 @@ impl DatabaseClientExt for DatabaseClient {
 
 #[cfg(test)]
 mod tests {
-
-  use crate::constant::get_database;
+  use crate::constant::DATABASE;
 
   #[tokio::test]
   async fn test_ping_database() {
-    get_database()
+    DATABASE()
       .await
       .unwrap()
       .ping()
