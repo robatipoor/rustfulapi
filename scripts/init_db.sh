@@ -52,4 +52,5 @@ done
 echo >&2 "Database is up and running on port ${DB_PORT} - running migrations now!"
 
 DATABASE_URL=${DATABASE}://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
+
 cargo run --manifest-path ./migration/Cargo.toml -- refresh -u $DATABASE_URL

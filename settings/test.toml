@@ -7,10 +7,10 @@ port = 0
 [db]
 host = "127.0.0.1"
 port = 5_432
-username = "postgres_user"
-password = "postgres_pass"
-max_connections = 1
-database_name = "postgres_db"
+username = "username"
+password = "password"
+database_name = "database_name"
+max_connections = 5
 
 [redis]
 username = "redis_user"

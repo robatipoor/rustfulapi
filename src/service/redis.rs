@@ -182,8 +182,8 @@ mod tests {
   async fn test_set_and_get_str_redis_service() {
     let key: SessionKey = Faker.fake();
     let value: SessionValue = Faker.fake();
-    set(&REDIS_CLIENT, (&key, &value)).await.unwrap();
-    let actual_value = get(&REDIS_CLIENT, &key).await.unwrap().unwrap();
+    set(&REDIS, (&key, &value)).await.unwrap();
+    let actual_value = get(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
   }
 
@@ -191,10 +191,10 @@ mod tests {
   async fn test_pull_redis_service() {
     let key: SessionKey = Faker.fake();
     let value: SessionValue = Faker.fake();
-    set(&REDIS_CLIENT, (&key, &value)).await.unwrap();
-    let actual_value = pull(&REDIS_CLIENT, &key).await.unwrap().unwrap();
+    set(&REDIS, (&key, &value)).await.unwrap();
+    let actual_value = pull(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
-    let actual_value = get(&REDIS_CLIENT, &key).await.unwrap();
+    let actual_value = get(&REDIS, &key).await.unwrap();
     assert!(actual_value.is_none());
   }
 
@@ -202,12 +202,12 @@ mod tests {
   async fn test_delete_redis_service() {
     let key: TwoFactorLoginKey = Faker.fake();
     let value: UserValue = Faker.fake();
-    set(&REDIS_CLIENT, (&key, &value)).await.unwrap();
-    let actual_value = get(&REDIS_CLIENT, &key).await.unwrap().unwrap();
+    set(&REDIS, (&key, &value)).await.unwrap();
+    let actual_value = get(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
-    let actual_value = del(&REDIS_CLIENT, &key).await.unwrap();
+    let actual_value = del(&REDIS, &key).await.unwrap();
     assert!(actual_value);
-    let actual_value = get(&REDIS_CLIENT, &key).await.unwrap();
+    let actual_value = get(&REDIS, &key).await.unwrap();
     assert!(actual_value.is_none());
   }
 
@@ -215,8 +215,8 @@ mod tests {
   async fn test_set_and_get_value_redis_service() {
     let key: InvitationKey = Faker.fake();
     let value: UserValue = Faker.fake();
-    set(&REDIS_CLIENT, (&key, &value)).await.unwrap();
-    let actual_value = get(&REDIS_CLIENT, &key).await.unwrap().unwrap();
+    set(&REDIS, (&key, &value)).await.unwrap();
+    let actual_value = get(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
   }
 }

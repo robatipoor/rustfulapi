@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use async_trait::async_trait;
-use sea_orm::{ConnectOptions, Database, DatabaseConnection};
+use sea_orm::{ConnectOptions, Database, DatabaseConnection, ExecResult};
 
 use crate::configure::AppConfig;
 use crate::error::AppResult;
@@ -11,7 +11,6 @@ pub type DatabaseClient = DatabaseConnection;
 #[async_trait]
 pub trait DatabaseClientExt: Sized {
   async fn build_from_config(config: &AppConfig) -> AppResult<Self>;
-  // async fn version(&self) -> Result<Option<String>, sea_orm::error::DbErr>;
 }
 
 #[async_trait]
@@ -30,13 +29,6 @@ impl DatabaseClientExt for DatabaseClient {
     let db = Database::connect(opt).await?;
     Ok(db)
   }
-  // async fn version(&self) -> Result<Option<String>, sqlx::Error> {
-  //   let version: Option<String> = sqlx::query!(r#"SELECT version()"#)
-  //     .fetch_one(self)
-  //     .await
-  //     .map(|r| r.version)?;
-  //   Ok(version)
-  // }
 }
 
 // async fn get_pg_connection(pg_options: &PgConnectOptions) -> sqlx::Result<PgConnection> {
@@ -75,14 +67,16 @@ impl DatabaseClientExt for DatabaseClient {
 
 #[cfg(test)]
 mod tests {
-  // use super::*;
-  // use configure::CONFIG;
-  // use sqlx::PgPool;
 
-  // #[tokio::test]
-  // async fn test_postgres_connection() {
-  //   let client = PgPool::new(&CONFIG.db).await.unwrap();
-  //   let version = client.version().await.unwrap().unwrap();
-  //   assert!(!version.is_empty())
-  // }
+  use crate::constant::get_database;
+
+  #[tokio::test]
+  async fn test_ping_database() {
+    get_database()
+      .await
+      .unwrap()
+      .ping()
+      .await
+      .expect("Database ping failed.")
+  }
 }

@@ -32,3 +32,16 @@ pub enum Relation {}
 
 #[async_trait::async_trait]
 impl ActiveModelBehavior for ActiveModel {}
+
+
+#[cfg(test)]
+pub mod tests {
+
+  use super::*;
+
+  #[tokio::test]
+  async fn test_crud_user(){
+
+  }
+
+}

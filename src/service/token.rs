@@ -211,8 +211,8 @@ mod tests {
     let (key, session) = generate_session(user_id);
     let claims = UserClaims::new(Duration::from_secs(10), user_id, session.id, RoleUser::User);
     let token = encode_access_token(&CONFIG.secret, &claims).unwrap();
-    set(&REDIS_CLIENT, (&key, &session)).await.unwrap();
-    let claims = verify_token(&REDIS_CLIENT, &CONFIG.secret, &token, "/api/v1/resource")
+    set(&REDIS, (&key, &session)).await.unwrap();
+    let claims = verify_token(&REDIS, &CONFIG.secret, &token, "/api/v1/resource")
       .await
       .unwrap()
       .claims;
@@ -230,8 +230,8 @@ mod tests {
       RoleUser::System,
     );
     let token = encode_refresh_token(&CONFIG.secret, &claims).unwrap();
-    set(&REDIS_CLIENT, (&key, &session)).await.unwrap();
-    let claims = verify_token(&REDIS_CLIENT, &CONFIG.secret, &token, REFRESH_TOKEN_ROUTE)
+    set(&REDIS, (&key, &session)).await.unwrap();
+    let claims = verify_token(&REDIS, &CONFIG.secret, &token, REFRESH_TOKEN_ROUTE)
       .await
       .unwrap()
       .claims;

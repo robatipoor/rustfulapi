@@ -105,7 +105,7 @@ impl RedisClientExt for Client {
 
 #[cfg(test)]
 mod tests {
-  use crate::constant::REDIS_CLIENT;
+  use crate::constant::REDIS;
 
   use super::*;
 
@@ -114,7 +114,7 @@ mod tests {
 
   #[tokio::test]
   async fn test_ping_redis_server() {
-    let resp = REDIS_CLIENT.ping().await.unwrap();
+    let resp = REDIS.ping().await.unwrap();
     let pong = "PONG";
     assert!(matches!(resp, Some(p) if p == pong));
   }
@@ -123,13 +123,13 @@ mod tests {
   async fn test_set_key_redis() {
     let key: String = Faker.fake();
     let value = Uuid::new_v4().to_string();
-    REDIS_CLIENT
+    REDIS
       .set(&key, &value, Duration::from_secs(5))
       .await
       .unwrap();
-    let resp = REDIS_CLIENT.get(&key).await.unwrap();
+    let resp = REDIS.get(&key).await.unwrap();
     assert!(matches!(resp, Some(v) if v == value));
-    let resp = REDIS_CLIENT.ttl(&key).await.unwrap();
+    let resp = REDIS.ttl(&key).await.unwrap();
     assert!(resp > 0);
   }
 
@@ -137,16 +137,16 @@ mod tests {
   async fn test_exist_key_redis() {
     let key: String = Faker.fake();
     let value = Uuid::new_v4().to_string();
-    REDIS_CLIENT
+    REDIS
       .set(&key, &value, Duration::from_secs(4))
       .await
       .unwrap();
-    let resp = REDIS_CLIENT.get(&key).await.unwrap();
+    let resp = REDIS.get(&key).await.unwrap();
     assert!(matches!(resp, Some(v) if v == value));
-    let resp = REDIS_CLIENT.exist(&key).await.unwrap();
+    let resp = REDIS.exist(&key).await.unwrap();
     assert!(resp);
     let key: String = Faker.fake();
-    let resp = REDIS_CLIENT.exist(&key).await.unwrap();
+    let resp = REDIS.exist(&key).await.unwrap();
     assert!(!resp);
   }
 
@@ -154,16 +154,16 @@ mod tests {
   async fn test_del_key_redis() {
     let key: String = Faker.fake();
     let value = Uuid::new_v4().to_string();
-    REDIS_CLIENT
+    REDIS
       .set(&key, &value, Duration::from_secs(4))
       .await
       .unwrap();
-    let resp = REDIS_CLIENT.get(&key).await.unwrap();
+    let resp = REDIS.get(&key).await.unwrap();
     assert!(matches!(resp, Some(v) if v == value));
-    let resp = REDIS_CLIENT.exist(&key).await.unwrap();
+    let resp = REDIS.exist(&key).await.unwrap();
     assert!(resp);
-    REDIS_CLIENT.del(&key).await.unwrap();
-    let resp = REDIS_CLIENT.exist(&key).await.unwrap();
+    REDIS.del(&key).await.unwrap();
+    let resp = REDIS.exist(&key).await.unwrap();
     assert!(!resp);
   }
 
@@ -172,16 +172,16 @@ mod tests {
     let key: String = Faker.fake();
     let ttl = 4;
     let value = Uuid::new_v4().to_string();
-    REDIS_CLIENT
+    REDIS
       .set(&key, &value, Duration::from_secs(ttl))
       .await
       .unwrap();
-    let resp = REDIS_CLIENT.get(&key).await.unwrap();
+    let resp = REDIS.get(&key).await.unwrap();
     assert!(matches!(resp, Some(v) if v == value));
-    let resp = REDIS_CLIENT.ttl(&key).await.unwrap();
+    let resp = REDIS.ttl(&key).await.unwrap();
     assert!(resp <= ttl as i64 && resp > 0);
-    REDIS_CLIENT.del(&key).await.unwrap();
-    let resp = REDIS_CLIENT.ttl(&key).await.unwrap();
+    REDIS.del(&key).await.unwrap();
+    let resp = REDIS.ttl(&key).await.unwrap();
     assert!(resp < 0);
   }
 }

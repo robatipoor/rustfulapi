@@ -1,9 +1,17 @@
 use jsonwebtoken::{DecodingKey, EncodingKey};
 use once_cell::sync::Lazy;
+use sea_orm::Database;
 use std::{path::PathBuf, time::Duration};
 
 use crate::{
-  client::{email::EmailClient, http::HttpClient, redis::RedisClient, ClientBuilder},
+  client::{
+    database::{DatabaseClient, DatabaseClientExt},
+    email::EmailClient,
+    http::HttpClient,
+    redis::RedisClient,
+    ClientBuilder,
+  },
+  error::AppResult,
   util,
 };
 
@@ -39,11 +47,11 @@ pub static APP_IMAGE: Lazy<PathBuf> =
   Lazy::new(|| util::dir::root_dir("static/images/logo.jpg").unwrap());
 pub static CONFIG: Lazy<crate::configure::AppConfig> =
   Lazy::new(|| crate::configure::AppConfig::read().unwrap());
-pub static HTTP_CLIENT: Lazy<reqwest::Client> =
+pub static HTTP: Lazy<reqwest::Client> =
   Lazy::new(|| HttpClient::build_from_config(&CONFIG).unwrap());
-pub static REDIS_CLIENT: Lazy<RedisClient> =
+pub static REDIS: Lazy<RedisClient> =
   Lazy::new(|| RedisClient::build_from_config(&CONFIG).unwrap());
-pub static EMAIL_CLIENT: Lazy<EmailClient> =
+pub static EMAIL: Lazy<EmailClient> =
   Lazy::new(|| EmailClient::build_from_config(&CONFIG).unwrap());
 pub const MAX_RETRY: u32 = 10;
 pub const MINIMUM_DELAY_TIME: std::time::Duration = std::time::Duration::from_millis(100);
@@ -55,3 +63,10 @@ pub static DECODE_KEY: Lazy<DecodingKey> = Lazy::new(|| {
   let key = CONFIG.secret.read_public_refresh_key().unwrap();
   DecodingKey::from_rsa_pem(key.as_bytes()).unwrap()
 });
+
+static DATABASE: tokio::sync::OnceCell<DatabaseClient> = tokio::sync::OnceCell::const_new();
+pub async fn get_database() -> AppResult<&'static DatabaseClient> {
+  DATABASE
+    .get_or_try_init(|| async { DatabaseClient::build_from_config(&CONFIG).await })
+    .await
+}
