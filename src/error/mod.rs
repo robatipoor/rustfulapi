@@ -17,7 +17,7 @@ pub enum AppError {
   #[error("{0} not available")]
   NotAvailableError(ResourceType),
   #[error("{0} already exists")]
-  ResourceExistsError(ResourceType),
+  ResourceExistsError(Resource),
   #[error("{0}")]
   PermissionDeniedError(String),
   #[error("{0}")]
@@ -93,6 +93,7 @@ impl From<argon2::password_hash::Error> for AppError {
 }
 
 impl AppError {
+  // TODO remove ref from self
   pub fn response(&self) -> (AppResponseError, StatusCode) {
     use AppError::*;
     let (kind, message, code, details, status_code) = match self {
@@ -134,8 +135,8 @@ impl AppError {
       ResourceExistsError(resource) => (
         format!("{resource}_ALREADY_EXISTS_ERROR"),
         self.to_string(),
-        Some(*resource as i32),
-        vec![],
+        Some(resource.resource_type as i32),
+        resource.details.clone(),
         StatusCode::CONFLICT,
       ),
       AxumError(err) => (
@@ -395,7 +396,20 @@ pub trait ToAppResult<T> {
   fn to_result(self) -> AppResult<T>;
 }
 
-#[derive(Debug, EnumString, strum::Display, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Resource {
+  pub details: Vec<(String, String)>,
+  pub resource_type: ResourceType,
+}
+
+impl std::fmt::Display for Resource {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    // TODO
+    self.resource_type.fmt(f)
+  }
+}
+
+#[derive(Debug, EnumString, strum::Display, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ResourceType {
   #[strum(serialize = "USER")]
   User,

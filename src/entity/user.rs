@@ -23,12 +23,21 @@ pub struct Model {
   pub role: RoleUser,
   pub is_active: bool,
   pub is_tfa: bool,
-  pub create_at: Option<DateTime<Utc>>,
-  pub update_at: Option<DateTime<Utc>>,
+  pub create_at: DateTime<Utc>,
+  pub update_at: DateTime<Utc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+  #[sea_orm(has_many = "super::message::Entity")]
+  Message,
+}
+
+impl Related<super::message::Entity> for Entity {
+  fn to() -> RelationDef {
+    Relation::Message.def()
+  }
+}
 
 #[async_trait::async_trait]
 impl ActiveModelBehavior for ActiveModel {}

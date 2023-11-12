@@ -4,10 +4,7 @@ use crate::error::{AppError, AppResult};
 
 /// If a task is fail fast after encounter an error node goes down.
 pub type IsFailFast = bool;
-pub type Task = (
-  IsFailFast,
-  futures::future::BoxFuture<'static, AppResult>,
-);
+pub type Task = (IsFailFast, futures::future::BoxFuture<'static, AppResult>);
 
 pub async fn join_all(tasks: Vec<Task>) -> AppResult {
   let (sender, mut receiver) = tokio::sync::mpsc::channel::<AppError>(1);
@@ -25,7 +22,7 @@ pub async fn join_all(tasks: Vec<Task>) -> AppResult {
             .await
             .unwrap_or_else(|_| unreachable!("This channel never closed."));
         } else {
-          error!("A task failed: {e}");
+          error!("A task failed: {e}.");
         }
       }
     });

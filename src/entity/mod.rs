@@ -2,6 +2,7 @@ use sea_orm::{DatabaseTransaction, TransactionTrait};
 use test_context::AsyncTestContext;
 use tracing::info;
 
+pub mod message;
 pub mod role;
 pub mod user;
 

@@ -3,6 +3,7 @@ use crate::configure::AppConfig;
 use crate::error::AppResult;
 use crate::router::create_router_app;
 pub mod state;
+pub mod worker;
 
 pub struct AppServer {
   pub state: AppState,
