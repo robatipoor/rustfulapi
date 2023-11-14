@@ -17,7 +17,7 @@ impl MessangerTask {
   pub async fn run(self) -> AppResult {
     info!("Messanger task start.");
     loop {
-      let message = repo::message::get_page(&self.state.db.begin().await?).await?;
+      let message = repo::message::get_list(&self.state.db.begin().await?, 100).await?;
       //send message
     }
   }
