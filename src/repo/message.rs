@@ -1,11 +1,12 @@
 use chrono::Utc;
 use sea_orm::{
-  ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseTransaction, EntityTrait,
-  QueryFilter, Set,
+  ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseConnection, DatabaseTransaction,
+  EntityTrait, QueryFilter, Set, TransactionTrait,
 };
 use uuid::Uuid;
 
 use crate::{
+  client::database::DatabaseClientExt,
   entity::{
     self,
     message::{MessageKind, MessageStatus},
@@ -54,13 +55,13 @@ where
 
 #[tracing::instrument(skip_all)]
 pub async fn update_status(
-  tx: &DatabaseTransaction,
+  conn: &DatabaseConnection,
   model: entity::message::Model,
   status: MessageStatus,
 ) -> AppResult {
   let mut model: entity::message::ActiveModel = model.into();
   model.status = Set(status);
-  model.update(tx).await?;
+  model.update(conn).await?;
   Ok(())
 }
 

@@ -90,7 +90,7 @@ pub enum MessageStatus {
   #[sea_orm(string_value = "Pending")]
   Pending,
   #[sea_orm(string_value = "Success")]
-  Sucess,
+  Success,
   #[sea_orm(string_value = "Failed")]
   Failed,
 }

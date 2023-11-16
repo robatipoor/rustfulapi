@@ -3,7 +3,7 @@ use tracing::info;
 
 use crate::{
   client::email::EmailClientExt, constant::APP_EMAIL_ADDR, continue_if_fail, dto::Email,
-  error::AppResult, repo,
+  entity::message::MessageStatus, error::AppResult, repo,
 };
 
 use super::state::AppState;
@@ -37,7 +37,6 @@ impl MessangerTask {
           Ok(user) => user.unwrap(),
           Err(err) => {
             tracing::error!("{err}");
-            tokio::time::sleep(std::time::Duration::from_secs(10)).await;
             continue;
           }
         };
@@ -47,33 +46,14 @@ impl MessangerTask {
           message.kind.to_string(),
           message.content.clone(),
         );
-        match self.state.email.send_email(&email).await {
-          Ok(_) => {
-            let tx = continue_if_fail!(self.state.db.begin().await);
-            continue_if_fail!(
-              repo::message::update_status(
-                &tx,
-                message,
-                crate::entity::message::MessageStatus::Sucess,
-              )
-              .await
-            );
-            continue_if_fail!(tx.commit().await);
-          }
+        let status = match self.state.email.send_email(&email).await {
+          Ok(_) => MessageStatus::Success,
           Err(err) => {
             tracing::error!("{err}");
-            let tx = continue_if_fail!(self.state.db.begin().await);
-            continue_if_fail!(
-              repo::message::update_status(
-                &tx,
-                message,
-                crate::entity::message::MessageStatus::Failed,
-              )
-              .await
-            );
-            continue_if_fail!(tx.commit().await)
+            MessageStatus::Failed
           }
-        }
+        };
+        continue_if_fail!(repo::message::update_status(&self.state.db, message, status).await);
       }
     }
   }
