@@ -19,3 +19,16 @@ impl<T, E> ResultControlFlow<T, E> {
     matches!(self, Self::Continue)
   }
 }
+
+#[macro_export]
+macro_rules! continue_if_fail {
+  ($result:expr) => {
+    match $result {
+      Ok(r) => r,
+      Err(err) => {
+        tracing::error!("{err}");
+        continue;
+      }
+    }
+  };
+}

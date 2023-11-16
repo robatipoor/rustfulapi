@@ -1,10 +1,11 @@
 use chrono::Utc;
 use sea_orm::{
-  ActiveModelTrait, ColumnTrait, Condition, DatabaseTransaction, EntityTrait, QueryFilter, Set,
+  ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseTransaction, EntityTrait,
+  QueryFilter, Set,
 };
 use uuid::Uuid;
 
-use crate::{error::AppResult, util};
+use crate::{entity, error::AppResult, util};
 
 #[tracing::instrument]
 pub async fn save(
@@ -27,6 +28,15 @@ pub async fn save(
   .insert(tx)
   .await?;
   Ok(user.id)
+}
+
+#[tracing::instrument(skip_all)]
+pub async fn find_by_id<C>(conn: &C, id: Uuid) -> AppResult<Option<entity::user::Model>>
+where
+  C: ConnectionTrait,
+{
+  let model = entity::user::Entity::find_by_id(id).one(conn).await?;
+  Ok(model)
 }
 
 // #[tracing::instrument]

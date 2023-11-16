@@ -1,6 +1,7 @@
 use chrono::Utc;
 use sea_orm::{
-  ActiveModelTrait, ColumnTrait, Condition, DatabaseTransaction, EntityTrait, QueryFilter, Set,
+  ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseTransaction, EntityTrait,
+  QueryFilter, Set,
 };
 use uuid::Uuid;
 
@@ -33,11 +34,11 @@ pub async fn save(
   Ok(model.id)
 }
 
-#[tracing::instrument]
-pub async fn get_list(
-  tx: &DatabaseTransaction,
-  limit: u64,
-) -> AppResult<Vec<entity::message::Model>> {
+#[tracing::instrument(skip_all)]
+pub async fn get_list<C>(conn: &C, limit: u64) -> AppResult<Vec<entity::message::Model>>
+where
+  C: ConnectionTrait,
+{
   let model = entity::message::Entity::find()
     .filter(
       entity::message::Column::Status
@@ -46,9 +47,21 @@ pub async fn get_list(
     )
     .cursor_by(entity::message::Column::CreateAt)
     .first(limit)
-    .all(tx)
+    .all(conn)
     .await?;
   Ok(model)
+}
+
+#[tracing::instrument(skip_all)]
+pub async fn update_status(
+  tx: &DatabaseTransaction,
+  model: entity::message::Model,
+  status: MessageStatus,
+) -> AppResult {
+  let mut model: entity::message::ActiveModel = model.into();
+  model.status = Set(status);
+  model.update(tx).await?;
+  Ok(())
 }
 
 #[cfg(test)]
@@ -79,7 +92,7 @@ mod tests {
       id: Set(Uuid::new_v4()),
       kind: Set(MessageKind::InvitationCode),
       status: Set(MessageStatus::Pending),
-      content: Set("code".to_string()),
+      content: Set("code1".to_string()),
       user_id: Set(user_id),
       create_at: Set(Utc::now() - Duration::seconds(100)),
       update_at: Set(Utc::now() - Duration::seconds(100)),
@@ -113,5 +126,8 @@ mod tests {
     .unwrap();
     let list = get_list(&**ctx, 2).await.unwrap();
     assert_eq!(list.len(), 2);
+    let list = get_list(&**ctx, 1).await.unwrap();
+    assert_eq!(list.len(), 1);
+    assert_eq!(list.get(0).unwrap().content, "code1");
   }
 }

@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use tokio::sync::Notify;
+
 use crate::client::{
   database::{DatabaseClient, DatabaseClientExt},
   email::EmailClient,
@@ -16,6 +18,7 @@ pub struct AppState {
   pub redis: Arc<RedisClient>,
   pub db: Arc<DatabaseClient>,
   pub email: Arc<EmailClient>,
+  pub messanger_notify: Arc<Notify>,
   pub http: HttpClient,
 }
 
@@ -30,6 +33,7 @@ impl AppState {
       db,
       redis,
       email,
+      messanger_notify: Default::default(),
       http,
     })
   }

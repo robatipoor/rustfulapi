@@ -64,7 +64,7 @@ tera = "1.19.0"
 test-context = "0.1.4"
 thiserror = "1.0.47"
 tokio = { version = "1.32.0", features = ["full"] }
-tracing = "0.1.37"
+tracing = { version = "0.1.40", features = ["attributes"] }
 tracing-actix-web = "0.7.6"
 tracing-appender = "0.2.2"
 tracing-bunyan-formatter = "0.3.9"

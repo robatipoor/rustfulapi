@@ -1,7 +1,10 @@
 use sea_orm::TransactionTrait;
-use tracing::{error, info};
+use tracing::info;
 
-use crate::{error::AppResult, repo};
+use crate::{
+  client::email::EmailClientExt, constant::APP_EMAIL_ADDR, continue_if_fail, dto::Email,
+  error::AppResult, repo,
+};
 
 use super::state::AppState;
 
@@ -17,8 +20,61 @@ impl MessangerTask {
   pub async fn run(self) -> AppResult {
     info!("Messanger task start.");
     loop {
-      let message = repo::message::get_list(&self.state.db.begin().await?, 100).await?;
-      //send message
+      let messages = match repo::message::get_list(&*self.state.db, 100).await {
+        Ok(msg) => msg,
+        Err(err) => {
+          tracing::error!("{err}");
+          tokio::time::sleep(std::time::Duration::from_secs(10)).await;
+          continue;
+        }
+      };
+      if messages.is_empty() {
+        self.state.messanger_notify.notified().await;
+        continue;
+      }
+      for message in messages {
+        let user = match repo::user::find_by_id(&*self.state.db, message.user_id).await {
+          Ok(user) => user.unwrap(),
+          Err(err) => {
+            tracing::error!("{err}");
+            tokio::time::sleep(std::time::Duration::from_secs(10)).await;
+            continue;
+          }
+        };
+        let email = Email::new(
+          APP_EMAIL_ADDR.to_string(),
+          user.email,
+          message.kind.to_string(),
+          message.content.clone(),
+        );
+        match self.state.email.send_email(&email).await {
+          Ok(_) => {
+            let tx = continue_if_fail!(self.state.db.begin().await);
+            continue_if_fail!(
+              repo::message::update_status(
+                &tx,
+                message,
+                crate::entity::message::MessageStatus::Sucess,
+              )
+              .await
+            );
+            continue_if_fail!(tx.commit().await);
+          }
+          Err(err) => {
+            tracing::error!("{err}");
+            let tx = continue_if_fail!(self.state.db.begin().await);
+            continue_if_fail!(
+              repo::message::update_status(
+                &tx,
+                message,
+                crate::entity::message::MessageStatus::Failed,
+              )
+              .await
+            );
+            continue_if_fail!(tx.commit().await)
+          }
+        }
+      }
     }
   }
 }
