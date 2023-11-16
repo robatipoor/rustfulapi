@@ -5,14 +5,14 @@ use tracing::info;
 use uuid::Uuid;
 
 use crate::constant::VERIFY_CODE_LEN;
-use crate::entity;
+
 use crate::entity::message::MessageKind;
 use crate::repo;
 // use crate::service::redis::*;
 // use crate::service::session;
 // use crate::service::token;
-use crate::dto::{request::*, response::*};
-use crate::error::{invalid_input_error, AppError, AppResult};
+use crate::dto::{request::*};
+use crate::error::{AppError, AppResult};
 use crate::server::state::AppState;
 use crate::util;
 

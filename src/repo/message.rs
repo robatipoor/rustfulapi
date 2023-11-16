@@ -1,6 +1,6 @@
 use chrono::Utc;
 use sea_orm::{
-  ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseTransaction, EntityTrait,
+  ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseTransaction, EntityTrait,
   QueryFilter, Set,
 };
 use uuid::Uuid;
