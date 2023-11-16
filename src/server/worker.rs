@@ -1,4 +1,3 @@
-use sea_orm::TransactionTrait;
 use tracing::info;
 
 use crate::{
@@ -20,7 +19,7 @@ impl MessangerTask {
   pub async fn run(self) -> AppResult {
     info!("Messanger task start.");
     loop {
-      let messages = match repo::message::get_list(&*self.state.db, 100).await {
+      let messages = match repo::message::get_list(&*self.state.db, 10).await {
         Ok(msg) => msg,
         Err(err) => {
           tracing::error!("{err}");

@@ -89,6 +89,8 @@ pub enum MessageKind {
 pub enum MessageStatus {
   #[sea_orm(string_value = "Pending")]
   Pending,
+  #[sea_orm(string_value = "Sending")]
+  Sending,
   #[sea_orm(string_value = "Success")]
   Success,
   #[sea_orm(string_value = "Failed")]

@@ -12,8 +12,10 @@ impl MigrationTrait for Migration {
       r#"CREATE TYPE MESSAGE_KIND AS ENUM ('InvitationCode', 'LoginCode', 'ForgetPasswordCode')"#,
     )
     .await?;
-    tx.execute_unprepared(r#"CREATE TYPE MESSAGE_STATUS AS ENUM ('Pending', 'Success', 'Failed')"#)
-      .await?;
+    tx.execute_unprepared(
+      r#"CREATE TYPE MESSAGE_STATUS AS ENUM ('Pending', 'Sending', 'Success', 'Failed')"#,
+    )
+    .await?;
     tx.execute_unprepared(
       r#"CREATE TABLE message (
             id UUID NOT NULL PRIMARY KEY,
