@@ -1,7 +1,7 @@
 use futures::FutureExt;
 use rustfulapi::constant::CONFIG;
 use rustfulapi::error::AppResult;
-use rustfulapi::server::worker::MessangerTask;
+use rustfulapi::server::worker::MessengerTask;
 use rustfulapi::server::AppServer;
 use rustfulapi::{configure, util};
 use tracing::info;
@@ -17,11 +17,11 @@ async fn main() -> AppResult<()> {
   info!("Create a new server.");
   let server = AppServer::new(config).await?;
   info!("Create a new messanger task.");
-  let messanger = MessangerTask::new(server.state.clone());
+  let messenger = MessengerTask::new(server.state.clone());
   info!("Run server.");
   util::task::join_all(vec![
     (true, server.run().boxed()),
-    (true, messanger.run().boxed()),
+    (true, messenger.run().boxed()),
   ])
   .await?;
   Ok(())

@@ -1,13 +1,11 @@
-use argon2::password_hash::Output;
 use chrono::Utc;
 use sea_orm::{
-  ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseConnection,
-  DatabaseTransaction, EntityTrait, QueryFilter, Set, TransactionTrait,
+  ActiveModelTrait, ColumnTrait, Condition, DatabaseConnection, DatabaseTransaction, EntityTrait,
+  QueryFilter, Set, TransactionTrait,
 };
 use uuid::Uuid;
 
 use crate::{
-  client::database::DatabaseClientExt,
   entity::{
     self,
     message::{MessageKind, MessageStatus},
@@ -39,9 +37,14 @@ pub async fn save(
 #[tracing::instrument(skip_all)]
 pub async fn get_list(
   conn: &DatabaseConnection,
+  timeout: i64,
   limit: u64,
 ) -> AppResult<Vec<entity::message::Model>> {
-  let tx = conn.begin().await?;
+  // Repeatable Read isolation applies when concurrent transactions attempting to update the same row will result in rollbacks.
+  // Reference: https://www.postgresql.org/docs/current/transaction-iso.html
+  let tx = conn
+    .begin_with_config(Some(sea_orm::IsolationLevel::RepeatableRead), None)
+    .await?;
   let models = entity::message::Entity::find()
     .filter(
       Condition::any()
@@ -51,7 +54,10 @@ pub async fn get_list(
           Condition::all()
             .add(entity::message::Column::Status.eq(MessageStatus::Sending))
             // Resend the email if it times out.
-            .add(entity::message::Column::UpdateAt.lte(Utc::now() - chrono::Duration::minutes(5))),
+            .add(
+              entity::message::Column::UpdateAt
+                .lte(Utc::now() - chrono::Duration::minutes(timeout)),
+            ),
         ),
     )
     .cursor_by(entity::message::Column::CreateAt)
@@ -111,7 +117,7 @@ mod tests {
       .id;
     entity::message::ActiveModel {
       id: Set(Uuid::new_v4()),
-      kind: Set(MessageKind::InvitationCode),
+      kind: Set(MessageKind::ActiveCode),
       status: Set(MessageStatus::Pending),
       content: Set("code1".to_string()),
       user_id: Set(user_id),
@@ -123,7 +129,7 @@ mod tests {
     .unwrap();
     entity::message::ActiveModel {
       id: Set(Uuid::new_v4()),
-      kind: Set(MessageKind::InvitationCode),
+      kind: Set(MessageKind::ActiveCode),
       status: Set(MessageStatus::Pending),
       content: Set("code2".to_string()),
       user_id: Set(user_id),
@@ -135,7 +141,7 @@ mod tests {
     .unwrap();
     entity::message::ActiveModel {
       id: Set(Uuid::new_v4()),
-      kind: Set(MessageKind::InvitationCode),
+      kind: Set(MessageKind::ActiveCode),
       status: Set(MessageStatus::Pending),
       content: Set("code3".to_string()),
       user_id: Set(user_id),

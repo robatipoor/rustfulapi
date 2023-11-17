@@ -7,19 +7,19 @@ use crate::{
 
 use super::state::AppState;
 
-pub struct MessangerTask {
+pub struct MessengerTask {
   state: AppState,
 }
 
-impl MessangerTask {
+impl MessengerTask {
   pub fn new(state: AppState) -> Self {
     Self { state }
   }
 
   pub async fn run(self) -> AppResult {
-    info!("Messanger task start.");
+    info!("Messenger task start.");
     loop {
-      let messages = match repo::message::get_list(&*self.state.db, 10).await {
+      let messages = match repo::message::get_list(&*self.state.db, 5, 10).await {
         Ok(msg) => msg,
         Err(err) => {
           tracing::error!("{err}");
@@ -28,7 +28,10 @@ impl MessangerTask {
         }
       };
       if messages.is_empty() {
-        self.state.messanger_notify.notified().await;
+        tokio::select! {
+          _ = tokio::time::sleep(std::time::Duration::from_secs(120)) => {},
+          _ = self.state.messenger_notify.notified() => {},
+        }
         continue;
       }
       for message in messages {

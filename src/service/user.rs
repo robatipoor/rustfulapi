@@ -6,12 +6,12 @@ use uuid::Uuid;
 
 use crate::constant::VERIFY_CODE_LEN;
 
+use crate::dto::RegisterRequest;
 use crate::entity::message::MessageKind;
 use crate::repo;
 // use crate::service::redis::*;
 // use crate::service::session;
 // use crate::service::token;
-use crate::dto::{request::*};
 use crate::error::{AppError, AppResult};
 use crate::server::state::AppState;
 use crate::util;
@@ -23,8 +23,8 @@ pub async fn register(state: AppState, req: RegisterRequest) -> AppResult<Uuid> 
   check_unique_username_or_email(&tx, &req.username, &req.email).await?;
   let user_id = crate::repo::user::save(&tx, req.username, req.password, req.email).await?;
   let code = generate_invitation_code();
-  crate::repo::message::save(&tx, user_id, code, MessageKind::InvitationCode).await?;
-  // TODO notify messanger task
+  crate::repo::message::save(&tx, user_id, code, MessageKind::ActiveCode).await?;
+  state.messenger_notify.notify_one();
   tx.commit().await?;
   Ok(user_id)
 }

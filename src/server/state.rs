@@ -18,7 +18,7 @@ pub struct AppState {
   pub redis: Arc<RedisClient>,
   pub db: Arc<DatabaseClient>,
   pub email: Arc<EmailClient>,
-  pub messanger_notify: Arc<Notify>,
+  pub messenger_notify: Arc<Notify>,
   pub http: HttpClient,
 }
 
@@ -33,7 +33,7 @@ impl AppState {
       db,
       redis,
       email,
-      messanger_notify: Default::default(),
+      messenger_notify: Default::default(),
       http,
     })
   }

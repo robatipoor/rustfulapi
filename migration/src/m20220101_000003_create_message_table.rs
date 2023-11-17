@@ -9,7 +9,7 @@ impl MigrationTrait for Migration {
     let db = manager.get_connection();
     let tx = db.begin().await?;
     tx.execute_unprepared(
-      r#"CREATE TYPE MESSAGE_KIND AS ENUM ('InvitationCode', 'LoginCode', 'ForgetPasswordCode')"#,
+      r#"CREATE TYPE MESSAGE_KIND AS ENUM ('ActiveCode', 'LoginCode', 'ForgetPasswordCode')"#,
     )
     .await?;
     tx.execute_unprepared(

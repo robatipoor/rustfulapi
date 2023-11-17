@@ -59,11 +59,11 @@ impl ActiveModelBehavior for ActiveModel {}
 )]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "MESSAGE_KIND")]
 pub enum MessageKind {
-  #[sea_orm(string_value = "InvitationCode")]
-  InvitationCode,
+  #[sea_orm(string_value = "ActiveCode")]
+  ActiveCode,
   #[sea_orm(string_value = "LoginCode")]
   LoginCode,
-  #[sea_orm(string_value = "ForgetPasswrodCode")]
+  #[sea_orm(string_value = "ForgetPasswordCode")]
   ForgetPasswordCode,
 }
 
