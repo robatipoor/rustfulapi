@@ -8,12 +8,14 @@ use serde::Serialize;
 use strum::EnumString;
 use utoipa::ToSchema;
 
+use crate::entity;
+
 pub type AppResult<T = ()> = std::result::Result<T, AppError>;
 
 #[derive(Debug, thiserror::Error, ToSchema)]
 pub enum AppError {
   #[error("{0} not found")]
-  NotFoundError(ResourceType),
+  NotFoundError(ResourceType, Vec<(String, String)>),
   #[error("{0} not available")]
   NotAvailableError(ResourceType),
   #[error("{0} already exists")]
@@ -118,11 +120,11 @@ impl AppError {
         vec![],
         StatusCode::NOT_FOUND,
       ),
-      NotFoundError(resource) => (
+      NotFoundError(resource, details) => (
         format!("{resource}_NOT_FOUND_ERROR"),
         self.to_string(),
         Some(*resource as i32),
-        vec![],
+        details.clone(),
         StatusCode::NOT_FOUND,
       ),
       AccessDeniedError(err) => (
@@ -392,10 +394,6 @@ impl AppResponseError {
   }
 }
 
-pub trait ToAppResult<T> {
-  fn to_result(self) -> AppResult<T>;
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Resource {
   pub details: Vec<(String, String)>,
@@ -417,10 +415,32 @@ pub enum ResourceType {
   File,
   #[strum(serialize = "SESSION")]
   Session,
+  #[strum(serialize = "MESSAGE")]
+  Message,
 }
 
 pub fn invalid_input_error(field: &'static str, message: &'static str) -> AppError {
   let mut report = garde::Report::new();
   report.append(garde::Path::new(field), garde::Error::new(message));
   AppError::InvalidInputError(report)
+}
+
+pub trait ToAppResult {
+  type Output: entity::AppEntity;
+  fn to_result(self) -> AppResult<Self::Output>;
+  fn to_result_details(self, details: Vec<(String, String)>) -> AppResult<Self::Output>;
+}
+
+impl<T> ToAppResult for Option<T>
+where
+  T: entity::AppEntity,
+{
+  type Output = T;
+  fn to_result(self) -> AppResult<Self::Output> {
+    self.ok_or_else(|| AppError::NotFoundError(Self::Output::RESOURCE, vec![]))
+  }
+
+  fn to_result_details(self, details: Vec<(String, String)>) -> AppResult<Self::Output> {
+    self.ok_or_else(|| AppError::NotFoundError(Self::Output::RESOURCE, details))
+  }
 }

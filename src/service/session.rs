@@ -12,7 +12,7 @@ pub async fn check(redis: &RedisClient, claims: &UserClaims) -> AppResult<Uuid> 
   let session_key = SessionKey { user_id };
   let session = crate::service::redis::get(redis, &session_key)
     .await?
-    .ok_or_else(|| AppError::NotFoundError(crate::error::ResourceType::Session))?;
+    .ok_or_else(|| AppError::NotFoundError(crate::error::ResourceType::Session, vec![]))?;
   if session.id != session_id {
     debug!("user: {user_id} unauthorized session_id: {session_id}");
     info!("session id invalid so deleting it: {session_key:?}");

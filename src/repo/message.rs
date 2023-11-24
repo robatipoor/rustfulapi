@@ -1,7 +1,7 @@
 use chrono::Utc;
 use sea_orm::{
-  ActiveModelTrait, ColumnTrait, Condition, DatabaseConnection, DatabaseTransaction, EntityTrait,
-  QueryFilter, Set, TransactionTrait,
+  ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseConnection,
+  DatabaseTransaction, EntityTrait, QueryFilter, Set, TransactionTrait,
 };
 use uuid::Uuid;
 
@@ -12,6 +12,26 @@ use crate::{
   },
   error::AppResult,
 };
+
+#[tracing::instrument(skip_all)]
+pub async fn find_by_user_and_kind<C>(
+  conn: &C,
+  user_id: Uuid,
+  kind: MessageKind,
+) -> AppResult<Option<entity::message::Model>>
+where
+  C: ConnectionTrait,
+{
+  let model = entity::message::Entity::find()
+    .filter(
+      entity::message::Column::UserId
+        .eq(user_id)
+        .and(entity::message::Column::Kind.eq(kind)),
+    )
+    .one(conn)
+    .await?;
+  Ok(model)
+}
 
 #[tracing::instrument]
 pub async fn save(

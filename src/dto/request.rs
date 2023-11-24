@@ -33,22 +33,6 @@ impl RegisterRequest {
   }
 }
 
-#[derive(Debug, Deserialize, Serialize, Dummy, Validate, ToSchema)]
-pub struct InvitationRequest {
-  #[dummy(faker = "SafeEmail()")]
-  #[garde(email)]
-  pub email: String,
-  #[dummy(faker = "Password(8..100)")]
-  #[garde(length(min = 8))]
-  pub password: String,
-}
-
-impl InvitationRequest {
-  pub fn new(email: String, password: String) -> Self {
-    Self { email, password }
-  }
-}
-
 #[derive(Debug, Deserialize, Serialize, Dummy, ToSchema, IntoParams, Clone)]
 pub struct PageParamQuery {
   pub page_num: i64,
@@ -81,7 +65,7 @@ pub struct ActiveRequest {
   #[garde(length(min = 5))]
   pub code: String,
   #[garde(skip)]
-  pub id: Uuid,
+  pub user_id: Uuid,
 }
 
 #[derive(Debug, Deserialize, Serialize, Dummy, ToSchema)]

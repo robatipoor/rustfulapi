@@ -2,7 +2,7 @@ use axum::extract::{Query, Request, State};
 use axum::response::Response;
 use axum::Json;
 use garde::Validate;
-use tracing::{info};
+use tracing::info;
 
 use crate::dto::*;
 use crate::error::AppResult;
@@ -38,34 +38,34 @@ pub async fn register(
   // }
   todo!()
 }
-/// get invitation token registered user
-#[utoipa::path(
-    put,
-    request_body = InvitationRequest,
-    path = "/api/v1/users/invitation",
-    responses(
-        (status = 200, description = "success get invitation token", body = [InvitationResponse]),
-        (status = 400, description = "invalid data input", body = [AppResponseError]),
-        (status = 500, description = "internal server error", body = [AppResponseError])
-    )
-)]
-pub async fn invitation(
-  State(_state): State<AppState>,
-  Json(req): Json<InvitationRequest>,
-) -> AppResult<Json<InvitationResponse>> {
-  info!("invitation request user: {req:?}");
-  // match service::user::invitation(&state, req).await {
-  //   Ok(resp) => {
-  //     info!("success invitation token send: {resp:?}");
-  //     Ok(HttpResponse::Ok().json(resp))
-  //   }
-  //   Err(e) => {
-  //     warn!("unsuccessfully get invitation token error: {e:?}",);
-  //     Err(e)
-  //   }
-  // }
-  todo!()
-}
+// /// get invitation token registered user
+// #[utoipa::path(
+//     put,
+//     request_body = InvitationRequest,
+//     path = "/api/v1/users/invitation",
+//     responses(
+//         (status = 200, description = "success get invitation token", body = [InvitationResponse]),
+//         (status = 400, description = "invalid data input", body = [AppResponseError]),
+//         (status = 500, description = "internal server error", body = [AppResponseError])
+//     )
+// )]
+// pub async fn invitation(
+//   State(_state): State<AppState>,
+//   Json(req): Json<InvitationRequest>,
+// ) -> AppResult<Json<InvitationResponse>> {
+//   info!("invitation request user: {req:?}");
+//   // match service::user::invitation(&state, req).await {
+//   //   Ok(resp) => {
+//   //     info!("success invitation token send: {resp:?}");
+//   //     Ok(HttpResponse::Ok().json(resp))
+//   //   }
+//   //   Err(e) => {
+//   //     warn!("unsuccessfully get invitation token error: {e:?}",);
+//   //     Err(e)
+//   //   }
+//   // }
+//   todo!()
+// }
 /// active registered user
 #[utoipa::path(
     put,
@@ -169,7 +169,10 @@ pub async fn login(
     ),
     security(("jwt" = []))
 )]
-pub async fn refresh_token(State(_state): State<AppState>, user: UserClaims) -> AppResult<Response> {
+pub async fn refresh_token(
+  State(_state): State<AppState>,
+  user: UserClaims,
+) -> AppResult<Response> {
   info!("refresh token with claims: {user:?}");
   // match service::user::refresh_token(&state, &claims).await {
   //   Ok(resp) => {

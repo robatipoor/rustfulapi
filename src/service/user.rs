@@ -6,8 +6,11 @@ use uuid::Uuid;
 
 use crate::constant::VERIFY_CODE_LEN;
 
+use crate::dto::ActiveRequest;
 use crate::dto::RegisterRequest;
 use crate::entity::message::MessageKind;
+use crate::error::invalid_input_error;
+use crate::error::ToAppResult;
 use crate::repo;
 // use crate::service::redis::*;
 // use crate::service::session;
@@ -22,65 +25,37 @@ pub async fn register(state: AppState, req: RegisterRequest) -> AppResult<Uuid> 
   let tx = state.db.begin().await?;
   check_unique_username_or_email(&tx, &req.username, &req.email).await?;
   let user_id = crate::repo::user::save(&tx, req.username, req.password, req.email).await?;
-  let code = generate_invitation_code();
+  let code = generate_active_code();
   crate::repo::message::save(&tx, user_id, code, MessageKind::ActiveCode).await?;
   state.messenger_notify.notify_one();
   tx.commit().await?;
   Ok(user_id)
 }
 
-pub fn generate_invitation_code() -> String {
+pub fn generate_active_code() -> String {
   util::random::generate_random_string(VERIFY_CODE_LEN)
 }
 
-// pub async fn invitation(state: &AppState, req: InvitationRequest) -> AppResult<InvitationResponse> {
-//   req.validate()?;
-//   let user = fetch_user_by_email(&state.postgres, &req.email).await?;
-//   if user.is_active {
-//     return Err(AppError::Conflict("User is Already Active".to_string()));
-//   }
-//   util::password::verify(req.password.clone(), user.password.clone()).await?;
-//   let (key, value) = crate::token::generate_invitation(user.id);
-//   crate::redis::set(&state.redis, (&key, &value)).await?;
-//   let invitation = Template::Invitation {
-//     username: user.username.clone(),
-//     code: value.code.clone(),
-//   };
-//   crate::email::send_email(&state.email, &invitation, "invitation email", &user.email).await?;
-//   Ok(InvitationResponse::new(key.id, key.expire().as_secs()))
-// }
-
-// pub async fn active(state: &AppState, req: ActiveRequest) -> AppResult {
-//   req.validate()?;
-//   let key = InvitationKey { id: req.id };
-//   let value = crate::redis::get(&state.redis, &key)
-//     .await?
-//     .ok_or_else(|| AppError::NotFound("Id is Not Found".to_string()))?;
-//   if value.code != req.code {
-//     return Err(invalid_input_error("code", "Code is Invalid"));
-//   }
-//   query::get_transaction(&state.postgres, move |mut tx| async move {
-//     let mut user = fetch_user_by_id(&mut tx, &value.user_id).await?;
-//     user.is_active = true;
-//     query::user::update(&user).execute(&mut *tx).await?;
-//     Ok(((), tx))
-//   })
-//   .await?;
-//   crate::redis::del(&state.redis, &key).await?;
-//   Ok(())
-// }
-
-// pub async fn validate(
-//   state: &AppState,
-//   user_id: &Uuid,
-//   req: ValidateRequest,
-// ) -> AppResult<UserClaims> {
-//   info!("get validate token user_id: {user_id}");
-//   req.validate()?;
-//   let token_data = verify_access_token(&state.config.secret, &req.token)?;
-//   session::check(&state.redis, &token_data.claims).await?;
-//   Ok(token_data.claims)
-// }
+pub async fn active(state: &AppState, req: ActiveRequest) -> AppResult {
+  req.validate(&())?;
+  let tx = state.db.begin().await?;
+  let user = crate::repo::user::find_by_id(&tx, req.user_id)
+    .await?
+    .to_result()?;
+  if user.is_active {
+    return Ok(());
+  }
+  let message =
+    crate::repo::message::find_by_user_and_kind(&tx, req.user_id, MessageKind::ActiveCode)
+      .await?
+      .to_result()?;
+  if message.content != req.code {
+    return Err(invalid_input_error("code", "Code is Invalid"));
+  }
+  crate::repo::user::active(&tx, user).await?;
+  tx.commit().await?;
+  Ok(())
+}
 
 // pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<LoginResponse> {
 //   info!("user login req :{req:?}");
@@ -122,6 +97,18 @@ pub fn generate_invitation_code() -> String {
 //       Ok(LoginResponse::from(resp))
 //     }
 //   }
+// }
+
+// pub async fn validate(
+//   state: &AppState,
+//   user_id: &Uuid,
+//   req: ValidateRequest,
+// ) -> AppResult<UserClaims> {
+//   info!("get validate token user_id: {user_id}");
+//   req.validate()?;
+//   let token_data = verify_access_token(&state.config.secret, &req.token)?;
+//   session::check(&state.redis, &token_data.claims).await?;
+//   Ok(token_data.claims)
 // }
 
 // pub async fn refresh_token(state: &AppState, user_claims: &UserClaims) -> AppResult<TokenResponse> {

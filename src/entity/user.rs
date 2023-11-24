@@ -4,7 +4,10 @@ use fake::Dummy;
 use sea_orm::entity::prelude::*;
 use uuid::Uuid;
 
+use crate::error::ResourceType;
+
 use super::role::RoleUser;
+use super::AppEntity;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Dummy, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
@@ -25,6 +28,10 @@ pub struct Model {
   pub is_tfa: bool,
   pub create_at: DateTime<Utc>,
   pub update_at: DateTime<Utc>,
+}
+
+impl AppEntity for Model {
+  const RESOURCE: ResourceType = ResourceType::User;
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

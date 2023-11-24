@@ -30,6 +30,13 @@ pub async fn save(
   Ok(user.id)
 }
 
+#[tracing::instrument]
+pub async fn active(tx: &DatabaseTransaction, user: entity::user::Model) -> AppResult<()> {
+  let user: entity::user::ActiveModel = user.into();
+  user.update(tx).await?;
+  Ok(())
+}
+
 #[tracing::instrument(skip_all)]
 pub async fn find_by_id<C>(conn: &C, id: Uuid) -> AppResult<Option<entity::user::Model>>
 where

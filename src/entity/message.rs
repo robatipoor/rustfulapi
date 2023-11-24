@@ -6,6 +6,8 @@ use strum::Display;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
+use crate::error::ResourceType;
+
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Dummy, DeriveEntityModel)]
 #[sea_orm(table_name = "message")]
 pub struct Model {
@@ -18,6 +20,10 @@ pub struct Model {
   pub user_id: Uuid,
   pub create_at: DateTime<Utc>,
   pub update_at: DateTime<Utc>,
+}
+
+impl super::AppEntity for Model {
+  const RESOURCE: crate::error::ResourceType = ResourceType::Message;
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -2,9 +2,15 @@ use sea_orm::{DatabaseTransaction, TransactionTrait};
 use test_context::AsyncTestContext;
 use tracing::info;
 
+use crate::error::ResourceType;
+
 pub mod message;
 pub mod role;
 pub mod user;
+
+pub trait AppEntity {
+  const RESOURCE: ResourceType;
+}
 
 pub struct TransactionTestContext {
   pub tx: DatabaseTransaction,
