@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::{constant::BEARER, error::AppResponseError};
+use crate::{constant::BEARER, entity, error::AppResponseError};
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Dummy, Clone)]
 pub struct SaveUserResponse {
@@ -152,15 +152,16 @@ pub struct ForgetPasswordResponse {
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ProfileResponse {
   pub username: String,
+  // TODO
 }
 
-// impl From<&User> for ProfileResponse {
-//   fn from(user: &User) -> Self {
-//     ProfileResponse {
-//       username: user.username.clone(),
-//     }
-//   }
-// }
+impl From<entity::user::Model> for ProfileResponse {
+  fn from(user: entity::user::Model) -> Self {
+    ProfileResponse {
+      username: user.username.clone(),
+    }
+  }
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(untagged)]

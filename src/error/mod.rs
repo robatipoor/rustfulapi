@@ -15,9 +15,9 @@ pub type AppResult<T = ()> = std::result::Result<T, AppError>;
 #[derive(Debug, thiserror::Error, ToSchema)]
 pub enum AppError {
   #[error("{0} not found")]
-  NotFoundError(ResourceType, Vec<(String, String)>),
+  NotFoundError(Resource),
   #[error("{0} not available")]
-  NotAvailableError(ResourceType),
+  NotAvailableError(Resource),
   #[error("{0} already exists")]
   ResourceExistsError(Resource),
   #[error("{0}")]
@@ -95,8 +95,7 @@ impl From<argon2::password_hash::Error> for AppError {
 }
 
 impl AppError {
-  // TODO remove ref from self
-  pub fn response(&self) -> (AppResponseError, StatusCode) {
+  pub fn response(self) -> (AppResponseError, StatusCode) {
     use AppError::*;
     let (kind, message, code, details, status_code) = match self {
       InvalidPayloadError(err) => (
@@ -113,18 +112,18 @@ impl AppError {
         vec![],
         StatusCode::BAD_REQUEST,
       ),
-      NotAvailableError(resource) => (
+      NotAvailableError(ref resource) => (
         format!("{resource}_NOT_AVAILABLE_ERROR"),
         self.to_string(),
         None,
         vec![],
         StatusCode::NOT_FOUND,
       ),
-      NotFoundError(resource, details) => (
+      NotFoundError(ref resource) => (
         format!("{resource}_NOT_FOUND_ERROR"),
         self.to_string(),
-        Some(*resource as i32),
-        details.clone(),
+        Some(resource.resource_type as i32),
+        resource.details.clone(),
         StatusCode::NOT_FOUND,
       ),
       AccessDeniedError(err) => (
@@ -134,7 +133,7 @@ impl AppError {
         vec![],
         StatusCode::FORBIDDEN,
       ),
-      ResourceExistsError(resource) => (
+      ResourceExistsError(ref resource) => (
         format!("{resource}_ALREADY_EXISTS_ERROR"),
         self.to_string(),
         Some(resource.resource_type as i32),
@@ -428,6 +427,8 @@ pub fn invalid_input_error(field: &'static str, message: &'static str) -> AppErr
 pub trait ToAppResult {
   type Output: entity::AppEntity;
   fn to_result(self) -> AppResult<Self::Output>;
+  fn check_absent(self) -> AppResult;
+  fn check_absent_details(self, details: Vec<(String, String)>) -> AppResult;
   fn to_result_details(self, details: Vec<(String, String)>) -> AppResult<Self::Output>;
 }
 
@@ -437,10 +438,42 @@ where
 {
   type Output = T;
   fn to_result(self) -> AppResult<Self::Output> {
-    self.ok_or_else(|| AppError::NotFoundError(Self::Output::RESOURCE, vec![]))
+    self.ok_or_else(|| {
+      AppError::NotFoundError(Resource {
+        details: vec![],
+        resource_type: Self::Output::RESOURCE,
+      })
+    })
   }
 
   fn to_result_details(self, details: Vec<(String, String)>) -> AppResult<Self::Output> {
-    self.ok_or_else(|| AppError::NotFoundError(Self::Output::RESOURCE, details))
+    self.ok_or_else(|| {
+      AppError::NotFoundError(Resource {
+        details,
+        resource_type: Self::Output::RESOURCE,
+      })
+    })
+  }
+
+  fn check_absent(self) -> AppResult {
+    if self.is_some() {
+      Err(AppError::ResourceExistsError(Resource {
+        details: vec![],
+        resource_type: Self::Output::RESOURCE,
+      }))
+    } else {
+      Ok(())
+    }
+  }
+
+  fn check_absent_details(self, details: Vec<(String, String)>) -> AppResult {
+    if self.is_some() {
+      Err(AppError::ResourceExistsError(Resource {
+        details,
+        resource_type: Self::Output::RESOURCE,
+      }))
+    } else {
+      Ok(())
+    }
   }
 }

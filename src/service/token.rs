@@ -16,7 +16,7 @@ use crate::util::{self, claim::UserClaims};
 use crate::service::redis::*;
 use crate::service::session;
 
-use super::redis::UserValue;
+use super::redis;
 
 pub fn generate_block_email(email: String) -> (BlockEmailKey, BlockValue) {
   let block_id = Uuid::new_v4();
@@ -25,39 +25,30 @@ pub fn generate_block_email(email: String) -> (BlockEmailKey, BlockValue) {
   (key, value)
 }
 
-pub fn generate_forget_password(user_id: Uuid) -> (ForgetPasswordKey, UserValue) {
-  let reset_code = util::random::generate_random_string(VERIFY_CODE_LEN);
-  let reset_id = Uuid::new_v4();
-  let value = UserValue::new(user_id, reset_code);
-  let key = ForgetPasswordKey { id: reset_id };
-  (key, value)
+pub async fn generate_forget_password_code(
+  redis: &RedisClient,
+  user_id: Uuid,
+) -> AppResult<String> {
+  let code = util::random::generate_random_string(VERIFY_CODE_LEN);
+  let key = ForgetPasswordKey { user_id };
+  crate::service::redis::set(redis, (&key, &code)).await?;
+  Ok(code)
 }
 
-pub fn generate_session(user_id: Uuid) -> (SessionKey, SessionValue) {
-  let session_id = Uuid::new_v4();
-  let value = SessionValue {
-    user_id,
-    id: session_id,
-  };
-  let key = SessionKey { user_id };
-  (key, value)
-}
-
-pub fn generate_two_factor_login(user_id: Uuid) -> (TwoFactorLoginKey, UserValue) {
+pub async fn generate_login_code(redis: &RedisClient, user_id: Uuid) -> AppResult<String> {
   let login_code = util::random::generate_random_string(VERIFY_CODE_LEN);
-  let login_id = Uuid::new_v4();
-  let value = UserValue::new(user_id, login_code);
-  let key = TwoFactorLoginKey { id: login_id };
-  (key, value)
+  let key = LoginKey { user_id };
+  redis::set(redis, (&key, &login_code)).await?;
+  Ok(login_code)
 }
 
-pub fn generate_invitation(user_id: Uuid) -> (InvitationKey, UserValue) {
-  let invitation_code = util::random::generate_random_string(VERIFY_CODE_LEN);
-  let invitation_id = Uuid::new_v4();
-  let value = UserValue::new(user_id, invitation_code);
-  let key = InvitationKey { id: invitation_id };
-  (key, value)
-}
+// pub fn generate_invitation(user_id: Uuid) -> (InvitationKey, UserValue) {
+//   let invitation_code = util::random::generate_random_string(VERIFY_CODE_LEN);
+//   let invitation_id = Uuid::new_v4();
+//   let value = UserValue::new(user_id, invitation_code);
+//   let key = InvitationKey { id: invitation_id };
+//   (key, value)
+// }
 
 pub async fn verify_token(
   redis: &RedisClient,
@@ -86,19 +77,19 @@ pub fn verify_refresh_token(
   UserClaims::decode(token, get_refresh_token_decoding_key(config)?).map_err(|e| e.into())
 }
 
-pub async fn generate_token_response(
-  redis: &RedisClient,
-  config: &SecretConfig,
-  expire_secs: u64,
-  user_id: Uuid,
-  role: RoleUser,
-) -> AppResult<(UserClaims, TokenResponse)> {
-  let (key, value) = generate_session(user_id);
-  crate::service::redis::set(redis, (&key, &value)).await?;
-  let claims = UserClaims::new(Duration::from_secs(expire_secs), user_id, value.id, role);
-  let token = generate_tokens(config, user_id, role, value.id)?;
-  Ok((claims, token))
-}
+// pub async fn generate_token_response(
+//   redis: &RedisClient,
+//   config: &SecretConfig,
+//   expire_secs: u64,
+//   user_id: Uuid,
+//   role: RoleUser,
+// ) -> AppResult<(UserClaims, TokenResponse)> {
+//   let (key, value) = generate_session(user_id);
+//   crate::service::redis::set(redis, (&key, &value)).await?;
+//   let claims = UserClaims::new(Duration::from_secs(expire_secs), user_id, value.id, role);
+//   let token = generate_tokens(config, user_id, role, value.id)?;
+//   Ok((claims, token))
+// }
 
 pub fn generate_tokens(
   config: &SecretConfig,
@@ -208,7 +199,7 @@ mod tests {
   #[tokio::test]
   async fn test_verify_token_access() {
     let user_id: Uuid = Faker.fake();
-    let (key, session) = generate_session(user_id);
+    let (key, session) = session::generate(user_id);
     let claims = UserClaims::new(Duration::from_secs(10), user_id, session.id, RoleUser::User);
     let token = encode_access_token(&CONFIG.secret, &claims).unwrap();
     set(&REDIS, (&key, &session)).await.unwrap();
@@ -222,7 +213,7 @@ mod tests {
   #[tokio::test]
   async fn test_verify_refresh_token() {
     let user_id: Uuid = Faker.fake();
-    let (key, session) = generate_session(user_id);
+    let (key, session) = session::generate(user_id);
     let claims = UserClaims::new(
       Duration::from_secs(10),
       user_id,

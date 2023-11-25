@@ -55,28 +55,12 @@ impl Display for SessionKey {
 }
 
 #[derive(Debug, Serialize, Deserialize, Dummy, Ord, PartialOrd, Eq, PartialEq, Clone)]
-pub struct InvitationKey {
-  pub id: Uuid,
-}
-
-impl RedisKey for InvitationKey {
-  type Value = UserValue;
-  const EXPIRE_TIME: Duration = EXPIRE_INVITATION_CODE_SECS;
-}
-
-impl Display for InvitationKey {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "INVITATION_KEY_{}", self.id)
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize, Dummy, Ord, PartialOrd, Eq, PartialEq, Clone)]
 pub struct ForgetPasswordKey {
-  pub id: Uuid,
+  pub user_id: Uuid,
 }
 
 impl RedisKey for ForgetPasswordKey {
-  type Value = UserValue;
+  type Value = String;
   const EXPIRE_TIME: Duration = EXPIRE_FORGET_PASS_CODE_SECS;
 }
 
@@ -87,18 +71,18 @@ impl Display for ForgetPasswordKey {
 }
 
 #[derive(Debug, Serialize, Deserialize, Dummy, Ord, PartialOrd, Eq, PartialEq, Clone)]
-pub struct TwoFactorLoginKey {
-  pub id: Uuid,
+pub struct LoginKey {
+  pub user_id: Uuid,
 }
 
-impl RedisKey for TwoFactorLoginKey {
-  type Value = UserValue;
+impl RedisKey for LoginKey {
+  type Value = String;
   const EXPIRE_TIME: Duration = EXPIRE_TWO_FACTOR_CODE_SECS;
 }
 
-impl Display for TwoFactorLoginKey {
+impl Display for LoginKey {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "TWO_FACTOR_LOGIN_KEY_{}", self.id)
+    write!(f, "TWO_FACTOR_LOGIN_KEY_{}", self.user_id)
   }
 }
 
@@ -108,8 +92,7 @@ pub struct BlockValue {
 }
 
 #[derive(Debug, Serialize, Deserialize, Dummy, Ord, PartialOrd, Eq, PartialEq, Clone)]
-pub struct UserValue {
-  pub user_id: Uuid,
+pub struct LoginValue {
   pub code: String,
 }
 
@@ -117,15 +100,6 @@ pub struct UserValue {
 pub struct SessionValue {
   pub user_id: Uuid,
   pub id: Uuid,
-}
-
-impl UserValue {
-  pub fn new<T: Into<String>>(user_id: Uuid, code: T) -> Self {
-    Self {
-      user_id,
-      code: code.into(),
-    }
-  }
 }
 
 pub async fn set<K>(client: &RedisClient, (key, value): (&K, &K::Value)) -> AppResult<()>
@@ -200,8 +174,8 @@ mod tests {
 
   #[tokio::test]
   async fn test_delete_redis_service() {
-    let key: TwoFactorLoginKey = Faker.fake();
-    let value: UserValue = Faker.fake();
+    let key: LoginKey = Faker.fake();
+    let value: String = Faker.fake();
     set(&REDIS, (&key, &value)).await.unwrap();
     let actual_value = get(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
@@ -213,8 +187,8 @@ mod tests {
 
   #[tokio::test]
   async fn test_set_and_get_value_redis_service() {
-    let key: InvitationKey = Faker.fake();
-    let value: UserValue = Faker.fake();
+    let key: LoginKey = Faker.fake();
+    let value: String = Faker.fake();
     set(&REDIS, (&key, &value)).await.unwrap();
     let actual_value = get(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);

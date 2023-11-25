@@ -1,22 +1,25 @@
 use garde::Validate;
+use sea_orm::ActiveModelTrait;
 use sea_orm::DatabaseTransaction;
+use sea_orm::Set;
 use sea_orm::TransactionTrait;
 use tracing::info;
 use uuid::Uuid;
 
 use crate::constant::VERIFY_CODE_LEN;
 
-use crate::dto::ActiveRequest;
-use crate::dto::RegisterRequest;
+use crate::dto::*;
+use crate::entity;
 use crate::entity::message::MessageKind;
 use crate::error::invalid_input_error;
+use crate::error::AppResult;
 use crate::error::ToAppResult;
 use crate::repo;
-// use crate::service::redis::*;
-// use crate::service::session;
-// use crate::service::token;
-use crate::error::{AppError, AppResult};
 use crate::server::state::AppState;
+use crate::service;
+use crate::service::redis::ForgetPasswordKey;
+use crate::service::redis::LoginKey;
+use crate::service::redis::SessionKey;
 use crate::util;
 
 pub async fn register(state: AppState, req: RegisterRequest) -> AppResult<Uuid> {
@@ -57,47 +60,40 @@ pub async fn active(state: &AppState, req: ActiveRequest) -> AppResult {
   Ok(())
 }
 
-// pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<LoginResponse> {
-//   info!("user login req :{req:?}");
-//   req.validate()?;
-//   match req {
-//     LoginRequest::Normal(req) => {
-//       let user = fetch_active_user_by_email(&state.postgres, &req.email).await?;
-//       util::password::verify(req.password.clone(), user.password.clone()).await?;
-//       if user.is_tfa {
-//         let (key, value) = generate_two_factor_login(user.id);
-//         crate::redis::set(&state.redis, (&key, &value)).await?;
-//         let login_template = Template::Login {
-//           username: user.username,
-//           code: value.code.clone(),
-//         };
-//         crate::email::send_email(&state.email, &login_template, "login email", &user.email).await?;
-//         Ok(LoginResponse::Id { id: key.id })
-//       } else {
-//         let (key, value) = generate_session(user.id);
-//         crate::redis::set(&state.redis, (&key, &value)).await?;
-//         let resp = crate::token::generate_tokens(&state.config.secret, &user, &value.id)?;
-//         // TODO log user login
-//         Ok(LoginResponse::from(resp))
-//       }
-//     }
-//     LoginRequest::TwoFactor(req) => {
-//       let key = TwoFactorLoginKey { id: req.id };
-//       let value = crate::redis::get(&state.redis, &key)
-//         .await?
-//         .ok_or_else(|| AppError::NotFound("Id Not Found".to_string()))?;
-//       if value.code != req.code {
-//         return Err(invalid_input_error("code", "Code is Invalid"));
-//       }
-//       let user = fetch_active_user(&state.postgres, value.user_id).await?;
-//       let (key, value) = generate_session(user.id);
-//       crate::redis::set(&state.redis, (&key, &value)).await?;
-//       let resp = crate::token::generate_tokens(&state.config.secret, &user, &value.id)?;
-//       // TODO log user login
-//       Ok(LoginResponse::from(resp))
-//     }
-//   }
-// }
+pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<Option<TokenResponse>> {
+  info!("User login req :{req:?}");
+  req.validate(&())?;
+  let user = crate::repo::user::find_by_email_and_status(&state.db, &req.email, true)
+    .await?
+    .to_result()?;
+  util::password::verify(req.password.clone(), user.password.clone()).await?;
+  if user.is_tfa {
+    let code = service::token::generate_login_code(&state.redis, user.id).await?;
+    crate::repo::message::save(&*state.db, user.id, code, MessageKind::LoginCode).await?;
+    state.messenger_notify.notify_one();
+    return Ok(None);
+  }
+  let session_id = service::session::set(&state.redis, user.id).await?;
+  let resp = service::token::generate_tokens(&state.config.secret, user.id, user.role, session_id)?;
+  Ok(Some(resp))
+}
+
+pub async fn two_factor_login(state: &AppState, req: TwoFactorLogin) -> AppResult<TokenResponse> {
+  info!("User two factor login request: {req:?}");
+  req.validate(&())?;
+  let key = LoginKey {
+    user_id: req.user_id,
+  };
+  let code = service::redis::pull(&state.redis, &key).await?;
+  if code != Some(req.code) {
+    // TODO error
+  }
+  let user = crate::repo::user::find_by_id(&*state.db, req.user_id)
+    .await?
+    .to_result()?;
+  let session_id = service::session::set(&state.redis, user.id).await?;
+  service::token::generate_tokens(&state.config.secret, req.user_id, user.role, session_id)
+}
 
 // pub async fn validate(
 //   state: &AppState,
@@ -124,176 +120,94 @@ pub async fn active(state: &AppState, req: ActiveRequest) -> AppResult {
 //   Ok(resp)
 // }
 
-// pub async fn logout(state: &AppState, user_id: Uuid) -> AppResult {
-//   info!("user logout user id: {user_id}");
-//   let key = SessionKey { user_id };
-//   if !crate::redis::check_exist_key(&state.redis, &key).await? {
-//     return Err(AppError::SessionNotExist("Session Not Found".to_string()));
-//   }
-//   crate::redis::del(&state.redis, &key).await?;
-//   Ok(())
-// }
+pub async fn logout(state: &AppState, user_id: Uuid) -> AppResult {
+  info!("Logout user id: {user_id}");
+  let key = SessionKey { user_id };
+  service::redis::del(&state.redis, &key).await?;
+  Ok(())
+}
 
-// pub async fn forget_password(
-//   state: &AppState,
-//   req: ForgetPasswordParamQuery,
-// ) -> AppResult<ForgetPasswordResponse> {
-//   info!("forget password req: {req:?}");
-//   req.validate()?;
-//   let block_key = BlockEmailKey {
-//     email: req.email.clone(),
-//   };
-//   if crate::redis::check_exist_key(&state.redis, &block_key).await? {
-//     return Err(AppError::UserBlocked(
-//       "This User was Temporary Blocked".to_string(),
-//     ));
-//   }
-//   let user = fetch_active_user_by_email(&state.postgres, &req.email).await?;
-//   let (key, value) = token::generate_forget_password(user.id);
-//   crate::redis::set(&state.redis, (&key, &value)).await?;
-//   let forget_pass = Template::ForgetPassword {
-//     username: user.username,
-//     code: value.code.clone(),
-//   };
-//   crate::email::send_email(&state.email, &forget_pass, "forget password", &user.email).await?;
-//   let (block_key, value) = token::generate_block_email(req.email);
-//   crate::redis::set(&state.redis, (&block_key, &value)).await?;
-//   Ok(ForgetPasswordResponse { id: key.id })
-// }
+pub async fn forget_password(state: &AppState, req: ForgetPasswordParamQuery) -> AppResult {
+  info!("Forget password req: {req:?}");
+  req.validate(&())?;
+  let user = repo::user::find_by_email_and_status(&state.db, &req.email, true)
+    .await?
+    .to_result()?;
+  if service::redis::check_exist_key(&state.redis, &ForgetPasswordKey { user_id: user.id }).await? {
+    return Ok(());
+  }
+  let code = service::token::generate_forget_password_code(&state.redis, user.id).await?;
+  repo::message::save(&*state.db, user.id, code, MessageKind::ForgetPasswordCode).await?;
+  state.messenger_notify.notify_one();
+  Ok(())
+}
 
-// pub async fn reset_password(state: &AppState, req: SetPasswordRequest) -> AppResult {
-//   info!("reset password req: {req:?}");
-//   req.validate()?;
-//   let key = ForgetPasswordKey { id: req.id };
-//   let value = crate::redis::get(&state.redis, &key)
-//     .await?
-//     .ok_or_else(|| AppError::NotFound("Id Not Found".to_string()))?;
-//   if value.code != req.code {
-//     crate::redis::del(&state.redis, &key).await?;
-//     return Err(invalid_input_error("code", "Code is Invalid"));
-//   }
-//   let jh = tokio::task::spawn_blocking(move || hash::argon_hash(req.new_password));
-//   let password = jh.await??;
-//   query::get_transaction(&state.postgres, move |mut tx| async move {
-//     let mut user = fetch_active_user_by_id(&mut tx, &value.user_id).await?;
-//     user.password = password;
-//     query::user::update(&user).execute(&mut *tx).await?;
-//     Ok(((), tx))
-//   })
-//   .await?;
+pub async fn reset_password(state: &AppState, req: SetPasswordRequest) -> AppResult {
+  info!("Reset password request: {req:?}");
+  req.validate(&())?;
+  let key = ForgetPasswordKey {
+    user_id: req.user_id,
+  };
+  let code = service::redis::get(&state.redis, &key).await?.unwrap();
+  // .ok_or_else(|| AppError::NotFoundError("Id Not Found".to_string()))?;
+  if code != req.code {
+    return Err(invalid_input_error("code", "Code is Invalid"));
+  }
+  let password =
+    tokio::task::spawn_blocking(move || crate::util::hash::argon_hash(req.new_password)).await??;
+  let tx = state.db.begin().await?;
+  let mut user: entity::user::ActiveModel = repo::user::find_by_id(&tx, req.user_id)
+    .await?
+    .to_result()?
+    .into();
+  user.password = Set(password);
+  user.update(&tx).await?;
+  tx.commit().await?;
+  Ok(())
+}
 
-//   Ok(())
-// }
+pub async fn get_profile(state: &AppState, user_id: Uuid) -> AppResult<ProfileResponse> {
+  info!("Get user profile with id: {user_id}");
+  let user = crate::repo::user::find_by_id(&*state.db, user_id)
+    .await?
+    .to_result()?;
+  Ok(ProfileResponse::from(user))
+}
 
-// pub async fn get_profile(state: &AppState, user_id: &Uuid) -> AppResult<ProfileResponse> {
-//   info!("get profile user id: {user_id}");
-//   let user = fetch_active_user(&state.postgres, *user_id).await?;
-//   Ok(ProfileResponse::from(&user))
-// }
-
-// pub async fn update_profile(
-//   state: &AppState,
-//   user_id: Uuid,
-//   req: UpdateProfileRequest,
-// ) -> AppResult {
-//   info!("update profile user id: {user_id} req: {req:?}");
-//   req.validate()?;
-//   if let Some(username) = req.username.as_ref() {
-//     if query::user::exist_by_username_or_email(username, username, None)
-//       .fetch_one(&state.postgres)
-//       .await?
-//       .exist
-//       .unwrap()
-//     {
-//       return Err(AppError::AlreadyExists(
-//         "This Username Already Exists".to_string(),
-//       ));
-//     }
-//   }
-//   query::get_transaction(&state.postgres, move |mut tx| async move {
-//     let mut user = fetch_active_user_by_id(&mut tx, &user_id).await?;
-//     if let Some(is_tfa) = req.is_tfa {
-//       user.is_tfa = is_tfa;
-//     }
-//     if let Some(username) = req.username {
-//       user.username = username;
-//     }
-//     if let Some(password) = req.password {
-//       user.password = password;
-//     }
-//     query::user::update(&user).execute(&mut *tx).await?;
-//     Ok(((), tx))
-//   })
-//   .await?;
-//   Ok(())
-// }
-
-// pub async fn fetch_user_by_id(
-//   tx: &mut Transaction<'static, Postgres>,
-//   user_id: &Uuid,
-// ) -> AppResult<User> {
-//   let user = query::user::find_by_id(user_id)
-//     .fetch_optional(&mut **tx)
-//     .await?
-//     .ok_or_else(|| AppError::NotFound("No User Found with This ID".to_string()))?;
-//   Ok(user)
-// }
-
-// pub async fn fetch_user_by_email(db: &PgClient, email: &str) -> AppResult<User> {
-//   let user = query::user::find_by_email(email, None)
-//     .fetch_optional(db)
-//     .await?
-//     .ok_or_else(|| AppError::NotFound("No User Found with This Email".to_string()))?;
-//   Ok(user)
-// }
-
-// pub async fn fetch_active_user(db: &PgClient, user_id: Uuid) -> AppResult<User> {
-//   query::get_transaction(db, move |mut tx| async move {
-//     let user = fetch_active_user_by_id(&mut tx, &user_id).await?;
-//     Ok(((user), tx))
-//   })
-//   .await
-// }
-
-// pub async fn fetch_active_user_by_id(
-//   tx: &mut Transaction<'static, Postgres>,
-//   user_id: &Uuid,
-// ) -> AppResult<User> {
-//   let user = fetch_user_by_id(tx, user_id).await?;
-//   if !user.is_active {
-//     return Err(AppError::UserNotActive(
-//       "User is Not Currently Active".to_string(),
-//     ));
-//   }
-//   Ok(user)
-// }
-
-// pub async fn fetch_active_user_by_email(db: &PgClient, email: &str) -> AppResult<User> {
-//   let user = fetch_user_by_email(db, email).await?;
-//   if !user.is_active {
-//     return Err(AppError::UserNotActive(
-//       "This User is Not Currently Active".to_string(),
-//     ));
-//   }
-//   Ok(user)
-// }
+pub async fn update_profile(
+  state: &AppState,
+  user_id: Uuid,
+  req: UpdateProfileRequest,
+) -> AppResult {
+  info!("Update user profile with id: {user_id} req: {req:?}");
+  req.validate(&())?;
+  let tx = state.db.begin().await?;
+  if let Some(username) = req.username.as_ref() {
+    repo::user::check_unique_by_username(&tx, username).await?;
+  }
+  let mut user: entity::user::ActiveModel = repo::user::find_by_id(&tx, user_id)
+    .await?
+    .to_result()?
+    .into();
+  if let Some(is_tfa) = req.is_tfa {
+    user.is_tfa = Set(is_tfa);
+  }
+  if let Some(username) = req.username {
+    user.username = Set(username);
+  }
+  if let Some(password) = req.password {
+    user.password = Set(password);
+  }
+  user.update(&tx).await?;
+  tx.commit().await?;
+  Ok(())
+}
 
 pub async fn check_unique_username_or_email(
   tx: &DatabaseTransaction,
   username: &str,
   email: &str,
-) -> AppResult<()> {
-  if repo::user::exist_by_username(tx, username, false).await? {
-    Err(AppError::ResourceExistsError(crate::error::Resource {
-      resource_type: crate::error::ResourceType::User,
-      details: vec![("username".to_string(), username.to_string())],
-    }))
-  } else if repo::user::exist_by_email(tx, email, false).await? {
-    Err(AppError::ResourceExistsError(crate::error::Resource {
-      resource_type: crate::error::ResourceType::User,
-      details: vec![("email".to_string(), email.to_string())],
-    }))
-  } else {
-    Ok(())
-  }
+) -> AppResult {
+  repo::user::check_unique_by_username(tx, username).await?;
+  repo::user::check_unique_by_email(tx, email).await
 }

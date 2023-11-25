@@ -33,13 +33,11 @@ where
   Ok(model)
 }
 
-#[tracing::instrument]
-pub async fn save(
-  tx: &DatabaseTransaction,
-  user_id: Uuid,
-  content: String,
-  kind: MessageKind,
-) -> AppResult<Uuid> {
+#[tracing::instrument(skip_all)]
+pub async fn save<C>(tx: &C, user_id: Uuid, content: String, kind: MessageKind) -> AppResult<Uuid>
+where
+  C: ConnectionTrait,
+{
   let model = crate::entity::message::ActiveModel {
     id: Set(Uuid::new_v4()),
     content: Set(content),

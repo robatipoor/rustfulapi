@@ -68,15 +68,9 @@ pub struct ActiveRequest {
   pub user_id: Uuid,
 }
 
-#[derive(Debug, Deserialize, Serialize, Dummy, ToSchema)]
+#[derive(Debug, Deserialize, Serialize, Dummy, ToSchema, Validate)]
 #[serde(tag = "type")]
-pub enum LoginRequest {
-  Normal(NormalLogin),
-  TwoFactor(TwoFactorLogin),
-}
-
-#[derive(Debug, Deserialize, Serialize, ToSchema, Validate, Dummy)]
-pub struct NormalLogin {
+pub struct LoginRequest {
   #[dummy(faker = "SafeEmail()")]
   #[garde(email)]
   pub email: String,
@@ -88,7 +82,7 @@ pub struct NormalLogin {
 #[derive(Debug, Deserialize, Serialize, ToSchema, Validate, Dummy)]
 pub struct TwoFactorLogin {
   #[garde(skip)]
-  pub id: Uuid,
+  pub user_id: Uuid,
   #[garde(length(min = 5))]
   pub code: String,
 }
@@ -126,7 +120,7 @@ pub struct SetPasswordRequest {
   #[garde(length(min = 5))]
   pub code: String,
   #[garde(skip)]
-  pub id: Uuid,
+  pub user_id: Uuid,
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema, Validate, Dummy, Default)]
