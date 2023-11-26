@@ -6,8 +6,6 @@ use uuid::Uuid;
 
 use crate::service::redis::SessionKey;
 
-use super::redis::SessionValue;
-
 pub async fn check(redis: &RedisClient, claims: &UserClaims) -> AppResult<Uuid> {
   let user_id = claims.uid;
   let session_id = claims.sid;
@@ -34,15 +32,11 @@ pub async fn check(redis: &RedisClient, claims: &UserClaims) -> AppResult<Uuid> 
 pub async fn set(redis: &RedisClient, user_id: Uuid) -> AppResult<Uuid> {
   let (key, value) = generate(user_id);
   crate::service::redis::set(redis, (&key, &value)).await?;
-  Ok(value.id)
+  Ok(value)
 }
 
-pub fn generate(user_id: Uuid) -> (SessionKey, SessionValue) {
+pub fn generate(user_id: Uuid) -> (SessionKey, Uuid) {
   let session_id = Uuid::new_v4();
-  let value = SessionValue {
-    user_id,
-    id: session_id,
-  };
   let key = SessionKey { user_id };
-  (key, value)
+  (key, session_id)
 }

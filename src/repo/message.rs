@@ -1,7 +1,7 @@
 use chrono::Utc;
 use sea_orm::{
-  ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseConnection,
-  DatabaseTransaction, EntityTrait, QueryFilter, Set, TransactionTrait,
+  ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseConnection, EntityTrait,
+  QueryFilter, Set, TransactionTrait,
 };
 use uuid::Uuid;
 
@@ -121,8 +121,6 @@ mod tests {
     message::{MessageKind, MessageStatus},
     TransactionTestContext,
   };
-
-  use super::get_list;
 
   #[test_context(TransactionTestContext)]
   #[tokio::test]

@@ -6,8 +6,7 @@ use sea_orm::TransactionTrait;
 use tracing::info;
 use uuid::Uuid;
 
-use crate::constant::VERIFY_CODE_LEN;
-
+use crate::constant::CODE_LEN;
 use crate::dto::*;
 use crate::entity;
 use crate::entity::message::MessageKind;
@@ -20,7 +19,9 @@ use crate::service;
 use crate::service::redis::ForgetPasswordKey;
 use crate::service::redis::LoginKey;
 use crate::service::redis::SessionKey;
+use crate::service::token::verify_access_token;
 use crate::util;
+use crate::util::claim::UserClaims;
 
 pub async fn register(state: AppState, req: RegisterRequest) -> AppResult<Uuid> {
   info!("Register a new user request: {req:?}.");
@@ -29,14 +30,20 @@ pub async fn register(state: AppState, req: RegisterRequest) -> AppResult<Uuid> 
   check_unique_username_or_email(&tx, &req.username, &req.email).await?;
   let user_id = crate::repo::user::save(&tx, req.username, req.password, req.email).await?;
   let code = generate_active_code();
-  crate::repo::message::save(&tx, user_id, code, MessageKind::ActiveCode).await?;
-  state.messenger_notify.notify_one();
+  service::message::store(
+    &tx,
+    &*state.messenger_notify,
+    user_id,
+    code,
+    MessageKind::ActiveCode,
+  )
+  .await?;
   tx.commit().await?;
   Ok(user_id)
 }
 
 pub fn generate_active_code() -> String {
-  util::random::generate_random_string(VERIFY_CODE_LEN)
+  util::random::generate_random_string(CODE_LEN)
 }
 
 pub async fn active(state: &AppState, req: ActiveRequest) -> AppResult {
@@ -84,9 +91,9 @@ pub async fn two_factor_login(state: &AppState, req: TwoFactorLogin) -> AppResul
   let key = LoginKey {
     user_id: req.user_id,
   };
-  let code = service::redis::pull(&state.redis, &key).await?;
+  let code = service::redis::get(&state.redis, &key).await?;
   if code != Some(req.code) {
-    // TODO error
+    return Err(invalid_input_error("code", "Code is Invalid"));
   }
   let user = crate::repo::user::find_by_id(&*state.db, req.user_id)
     .await?
@@ -95,30 +102,30 @@ pub async fn two_factor_login(state: &AppState, req: TwoFactorLogin) -> AppResul
   service::token::generate_tokens(&state.config.secret, req.user_id, user.role, session_id)
 }
 
-// pub async fn validate(
-//   state: &AppState,
-//   user_id: &Uuid,
-//   req: ValidateRequest,
-// ) -> AppResult<UserClaims> {
-//   info!("get validate token user_id: {user_id}");
-//   req.validate()?;
-//   let token_data = verify_access_token(&state.config.secret, &req.token)?;
-//   session::check(&state.redis, &token_data.claims).await?;
-//   Ok(token_data.claims)
-// }
+pub async fn validate(
+  state: &AppState,
+  user_id: &Uuid,
+  req: ValidateRequest,
+) -> AppResult<UserClaims> {
+  info!("Get validate token user_id: {user_id}");
+  req.validate(&())?;
+  let token_data = verify_access_token(&state.config.secret, &req.token)?;
+  service::session::check(&state.redis, &token_data.claims).await?;
+  Ok(token_data.claims)
+}
 
-// pub async fn refresh_token(state: &AppState, user_claims: &UserClaims) -> AppResult<TokenResponse> {
-//   info!("start refresh token :{user_claims:?}");
-//   let user_id = session::check(&state.redis, user_claims).await?;
-//   let user = fetch_active_user(&state.postgres, user_id).await?;
-//   info!("fetch active user :{}", user.id);
-//   let (key, value) = token::generate_session(user.id);
-//   info!("generate new session :{}", user.id);
-//   crate::redis::set(&state.redis, (&key, &value)).await?;
-//   let resp = token::generate_tokens(&state.config.secret, &user, &value.id)?;
-//   info!("refresh token success :{user_claims:?}");
-//   Ok(resp)
-// }
+pub async fn refresh_token(state: &AppState, user_claims: &UserClaims) -> AppResult<TokenResponse> {
+  info!("Refresh token: {user_claims:?}");
+  let user_id = service::session::check(&state.redis, user_claims).await?;
+  let user = crate::repo::user::find_by_id(&*state.db, user_id)
+    .await?
+    .to_result()?;
+  let session_id = service::session::set(&state.redis, user.id).await?;
+  info!("Set new session for user: {}", user.id);
+  let resp = service::token::generate_tokens(&state.config.secret, user.id, user.role, session_id)?;
+  info!("Refresh token success: {user_claims:?}");
+  Ok(resp)
+}
 
 pub async fn logout(state: &AppState, user_id: Uuid) -> AppResult {
   info!("Logout user id: {user_id}");
@@ -137,20 +144,28 @@ pub async fn forget_password(state: &AppState, req: ForgetPasswordParamQuery) ->
     return Ok(());
   }
   let code = service::token::generate_forget_password_code(&state.redis, user.id).await?;
-  repo::message::save(&*state.db, user.id, code, MessageKind::ForgetPasswordCode).await?;
-  state.messenger_notify.notify_one();
+  service::message::store(
+    &*state.db,
+    &*state.messenger_notify,
+    user.id,
+    code,
+    MessageKind::ForgetPasswordCode,
+  )
+  .await?;
   Ok(())
 }
 
 pub async fn reset_password(state: &AppState, req: SetPasswordRequest) -> AppResult {
   info!("Reset password request: {req:?}");
   req.validate(&())?;
-  let key = ForgetPasswordKey {
-    user_id: req.user_id,
-  };
-  let code = service::redis::get(&state.redis, &key).await?.unwrap();
-  // .ok_or_else(|| AppError::NotFoundError("Id Not Found".to_string()))?;
-  if code != req.code {
+  let code = service::redis::get(
+    &state.redis,
+    &ForgetPasswordKey {
+      user_id: req.user_id,
+    },
+  )
+  .await?;
+  if code != Some(req.code) {
     return Err(invalid_input_error("code", "Code is Invalid"));
   }
   let password =

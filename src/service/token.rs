@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use jsonwebtoken::{DecodingKey, EncodingKey, TokenData};
 use once_cell::sync::OnceCell;
 use tracing::debug;
@@ -18,37 +16,22 @@ use crate::service::session;
 
 use super::redis;
 
-pub fn generate_block_email(email: String) -> (BlockEmailKey, BlockValue) {
-  let block_id = Uuid::new_v4();
-  let value = BlockValue { id: block_id };
-  let key = BlockEmailKey { email };
-  (key, value)
-}
-
 pub async fn generate_forget_password_code(
   redis: &RedisClient,
   user_id: Uuid,
 ) -> AppResult<String> {
-  let code = util::random::generate_random_string(VERIFY_CODE_LEN);
+  let code = util::random::generate_random_string(CODE_LEN);
   let key = ForgetPasswordKey { user_id };
   crate::service::redis::set(redis, (&key, &code)).await?;
   Ok(code)
 }
 
 pub async fn generate_login_code(redis: &RedisClient, user_id: Uuid) -> AppResult<String> {
-  let login_code = util::random::generate_random_string(VERIFY_CODE_LEN);
+  let login_code = util::random::generate_random_string(CODE_LEN);
   let key = LoginKey { user_id };
   redis::set(redis, (&key, &login_code)).await?;
   Ok(login_code)
 }
-
-// pub fn generate_invitation(user_id: Uuid) -> (InvitationKey, UserValue) {
-//   let invitation_code = util::random::generate_random_string(VERIFY_CODE_LEN);
-//   let invitation_id = Uuid::new_v4();
-//   let value = UserValue::new(user_id, invitation_code);
-//   let key = InvitationKey { id: invitation_id };
-//   (key, value)
-// }
 
 pub async fn verify_token(
   redis: &RedisClient,
@@ -76,20 +59,6 @@ pub fn verify_refresh_token(
 ) -> AppResult<TokenData<UserClaims>> {
   UserClaims::decode(token, get_refresh_token_decoding_key(config)?).map_err(|e| e.into())
 }
-
-// pub async fn generate_token_response(
-//   redis: &RedisClient,
-//   config: &SecretConfig,
-//   expire_secs: u64,
-//   user_id: Uuid,
-//   role: RoleUser,
-// ) -> AppResult<(UserClaims, TokenResponse)> {
-//   let (key, value) = generate_session(user_id);
-//   crate::service::redis::set(redis, (&key, &value)).await?;
-//   let claims = UserClaims::new(Duration::from_secs(expire_secs), user_id, value.id, role);
-//   let token = generate_tokens(config, user_id, role, value.id)?;
-//   Ok((claims, token))
-// }
 
 pub fn generate_tokens(
   config: &SecretConfig,

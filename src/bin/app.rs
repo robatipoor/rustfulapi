@@ -16,7 +16,7 @@ async fn main() -> AppResult<()> {
   info!("Initialization of sentry was successful.");
   info!("Create a new server.");
   let server = AppServer::new(config).await?;
-  info!("Create a new messanger task.");
+  info!("Create a new messenger task.");
   let messenger = MessengerTask::new(server.state.clone());
   info!("Run server.");
   util::task::join_all(vec![

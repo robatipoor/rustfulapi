@@ -14,8 +14,7 @@ use crate::{
   util,
 };
 
-// if you change the token length you most change validate request length
-pub const VERIFY_CODE_LEN: usize = 5;
+pub const CODE_LEN: usize = 5;
 pub const CLIENT_TIMEOUT: Duration = Duration::from_secs(120);
 pub const EXPIRE_SESSION_CODE_SECS: Duration = Duration::from_secs(2000);
 pub const EXPIRE_INVITATION_CODE_SECS: Duration = Duration::from_secs(86000);

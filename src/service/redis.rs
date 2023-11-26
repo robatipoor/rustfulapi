@@ -23,28 +23,12 @@ pub trait RedisKey: Debug + Display {
 }
 
 #[derive(Debug, Serialize, Deserialize, Dummy, Ord, PartialOrd, Eq, PartialEq, Clone)]
-pub struct BlockEmailKey {
-  pub email: String,
-}
-
-impl RedisKey for BlockEmailKey {
-  type Value = BlockValue;
-  const EXPIRE_TIME: Duration = EXPIRE_BLOCKED_EMAIL_SECS;
-}
-
-impl Display for BlockEmailKey {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "BLOCK_EMAIL_KEY{}", self.email)
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize, Dummy, Ord, PartialOrd, Eq, PartialEq, Clone)]
 pub struct SessionKey {
   pub user_id: Uuid,
 }
 
 impl RedisKey for SessionKey {
-  type Value = SessionValue;
+  type Value = Uuid;
   const EXPIRE_TIME: Duration = EXPIRE_SESSION_CODE_SECS;
 }
 
@@ -66,7 +50,7 @@ impl RedisKey for ForgetPasswordKey {
 
 impl Display for ForgetPasswordKey {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "FORGET_PASS_KEY_{}", self.id)
+    write!(f, "FORGET_PASS_KEY_{}", self.user_id)
   }
 }
 
@@ -87,19 +71,8 @@ impl Display for LoginKey {
 }
 
 #[derive(Debug, Serialize, Deserialize, Dummy, Ord, PartialOrd, Eq, PartialEq, Clone)]
-pub struct BlockValue {
-  pub id: Uuid,
-}
-
-#[derive(Debug, Serialize, Deserialize, Dummy, Ord, PartialOrd, Eq, PartialEq, Clone)]
 pub struct LoginValue {
   pub code: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Dummy, Ord, PartialOrd, Eq, PartialEq, Clone)]
-pub struct SessionValue {
-  pub user_id: Uuid,
-  pub id: Uuid,
 }
 
 pub async fn set<K>(client: &RedisClient, (key, value): (&K, &K::Value)) -> AppResult<()>
@@ -155,7 +128,7 @@ mod tests {
   #[tokio::test]
   async fn test_set_and_get_str_redis_service() {
     let key: SessionKey = Faker.fake();
-    let value: SessionValue = Faker.fake();
+    let value: String = Faker.fake();
     set(&REDIS, (&key, &value)).await.unwrap();
     let actual_value = get(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
@@ -164,7 +137,7 @@ mod tests {
   #[tokio::test]
   async fn test_pull_redis_service() {
     let key: SessionKey = Faker.fake();
-    let value: SessionValue = Faker.fake();
+    let value: String = Faker.fake();
     set(&REDIS, (&key, &value)).await.unwrap();
     let actual_value = pull(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
