@@ -1,4 +1,4 @@
-use sea_orm::{ConnectionTrait, DatabaseConnection};
+use sea_orm::ConnectionTrait;
 use tokio::sync::Notify;
 use uuid::Uuid;
 

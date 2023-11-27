@@ -77,13 +77,6 @@ impl<T> PageResponse<T> {
 #[derive(Debug, Deserialize, Serialize, ToSchema, Dummy)]
 pub struct RegisterResponse {
   pub id: Uuid,
-  pub expire_in: u64,
-}
-
-impl RegisterResponse {
-  pub fn new(id: Uuid, expire_in: u64) -> Self {
-    Self { id, expire_in }
-  }
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema, Dummy)]

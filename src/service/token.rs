@@ -169,7 +169,7 @@ mod tests {
   async fn test_verify_token_access() {
     let user_id: Uuid = Faker.fake();
     let (key, session) = session::generate(user_id);
-    let claims = UserClaims::new(Duration::from_secs(10), user_id, session.id, RoleUser::User);
+    let claims = UserClaims::new(Duration::from_secs(10), user_id, session, RoleUser::User);
     let token = encode_access_token(&CONFIG.secret, &claims).unwrap();
     set(&REDIS, (&key, &session)).await.unwrap();
     let claims = verify_token(&REDIS, &CONFIG.secret, &token, "/api/v1/resource")
@@ -182,15 +182,10 @@ mod tests {
   #[tokio::test]
   async fn test_verify_refresh_token() {
     let user_id: Uuid = Faker.fake();
-    let (key, session) = session::generate(user_id);
-    let claims = UserClaims::new(
-      Duration::from_secs(10),
-      user_id,
-      session.id,
-      RoleUser::System,
-    );
+    let (key, value) = session::generate(user_id);
+    let claims = UserClaims::new(Duration::from_secs(10), user_id, value, RoleUser::System);
     let token = encode_refresh_token(&CONFIG.secret, &claims).unwrap();
-    set(&REDIS, (&key, &session)).await.unwrap();
+    set(&REDIS, (&key, &value)).await.unwrap();
     let claims = verify_token(&REDIS, &CONFIG.secret, &token, REFRESH_TOKEN_ROUTE)
       .await
       .unwrap()

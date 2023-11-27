@@ -1,4 +1,3 @@
-use garde::Validate;
 use sea_orm::ActiveModelTrait;
 use sea_orm::DatabaseTransaction;
 use sea_orm::Set;
@@ -25,7 +24,6 @@ use crate::util::claim::UserClaims;
 
 pub async fn register(state: AppState, req: RegisterRequest) -> AppResult<Uuid> {
   info!("Register a new user request: {req:?}.");
-  req.validate(&())?;
   let tx = state.db.begin().await?;
   check_unique_username_or_email(&tx, &req.username, &req.email).await?;
   let user_id = crate::repo::user::save(&tx, req.username, req.password, req.email).await?;
@@ -47,7 +45,6 @@ pub fn generate_active_code() -> String {
 }
 
 pub async fn active(state: &AppState, req: ActiveRequest) -> AppResult {
-  req.validate(&())?;
   let tx = state.db.begin().await?;
   let user = crate::repo::user::find_by_id(&tx, req.user_id)
     .await?
@@ -69,7 +66,6 @@ pub async fn active(state: &AppState, req: ActiveRequest) -> AppResult {
 
 pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<Option<TokenResponse>> {
   info!("User login req :{req:?}");
-  req.validate(&())?;
   let user = crate::repo::user::find_by_email_and_status(&state.db, &req.email, true)
     .await?
     .to_result()?;
@@ -87,7 +83,6 @@ pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<Option<Toke
 
 pub async fn two_factor_login(state: &AppState, req: TwoFactorLogin) -> AppResult<TokenResponse> {
   info!("User two factor login request: {req:?}");
-  req.validate(&())?;
   let key = LoginKey {
     user_id: req.user_id,
   };
@@ -108,7 +103,6 @@ pub async fn validate(
   req: ValidateRequest,
 ) -> AppResult<UserClaims> {
   info!("Get validate token user_id: {user_id}");
-  req.validate(&())?;
   let token_data = verify_access_token(&state.config.secret, &req.token)?;
   service::session::check(&state.redis, &token_data.claims).await?;
   Ok(token_data.claims)
@@ -136,7 +130,6 @@ pub async fn logout(state: &AppState, user_id: Uuid) -> AppResult {
 
 pub async fn forget_password(state: &AppState, req: ForgetPasswordParamQuery) -> AppResult {
   info!("Forget password req: {req:?}");
-  req.validate(&())?;
   let user = repo::user::find_by_email_and_status(&state.db, &req.email, true)
     .await?
     .to_result()?;
@@ -157,7 +150,6 @@ pub async fn forget_password(state: &AppState, req: ForgetPasswordParamQuery) ->
 
 pub async fn reset_password(state: &AppState, req: SetPasswordRequest) -> AppResult {
   info!("Reset password request: {req:?}");
-  req.validate(&())?;
   let code = service::redis::get(
     &state.redis,
     &ForgetPasswordKey {
@@ -195,7 +187,6 @@ pub async fn update_profile(
   req: UpdateProfileRequest,
 ) -> AppResult {
   info!("Update user profile with id: {user_id} req: {req:?}");
-  req.validate(&())?;
   let tx = state.db.begin().await?;
   if let Some(username) = req.username.as_ref() {
     repo::user::check_unique_by_username(&tx, username).await?;

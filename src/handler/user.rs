@@ -2,12 +2,12 @@ use axum::extract::{Query, Request, State};
 use axum::response::Response;
 use axum::Json;
 use garde::Validate;
-use tracing::info;
+use tracing::{info, warn};
 
-use crate::dto::*;
 use crate::error::AppResult;
 use crate::server::state::AppState;
 use crate::util::claim::{UserClaims, UserClaimsRequest};
+use crate::{dto::*, service};
 
 /// register new user
 #[utoipa::path(
@@ -15,28 +15,28 @@ use crate::util::claim::{UserClaims, UserClaimsRequest};
     request_body = RegisterRequest,
     path = "/api/v1/users/register",
     responses(
-        (status = 201, description = "success register user", body = [RegisterResponse]),
+        (status = 200, description = "success register user", body = [RegisterResponse]),
         (status = 400, description = "invalid data input", body = [AppResponseError]),
         (status = 500, description = "internal server error", body = [AppResponseError])
     )
 )]
 pub async fn register(
-  State(_state): State<AppState>,
+  State(state): State<AppState>,
   Json(req): Json<RegisterRequest>,
 ) -> AppResult<Json<RegisterResponse>> {
-  info!("register user with request: {req:?}");
+  info!("Register new user with request: {req:?}");
   req.validate(&())?;
-  // match service::user::register(state, req).await {
-  //   Ok((user_id, resp)) => {
-  //     info!("success register user: {user_id}");
-  //     Ok(HttpResponse::Created().json(resp))
-  //   }
-  //   Err(e) => {
-  //     warn!("unsuccessfully register user: {e:?}");
-  //     Err(e)
-  //   }
-  // }
-  todo!()
+  match service::user::register(state, req).await {
+    Ok(user_id) => {
+      info!("Successfully register user: {user_id}");
+      let resp = RegisterResponse { id: user_id };
+      Ok(Json(resp))
+    }
+    Err(e) => {
+      warn!("Unsuccessfully register user: {e:?}");
+      Err(e)
+    }
+  }
 }
 // /// get invitation token registered user
 // #[utoipa::path(

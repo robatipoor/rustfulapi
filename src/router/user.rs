@@ -6,7 +6,6 @@ use crate::server::state::AppState;
 pub fn add_routers(router: axum::Router<AppState>) -> axum::Router<AppState> {
   router
     .route("/users/register", post(user::register))
-    // .route("/users/invitation", put(user::invitation))
     .route("/users/active", put(user::active))
     .route("/users/login", post(user::login))
     .route("/users/token", get(user::refresh_token))

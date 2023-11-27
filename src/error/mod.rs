@@ -23,8 +23,6 @@ pub enum AppError {
   #[error("{0}")]
   PermissionDeniedError(String),
   #[error("{0}")]
-  UserBlockedError(String),
-  #[error("{0}")]
   UserNotActiveError(String),
   #[error("{0}")]
   InvalidSessionError(String),
@@ -97,66 +95,58 @@ impl From<argon2::password_hash::Error> for AppError {
 impl AppError {
   pub fn response(self) -> (AppResponseError, StatusCode) {
     use AppError::*;
-    let (kind, message, code, details, status_code) = match self {
-      InvalidPayloadError(err) => (
+    let message = self.to_string();
+    let (kind, code, details, status_code) = match self {
+      InvalidPayloadError(_err) => (
         "INVALID_PAYLOAD_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::BAD_REQUEST,
       ),
-      BadRequestError(err) => (
+      BadRequestError(_err) => (
         "BAD_REQUEST_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::BAD_REQUEST,
       ),
-      NotAvailableError(ref resource) => (
+      NotAvailableError(resource) => (
         format!("{resource}_NOT_AVAILABLE_ERROR"),
-        self.to_string(),
         None,
         vec![],
         StatusCode::NOT_FOUND,
       ),
-      NotFoundError(ref resource) => (
+      NotFoundError(resource) => (
         format!("{resource}_NOT_FOUND_ERROR"),
-        self.to_string(),
         Some(resource.resource_type as i32),
         resource.details.clone(),
         StatusCode::NOT_FOUND,
       ),
-      AccessDeniedError(err) => (
+      AccessDeniedError(_err) => (
         "ACCESS_DENIED_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::FORBIDDEN,
       ),
-      ResourceExistsError(ref resource) => (
+      ResourceExistsError(resource) => (
         format!("{resource}_ALREADY_EXISTS_ERROR"),
-        self.to_string(),
         Some(resource.resource_type as i32),
         resource.details.clone(),
         StatusCode::CONFLICT,
       ),
-      AxumError(err) => (
+      AxumError(_err) => (
         "AXUM_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      ConfigError(err) => (
+      ConfigError(_err) => (
         "CONFIG_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      AddrParseError(err) => (
+      AddrParseError(_err) => (
         "ADDR_PARSE_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::INTERNAL_SERVER_ERROR,
@@ -177,181 +167,161 @@ impl AppError {
             None,
           ),
         };
-        (kind, err.to_string(), code, vec![], status)
+        (kind, code, vec![], status)
       }
-      WebSocketError(err) => (
+      WebSocketError(_err) => (
         "WEBSOCKET_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      ParseJsonError(err) => (
+      ParseJsonError(_err) => (
         "PARSE_JSON_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      StrumParseError(err) => (
+      StrumParseError(_err) => (
         "STRUM_PARSE_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      HttpClientError(err) => (
+      HttpClientError(_err) => (
         "HTTP_CLIENT_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      SystemTimeError(err) => (
+      SystemTimeError(_err) => (
         "SYSTEM_TIME_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      SpawnTaskError(err) => (
+      SpawnTaskError(_err) => (
         "SPAWN_TASK_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      UnknownError(err) => (
+      UnknownError(_err) => (
         "UNKNOWN_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      PermissionDeniedError(err) => (
+      PermissionDeniedError(_err) => (
         "PERMISSION_DENIED_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::FORBIDDEN,
       ),
-      UserBlockedError(err) => (
-        "USER_BLOCKED_ERROR".to_string(),
-        err.to_string(),
-        None,
-        vec![],
-        StatusCode::FORBIDDEN,
-      ),
-      InvalidSessionError(err) => (
+      InvalidSessionError(_err) => (
         "INVALID_SESSION_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::BAD_REQUEST,
       ),
-      ConflictError(err) => (
+      ConflictError(_err) => (
         "CONFLICT_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      UserNotActiveError(err) => (
+      UserNotActiveError(_err) => (
         "USER_NOT_ACTIVE_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
         StatusCode::FORBIDDEN,
       ),
-      UnauthorizedError(err) => (
+      UnauthorizedError(_err) => (
         "UNAUTHORIZED_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::UNAUTHORIZED,
       ),
-      UuidError(err) => (
+      UuidError(_err) => (
         "UUID_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      JwtError(err) => (
+      JwtError(_err) => (
         "JWT_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      RedisError(err) => (
+      RedisError(_err) => (
         "REDIS_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      SmtpError(err) => (
+      SmtpError(_err) => (
         "SMTP_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      LetterError(err) => (
+      LetterError(_err) => (
         "LETTER_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      HashError(err) => (
+      HashError(_err) => (
         "HASH_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      ParseFloatError(err) => (
+      ParseFloatError(_err) => (
         "PARSE_FLOAT_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      TeraError(err) => (
+      TeraError(_err) => (
         "TERA_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      Base64Error(err) => (
+      Base64Error(_err) => (
         "BASE64_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::INTERNAL_SERVER_ERROR,
       ),
       InvalidInputError(err) => (
         "INVALID_INPUT_ERROR".to_string(),
-        "The input is invalid.".to_string(),
         None,
         err
           .iter()
           .map(|(p, e)| (p.to_string(), e.to_string()))
           .collect(),
-        StatusCode::FORBIDDEN,
+        StatusCode::BAD_REQUEST,
       ),
-      DatabaseError(err) => (
+      DatabaseError(_err) => (
         "DATABASE_ERROR".to_string(),
-        err.to_string(),
         None,
         vec![],
-        StatusCode::FORBIDDEN,
+        StatusCode::INTERNAL_SERVER_ERROR,
       ),
-      Infallible(_) => todo!(),
-      TypeHeaderError(_) => todo!(),
+      Infallible(_err) => (
+        "INFALLIBLE".to_string(),
+        None,
+        vec![],
+        StatusCode::INTERNAL_SERVER_ERROR,
+      ),
+      TypeHeaderError(_err) => (
+        "TYPE_HEADER_ERROR".to_string(),
+        None,
+        vec![],
+        StatusCode::INTERNAL_SERVER_ERROR,
+      ),
     };
 
     (

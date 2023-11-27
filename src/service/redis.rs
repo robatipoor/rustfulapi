@@ -128,7 +128,7 @@ mod tests {
   #[tokio::test]
   async fn test_set_and_get_str_redis_service() {
     let key: SessionKey = Faker.fake();
-    let value: String = Faker.fake();
+    let value = Uuid::new_v4();
     set(&REDIS, (&key, &value)).await.unwrap();
     let actual_value = get(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
@@ -137,7 +137,7 @@ mod tests {
   #[tokio::test]
   async fn test_pull_redis_service() {
     let key: SessionKey = Faker.fake();
-    let value: String = Faker.fake();
+    let value = Uuid::new_v4();
     set(&REDIS, (&key, &value)).await.unwrap();
     let actual_value = pull(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
