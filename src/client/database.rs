@@ -1,10 +1,12 @@
 use std::time::Duration;
 
 use async_trait::async_trait;
-use sea_orm::{ConnectOptions, Database, DatabaseConnection};
+use sea_orm::{ConnectOptions, ConnectionTrait, Database, DatabaseConnection};
+use tracing::info;
 
 use crate::configure::AppConfig;
 use crate::error::AppResult;
+use crate::util;
 
 pub type DatabaseClient = DatabaseConnection;
 
@@ -31,32 +33,28 @@ impl DatabaseClientExt for DatabaseClient {
   }
 }
 
-// async fn get_pg_connection(pg_options: &PgConnectOptions) -> sqlx::Result<PgConnection> {
-//   PgConnection::connect_with(pg_options).await
-// }
+async fn create_database(db: &DatabaseConnection, database_name: &str) -> AppResult {
+  db.execute_unprepared(&*format!("CREATE DATABASE {database_name}"))
+    .await?;
+  tracing::info!("Create new database: {database_name}.");
+  Ok(())
+}
 
-// async fn create_database(db_name: &str, connection: &mut PgConnection) -> AppResult {
-//   connection
-//     .execute(&*format!("CREATE DATABASE {db_name}"))
-//     .await?;
-//   tracing::info!("create new database: {db_name}");
-//   Ok(())
-// }
+pub async fn setup_new_database(config: &mut AppConfig) -> AppResult<DatabaseClient> {
+  info!("Setup new postgres database for the test.");
+  let db = DatabaseClient::build_from_config(config).await?;
+  config.db.database_name =
+    util::random::generate_random_string_with_prefix("test_db").to_lowercase();
+  create_database(&db, &config.db.database_name).await?;
+  Ok(db)
+}
 
-// pub async fn setup_new_database(config: &mut DatabaseConfig) -> AppResult<PgConnection> {
-//   info!("setup new postgres database for the test");
-//   let mut pg_conn = get_pg_connection(&config.get_connection_options()).await?;
-//   config.database_name = util::string::generate_random_string_with_prefix("test_db").to_lowercase();
-//   create_database(&config.database_name, &mut pg_conn).await?;
-//   Ok(pg_conn)
-// }
-
-// pub async fn drop_database(db_name: &str, connection: &mut PgConnection) -> AppResult {
-//   let drop_query = format!("DROP DATABASE {db_name} WITH (FORCE);");
-//   connection.execute(&*drop_query).await?;
-//   info!("drop database: {db_name}");
-//   Ok(())
-// }
+pub async fn drop_database(db: &DatabaseConnection, database_name: &str) -> AppResult {
+  let drop_query = format!("DROP DATABASE {database_name} WITH (FORCE);");
+  db.execute_unprepared(&*drop_query).await?;
+  info!("Drop database: {database_name}.");
+  Ok(())
+}
 
 // pub async fn migrate_database(postgres: &PgClient) -> AppResult {
 //   info!("migrate postgres database");

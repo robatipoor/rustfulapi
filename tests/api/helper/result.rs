@@ -1,5 +1,4 @@
-use error::AppResponseError;
-use model::response::MessageResponse;
+use rustfulapi::{dto::MessageResponse, error::AppResponseError};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -12,18 +12,18 @@ pub type HttpClient = reqwest::Client;
 
 #[async_trait]
 pub trait HttpClientExt: ClientBuilder {
-  async fn post<T: Serialize + ?Sized + Send + Sync>(
+  async fn post_request<T: Serialize + ?Sized + Send + Sync>(
     &self,
     url: &str,
     body: &T,
   ) -> Result<Response, reqwest::Error>;
-  async fn put<T: Serialize + ?Sized + Send + Sync>(
+  async fn put_request<T: Serialize + ?Sized + Send + Sync>(
     &self,
     url: &str,
     body: &T,
   ) -> Result<Response, reqwest::Error>;
-  async fn delete(&self, url: &str) -> Result<Response, reqwest::Error>;
-  async fn get(&self, url: &str) -> Result<Response, reqwest::Error>;
+  async fn delete_request(&self, url: &str) -> Result<Response, reqwest::Error>;
+  async fn get_request(&self, url: &str) -> Result<Response, reqwest::Error>;
 }
 
 impl ClientBuilder for HttpClient {
@@ -38,7 +38,7 @@ impl ClientBuilder for HttpClient {
 
 #[async_trait::async_trait]
 impl HttpClientExt for HttpClient {
-  async fn post<T: Serialize + ?Sized + Send + Sync>(
+  async fn post_request<T: Serialize + ?Sized + Send + Sync>(
     &self,
     url: &str,
     body: &T,
@@ -46,7 +46,7 @@ impl HttpClientExt for HttpClient {
     self.post(url).json(body).send().await
   }
 
-  async fn put<T: Serialize + ?Sized + Send + Sync>(
+  async fn put_request<T: Serialize + ?Sized + Send + Sync>(
     &self,
     url: &str,
     body: &T,
@@ -54,11 +54,11 @@ impl HttpClientExt for HttpClient {
     self.put(url).json(body).send().await
   }
 
-  async fn delete(&self, url: &str) -> Result<Response, reqwest::Error> {
+  async fn delete_request(&self, url: &str) -> Result<Response, reqwest::Error> {
     self.delete(url).send().await
   }
 
-  async fn get(&self, url: &str) -> Result<Response, reqwest::Error> {
+  async fn get_request(&self, url: &str) -> Result<Response, reqwest::Error> {
     self.get(url).send().await
   }
 }

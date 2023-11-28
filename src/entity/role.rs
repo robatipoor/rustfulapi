@@ -1,8 +1,5 @@
-use fake::Dummy;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
-use strum::{Display, EnumIter};
-use utoipa::ToSchema;
 
 #[derive(
   Debug,
@@ -13,12 +10,12 @@ use utoipa::ToSchema;
   Ord,
   Deserialize,
   Serialize,
-  ToSchema,
-  Dummy,
+  utoipa::ToSchema,
+  fake::Dummy,
   Clone,
   Copy,
-  EnumIter,
-  Display,
+  strum::EnumIter,
+  strum::Display,
   Hash,
   DeriveActiveEnum,
 )]

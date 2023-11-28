@@ -2,26 +2,23 @@ use std::fmt::Display;
 
 use super::http::CLIENT;
 use anyhow::anyhow;
-use configure::email::EmailConfig;
-use reqwest::Client;
 use reqwest::StatusCode;
+use rustfulapi::client::http::HttpClientExt;
+use rustfulapi::configure::email::EmailConfig;
 use scraper::Html;
 use scraper::Selector;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 use tracing::info;
-use util::http;
 
 pub struct MailHogClient {
-  client: &'static Client,
   addr: String,
 }
 
 impl MailHogClient {
   pub fn new(config: &EmailConfig) -> Self {
     Self {
-      client: &*CLIENT,
       addr: config.host.clone(),
     }
   }
@@ -47,22 +44,24 @@ pub struct MailHogResponse {}
 
 impl MailHogClient {
   pub async fn get(&self, msg_id: String) -> Result<Item, reqwest::Error> {
-    let resp = http::get(
-      self.client,
-      &format!("http://{}:8025/api/v1/messages/{msg_id}", self.addr),
-    )
-    .await?;
+    let resp = CLIENT
+      .get_request(&format!(
+        "http://{}:8025/api/v1/messages/{msg_id}",
+        self.addr
+      ))
+      .await?;
     let resp: Item = resp.json().await?;
     info!("get list mailhog {:?}", resp);
     Ok(resp)
   }
 
   pub async fn delete(&self, msg_id: String) -> Result<StatusCode, reqwest::Error> {
-    let resp = http::delete(
-      self.client,
-      &format!("http://{}:8025/api/v1/messages/{msg_id}", self.addr),
-    )
-    .await?;
+    let resp = CLIENT
+      .delete_request(&format!(
+        "http://{}:8025/api/v1/messages/{msg_id}",
+        self.addr
+      ))
+      .await?;
     Ok(resp.status())
   }
 
@@ -71,14 +70,12 @@ impl MailHogClient {
     query_kind: QueryKindSearch,
     query: &str,
   ) -> Result<Response, reqwest::Error> {
-    let resp = http::get(
-      self.client,
-      &format!(
+    let resp = CLIENT
+      .get_request(&format!(
         "http://{}:8025/api/v2/search?kind={}&query={}",
         self.addr, query_kind, query
-      ),
-    )
-    .await?;
+      ))
+      .await?;
     let resp: Response = resp.json().await?;
     info!("search mailhog {:?}", resp);
     Ok(resp)
@@ -208,18 +205,22 @@ pub struct Raw {
 #[cfg(test)]
 mod tests {
 
-  use fake::{Fake, Faker};
-
-  use client::email::{EmailClient, EmailClientExt};
-  use configure::{template::TEMPLATE_ENGIN, CONFIG};
-  use model::{Email, Template};
-
   use super::*;
+  use fake::{Fake, Faker};
+  use rustfulapi::{
+    client::{
+      email::{EmailClient, EmailClientExt},
+      ClientBuilder,
+    },
+    configure::template::TEMPLATE_ENGIN,
+    constant::CONFIG,
+    dto::{Email, Template},
+  };
 
   #[tokio::test]
   async fn test_mailhog_search() {
     let email: Email = Faker.fake();
-    let email_client = EmailClient::new(&CONFIG.email).await.unwrap();
+    let email_client = EmailClient::build_from_config(&CONFIG).unwrap();
     email_client.send_email(&email).await.unwrap();
     let mailer = MailHogClient::new(&CONFIG.email);
     let mut resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
@@ -244,7 +245,7 @@ mod tests {
     let body = TEMPLATE_ENGIN.render(&template).unwrap();
     let mut email: Email = Faker.fake();
     email.body = body;
-    let email_client = EmailClient::new(&CONFIG.email).await.unwrap();
+    let email_client = EmailClient::build_from_config(&CONFIG).unwrap();
     email_client.send_email(&email).await.unwrap();
     let mailer = MailHogClient::new(&CONFIG.email);
     let mut resp: Option<String> = None;
@@ -261,7 +262,7 @@ mod tests {
   #[tokio::test]
   async fn test_mailhog_get() {
     let email: Email = Faker.fake();
-    let email_client = EmailClient::new(&CONFIG.email).await.unwrap();
+    let email_client = EmailClient::build_from_config(&CONFIG).unwrap();
     email_client.send_email(&email).await.unwrap();
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     let mailer = MailHogClient::new(&CONFIG.email);
@@ -280,7 +281,7 @@ mod tests {
   #[tokio::test]
   async fn test_mailhog_delete() {
     let email: Email = Faker.fake();
-    let email_client = EmailClient::new(&CONFIG.email).await.unwrap();
+    let email_client = EmailClient::build_from_config(&CONFIG).unwrap();
     email_client.send_email(&email).await.unwrap();
     let mailer = MailHogClient::new(&CONFIG.email);
     let mut resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();

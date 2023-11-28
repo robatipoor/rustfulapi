@@ -1,14 +1,13 @@
-use actix_web::http;
-use configure::server::ServerConfig;
-use log_derive::logfn;
-use model::request::*;
-use model::response::*;
-use once_cell::sync::Lazy;
-use reqwest::{Client, StatusCode};
-use util::claim::UserClaims;
-
 use super::http::CLIENT;
 use super::result::AppResponseResult;
+use log_derive::logfn;
+use once_cell::sync::Lazy;
+use reqwest::{Client, StatusCode};
+use rustfulapi::configure::server::ServerConfig;
+use rustfulapi::dto::request::*;
+use rustfulapi::dto::response::*;
+use rustfulapi::dto::ServiceStatusResponse;
+use rustfulapi::util::claim::UserClaims;
 
 pub struct Api {
   client: &'static Client,
@@ -60,20 +59,6 @@ impl Api {
   }
 
   #[logfn(Info)]
-  pub async fn invitation(
-    &self,
-    req: &InvitationRequest,
-  ) -> anyhow::Result<(StatusCode, AppResponseResult<InvitationResponse>)> {
-    let resp = self
-      .client
-      .put(format!("{}/api/v1/users/invitation", self.addr))
-      .json(req)
-      .send()
-      .await?;
-    Ok((resp.status(), resp.json().await?))
-  }
-
-  #[logfn(Info)]
   pub async fn active(
     &self,
     req: &ActiveRequest,
@@ -106,7 +91,7 @@ impl Api {
     let resp = self
       .client
       .get(format!("{}/api/v1/users/logout", self.addr))
-      .header(http::header::AUTHORIZATION, format!("Bearer {token}"))
+      .header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"))
       .send()
       .await?;
     Ok((resp.status(), resp.json().await?))
@@ -121,7 +106,7 @@ impl Api {
       .client
       .get(format!("{}/api/v1/users/token", self.addr))
       .header(
-        http::header::AUTHORIZATION,
+        reqwest::header::AUTHORIZATION,
         format!("Bearer {refresh_token}"),
       )
       .send()
@@ -168,7 +153,10 @@ impl Api {
     let resp = self
       .client
       .post(format!("{}/api/v1/users/validate", self.addr))
-      .header(http::header::AUTHORIZATION, format!("Bearer {owner_token}"))
+      .header(
+        reqwest::header::AUTHORIZATION,
+        format!("Bearer {owner_token}"),
+      )
       .json(req)
       .send()
       .await?;
@@ -183,7 +171,7 @@ impl Api {
     let resp = self
       .client
       .get(format!("{}/api/v1/users/profile", self.addr))
-      .header(http::header::AUTHORIZATION, format!("Bearer {token}"))
+      .header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"))
       .send()
       .await?;
     Ok((resp.status(), resp.json().await?))
@@ -194,14 +182,14 @@ impl Api {
     &self,
     token: &str,
     req: &UpdateProfileRequest,
-  ) -> anyhow::Result<(StatusCode, AppResponseResult)> {
+  ) -> reqwest::Result<(StatusCode, AppResponseResult)> {
     let resp = self
       .client
       .put(format!("{}/api/v1/users/profile", self.addr))
       .json(req)
-      .header(http::header::AUTHORIZATION, format!("Bearer {token}"))
+      .header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"))
       .send()
       .await?;
-    Ok((resp.status(), resp.json().await?))
+    Result::<_, reqwest::Error>::Ok((resp.status(), resp.json().await?))
   }
 }

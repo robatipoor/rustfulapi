@@ -24,7 +24,7 @@ where
     .with(BunyanFormattingLayer::new(name.into(), writer))
 }
 
-fn init_subscriber<S>(subscriber: S) -> anyhow::Result<()>
+pub fn init_subscriber<S>(subscriber: S) -> anyhow::Result<()>
 where
   S: Subscriber + Send + Sync + 'static,
 {
