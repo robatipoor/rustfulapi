@@ -30,7 +30,7 @@ pub async fn register(state: AppState, req: RegisterRequest) -> AppResult<Uuid> 
   let code = generate_active_code();
   service::message::store(
     &tx,
-    &*state.messenger_notify,
+    &state.messenger_notify,
     user_id,
     code,
     MessageKind::ActiveCode,
@@ -139,7 +139,7 @@ pub async fn forget_password(state: &AppState, req: ForgetPasswordParamQuery) ->
   let code = service::token::generate_forget_password_code(&state.redis, user.id).await?;
   service::message::store(
     &*state.db,
-    &*state.messenger_notify,
+    &state.messenger_notify,
     user.id,
     code,
     MessageKind::ForgetPasswordCode,

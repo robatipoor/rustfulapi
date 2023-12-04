@@ -47,7 +47,7 @@ mod tests {
       code: code.clone(),
     };
     let content = TEMPLATE_ENGIN.render(&template).unwrap();
-    assert!(content.contains(&*username));
-    assert!(content.contains(&*code));
+    assert!(content.contains(&username));
+    assert!(content.contains(&code));
   }
 }

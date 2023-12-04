@@ -35,7 +35,7 @@ impl DatabaseClientExt for DatabaseClient {
 }
 
 async fn create_database(db: &DatabaseConnection, database_name: &str) -> AppResult {
-  db.execute_unprepared(&*format!("CREATE DATABASE {database_name}"))
+  db.execute_unprepared(&format!("CREATE DATABASE {database_name}"))
     .await?;
   tracing::info!("Create new database: {database_name}.");
   Ok(())
@@ -52,7 +52,7 @@ pub async fn setup_new_database(config: &mut AppConfig) -> AppResult<DatabaseCli
 
 pub async fn drop_database(db: &DatabaseConnection, database_name: &str) -> AppResult {
   let drop_query = format!("DROP DATABASE {database_name} WITH (FORCE);");
-  db.execute_unprepared(&*drop_query).await?;
+  db.execute_unprepared(&drop_query).await?;
   info!("Drop database: {database_name}.");
   Ok(())
 }

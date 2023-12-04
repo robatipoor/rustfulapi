@@ -19,7 +19,7 @@ impl MessengerTask {
   pub async fn run(self) -> AppResult {
     info!("Messenger task start.");
     loop {
-      let messages = match repo::message::get_list(&*self.state.db, 5, 10).await {
+      let messages = match repo::message::get_list(&self.state.db, 5, 10).await {
         Ok(msg) => msg,
         Err(err) => {
           tracing::error!("{err}");

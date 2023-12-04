@@ -24,6 +24,7 @@ impl MailHogClient {
   }
 }
 
+#[allow(dead_code)]
 pub enum QueryKindSearch {
   From,
   To,

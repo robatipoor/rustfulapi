@@ -68,7 +68,7 @@ impl RedisClientExt for Client {
       .await?;
     info!("set key redis: {msg}");
     let msg: i32 = redis::cmd("EXPIRE")
-      .arg(&[key, &*expire.as_secs().to_string()])
+      .arg(&[key, &expire.as_secs().to_string()])
       .query_async(&mut conn)
       .await?;
     info!("set expire time redis: {msg}");
