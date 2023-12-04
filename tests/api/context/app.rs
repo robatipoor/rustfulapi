@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use rustfulapi::{
-  client::database::{drop_database, migrate_database, setup_new_database},
+  client::database::{drop_database, migrate_database, setup_new_database, DatabaseClient},
   configure::AppConfig,
   error::AppResult,
   server::{self, state::AppState},
@@ -15,6 +15,7 @@ use crate::helper::{api::Api, email::MailHogClient, INIT_SUBSCRIBER};
 pub struct AppTestContext {
   pub tasks: Vec<JoinHandle<AppResult>>,
   pub state: AppState,
+  pub default_db: DatabaseClient,
   pub mock_server: MockServer,
   pub api: Api,
   pub mail: MailHogClient,
@@ -25,7 +26,7 @@ impl AsyncTestContext for AppTestContext {
   async fn setup() -> Self {
     Lazy::force(&INIT_SUBSCRIBER);
     let mut config = AppConfig::read().unwrap();
-    setup_new_database(&mut config).await.unwrap();
+    let default_db = setup_new_database(&mut config).await.unwrap();
     let server = server::AppServer::new(config).await.unwrap();
     migrate_database(&server.state.db).await.unwrap();
     let state = server.state.clone();
@@ -38,13 +39,14 @@ impl AsyncTestContext for AppTestContext {
       tasks,
       state,
       api,
+      default_db,
       mock_server,
       mail,
     }
   }
 
   async fn teardown(mut self) {
-    drop_database(&self.state.db, &self.state.config.db.database_name)
+    drop_database(&self.default_db, &self.state.config.db.database_name)
       .await
       .unwrap();
     for j in self.tasks {
