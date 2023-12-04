@@ -120,9 +120,8 @@ impl UserClaimsRequest for axum::extract::Request {
 #[cfg(test)]
 mod tests {
   use crate::util::key::RsaPairKey;
-  use axum::http::HeaderValue;
+  use axum::http::{HeaderValue, header};
   use fake::{Fake, Faker};
-  use reqwest::header;
 
   use super::*;
 

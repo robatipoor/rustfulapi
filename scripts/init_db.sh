@@ -43,7 +43,6 @@ else
 fi
 
 export PGPASSWORD="${DB_PASSWORD}"
-# TODO add if condition
 until docker exec -it $CONTAINER_NAME psql -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -c '\q'; do
   echo >&2 "Database is still unavailable - sleeping"
   sleep 1
@@ -53,4 +52,4 @@ echo >&2 "Database is up and running on port ${DB_PORT} - running migrations now
 
 DATABASE_URL=${DATABASE}://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
 
-cargo run --manifest-path ./migration/Cargo.toml -- refresh -u $DATABASE_URL
+cargo run --bin migration -- refresh -u $DATABASE_URL

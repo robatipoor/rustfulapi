@@ -21,6 +21,10 @@ sea-orm = { version = "0.12.7", features = [
   "runtime-tokio-rustls",
   "macros",
 ] }
+sea-orm-migration = { version = "0.12.6", features = [
+  "runtime-tokio-rustls",
+  "sqlx-postgres",
+] }
 anyhow = "1.0.75"
 argon2 = "0.5.2"
 async-trait = "0.1.74"
