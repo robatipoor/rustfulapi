@@ -40,8 +40,6 @@ impl Display for QueryKindSearch {
   }
 }
 
-pub struct MailHogResponse {}
-
 impl MailHogClient {
   pub async fn get(&self, msg_id: String) -> Result<Item, reqwest::Error> {
     let resp = CLIENT

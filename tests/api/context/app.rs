@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use rustfulapi::{
-  client::database::{drop_database, setup_new_database},
+  client::database::{drop_database, migrate_database, setup_new_database},
   configure::AppConfig,
   error::AppResult,
   server::{self, state::AppState},
@@ -27,7 +27,7 @@ impl AsyncTestContext for AppTestContext {
     let mut config = AppConfig::read().unwrap();
     setup_new_database(&mut config).await.unwrap();
     let server = server::AppServer::new(config).await.unwrap();
-    // migrate_database(&server.state.db).await.unwrap();
+    migrate_database(&server.state.db).await.unwrap();
     let state = server.state.clone();
     let server_task = tokio::task::spawn(server.run());
     let mock_server = MockServer::start().await;

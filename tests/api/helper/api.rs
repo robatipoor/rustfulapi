@@ -1,8 +1,7 @@
 use super::http::CLIENT;
 use super::result::AppResponseResult;
 use log_derive::logfn;
-use once_cell::sync::Lazy;
-use reqwest::{Client, StatusCode};
+use reqwest::StatusCode;
 use rustfulapi::configure::server::ServerConfig;
 use rustfulapi::dto::request::*;
 use rustfulapi::dto::response::*;
@@ -10,14 +9,12 @@ use rustfulapi::dto::ServiceStatusResponse;
 use rustfulapi::util::claim::UserClaims;
 
 pub struct Api {
-  client: &'static Client,
   addr: String,
 }
 
 impl Api {
   pub fn new(config: &ServerConfig) -> Self {
     Self {
-      client: Lazy::force(&CLIENT),
       addr: config.get_http_addr(),
     }
   }
@@ -26,8 +23,7 @@ impl Api {
   pub async fn server_state(
     &self,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<ServiceStatusResponse>)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .get(format!("{}/api/v1/server/state", self.addr))
       .send()
       .await?;
@@ -36,8 +32,7 @@ impl Api {
 
   #[logfn(Info)]
   pub async fn health_check(&self) -> anyhow::Result<(StatusCode, AppResponseResult)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .get(format!("{}/api/v1/server/health_check", self.addr))
       .send()
       .await?;
@@ -49,8 +44,7 @@ impl Api {
     &self,
     req: &RegisterRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<RegisterResponse>)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .post(format!("{}/api/v1/users/register", self.addr))
       .json(req)
       .send()
@@ -63,8 +57,7 @@ impl Api {
     &self,
     req: &ActiveRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<MessageResponse>)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .put(format!("{}/api/v1/users/active", self.addr))
       .json(req)
       .send()
@@ -77,8 +70,7 @@ impl Api {
     &self,
     req: &LoginRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<LoginResponse>)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .post(format!("{}/api/v1/users/login", self.addr))
       .json(req)
       .send()
@@ -88,8 +80,7 @@ impl Api {
 
   #[logfn(Info)]
   pub async fn logout(&self, token: &str) -> anyhow::Result<(StatusCode, AppResponseResult)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .get(format!("{}/api/v1/users/logout", self.addr))
       .header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"))
       .send()
@@ -102,8 +93,7 @@ impl Api {
     &self,
     refresh_token: &str,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<TokenResponse>)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .get(format!("{}/api/v1/users/token", self.addr))
       .header(
         reqwest::header::AUTHORIZATION,
@@ -119,8 +109,7 @@ impl Api {
     &self,
     email: &str,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<ForgetPasswordResponse>)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .get(format!(
         "{}/api/v1/users/password?email={}",
         self.addr, email
@@ -135,8 +124,7 @@ impl Api {
     &self,
     req: &SetPasswordRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .put(format!("{}/api/v1/users/password", self.addr))
       .json(req)
       .send()
@@ -150,8 +138,7 @@ impl Api {
     owner_token: &str,
     req: &ValidateRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<UserClaims>)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .post(format!("{}/api/v1/users/validate", self.addr))
       .header(
         reqwest::header::AUTHORIZATION,
@@ -168,8 +155,7 @@ impl Api {
     &self,
     token: &str,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<ProfileResponse>)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .get(format!("{}/api/v1/users/profile", self.addr))
       .header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"))
       .send()
@@ -183,8 +169,7 @@ impl Api {
     token: &str,
     req: &UpdateProfileRequest,
   ) -> reqwest::Result<(StatusCode, AppResponseResult)> {
-    let resp = self
-      .client
+    let resp = CLIENT
       .put(format!("{}/api/v1/users/profile", self.addr))
       .json(req)
       .header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"))

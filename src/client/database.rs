@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use async_trait::async_trait;
 use sea_orm::{ConnectOptions, ConnectionTrait, Database, DatabaseConnection};
+use sea_orm_migration::MigratorTrait;
 use tracing::info;
 
 use crate::configure::AppConfig;
@@ -56,12 +57,12 @@ pub async fn drop_database(db: &DatabaseConnection, database_name: &str) -> AppR
   Ok(())
 }
 
-// pub async fn migrate_database(postgres: &PgClient) -> AppResult {
-//   info!("migrate postgres database");
-//   sqlx::migrate!("../migrations").run(postgres).await.unwrap();
-//   info!("migrate database successfully done");
-//   Ok(())
-// }
+pub async fn migrate_database(db: &DatabaseConnection) -> AppResult {
+  info!("Start migrate database.");
+  crate::migration::Migrator::up(db, None).await?;
+  info!("Migrate database successfully done.");
+  Ok(())
+}
 
 #[cfg(test)]
 mod tests {
