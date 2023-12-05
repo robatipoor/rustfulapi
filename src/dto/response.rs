@@ -24,7 +24,7 @@ pub struct GetUserResponse {
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Dummy, Clone)]
 pub struct ServiceStatusResponse {
-  pub postgres: bool,
+  pub db: bool,
   pub redis: bool,
   pub email: bool,
 }

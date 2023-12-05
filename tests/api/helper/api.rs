@@ -2,6 +2,7 @@ use super::http::CLIENT;
 use super::result::AppResponseResult;
 use log_derive::logfn;
 use reqwest::StatusCode;
+use rustfulapi::client::http::HttpClientExt;
 use rustfulapi::configure::server::ServerConfig;
 use rustfulapi::dto::request::*;
 use rustfulapi::dto::response::*;
@@ -24,8 +25,7 @@ impl Api {
     &self,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<ServiceStatusResponse>)> {
     let resp = CLIENT
-      .get(format!("{}/api/v1/server/state", self.addr))
-      .send()
+      .get_request(&format!("{}/api/v1/server/state", self.addr))
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
@@ -33,8 +33,7 @@ impl Api {
   #[logfn(Info)]
   pub async fn health_check(&self) -> anyhow::Result<(StatusCode, AppResponseResult)> {
     let resp = CLIENT
-      .get(format!("{}/api/v1/server/health_check", self.addr))
-      .send()
+      .get_request(&format!("{}/api/v1/server/health_check", self.addr))
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
@@ -45,9 +44,7 @@ impl Api {
     req: &RegisterRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<RegisterResponse>)> {
     let resp = CLIENT
-      .post(format!("{}/api/v1/users/register", self.addr))
-      .json(req)
-      .send()
+      .post_request(&format!("{}/api/v1/users/register", self.addr), req)
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
@@ -58,9 +55,7 @@ impl Api {
     req: &ActiveRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<MessageResponse>)> {
     let resp = CLIENT
-      .put(format!("{}/api/v1/users/active", self.addr))
-      .json(req)
-      .send()
+      .put_request(&format!("{}/api/v1/users/active", self.addr), req)
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
@@ -71,9 +66,7 @@ impl Api {
     req: &LoginRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<LoginResponse>)> {
     let resp = CLIENT
-      .post(format!("{}/api/v1/users/login", self.addr))
-      .json(req)
-      .send()
+      .post_request(&format!("{}/api/v1/users/login", self.addr), req)
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
@@ -110,11 +103,10 @@ impl Api {
     email: &str,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<ForgetPasswordResponse>)> {
     let resp = CLIENT
-      .get(format!(
+      .get_request(&format!(
         "{}/api/v1/users/password?email={}",
         self.addr, email
       ))
-      .send()
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
@@ -125,9 +117,7 @@ impl Api {
     req: &SetPasswordRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult)> {
     let resp = CLIENT
-      .put(format!("{}/api/v1/users/password", self.addr))
-      .json(req)
-      .send()
+      .put_request(&format!("{}/api/v1/users/password", self.addr), req)
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
