@@ -2,8 +2,6 @@ use tracing::warn;
 
 use crate::constant::{MAX_RETRY, MINIMUM_DELAY_TIME};
 
-
-
 #[async_trait::async_trait]
 pub trait RetryUntil<F, T, P>: Send + Sync
 where
