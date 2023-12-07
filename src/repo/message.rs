@@ -34,7 +34,7 @@ where
 }
 
 #[tracing::instrument(skip_all)]
-pub async fn save<C>(tx: &C, user_id: Uuid, content: String, kind: MessageKind) -> AppResult<Uuid>
+pub async fn save<C>(conn: &C, user_id: Uuid, content: String, kind: MessageKind) -> AppResult<Uuid>
 where
   C: ConnectionTrait,
 {
@@ -47,7 +47,7 @@ where
     create_at: Set(Utc::now()),
     update_at: Set(Utc::now()),
   }
-  .insert(tx)
+  .insert(conn)
   .await?;
   Ok(model.id)
 }
@@ -63,6 +63,20 @@ pub async fn get_list(
   let tx = conn
     .begin_with_config(Some(sea_orm::IsolationLevel::RepeatableRead), None)
     .await?;
+  let results = get_list_and_update(&tx, timeout, limit).await?;
+  tx.commit().await?;
+  Ok(results)
+}
+
+#[tracing::instrument(skip_all)]
+pub async fn get_list_and_update<C>(
+  conn: &C,
+  timeout: i64,
+  limit: u64,
+) -> AppResult<Vec<entity::message::Model>>
+where
+  C: ConnectionTrait,
+{
   let models = entity::message::Entity::find()
     .filter(
       Condition::any()
@@ -80,7 +94,7 @@ pub async fn get_list(
     )
     .cursor_by(entity::message::Column::CreateAt)
     .first(limit)
-    .all(&tx)
+    .all(conn)
     .await?
     .into_iter()
     .map(|m| {
@@ -91,9 +105,8 @@ pub async fn get_list(
     .collect::<Vec<_>>();
   let mut results = vec![];
   for model in models.into_iter() {
-    results.push(model.update(&tx).await?);
+    results.push(model.update(conn).await?);
   }
-  tx.commit().await?;
   Ok(results)
 }
 
@@ -111,6 +124,7 @@ pub async fn update_status(
 
 #[cfg(test)]
 mod tests {
+  use super::*;
   use chrono::{Duration, Utc};
   use sea_orm::{ActiveModelTrait, EntityTrait, Set};
   use test_context::test_context;
@@ -167,10 +181,12 @@ mod tests {
     .insert(&**ctx)
     .await
     .unwrap();
-    // let list = get_list(&**ctx, 2).await.unwrap();
-    // assert_eq!(list.len(), 2);
-    // let list = get_list(&**ctx, 1).await.unwrap();
-    // assert_eq!(list.len(), 1);
-    // assert_eq!(list.get(0).unwrap().content, "code1");
+    let list = get_list_and_update(&**ctx, 100, 2).await.unwrap();
+    assert_eq!(list.len(), 2);
+    let list = get_list_and_update(&**ctx, 100, 2).await.unwrap();
+    assert_eq!(list.len(), 1);
+    assert_eq!(list.get(0).unwrap().content, "code3");
+    let list = get_list_and_update(&**ctx, 100, 2).await.unwrap();
+    assert_eq!(list.len(), 0);
   }
 }

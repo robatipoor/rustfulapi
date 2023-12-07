@@ -20,6 +20,6 @@ pub async fn test_active_user(ctx: &mut AppTestContext) {
   assert_ok!(resp);
   assert!(status.is_success(), "status: {status}");
   let (status, resp) = ctx.api.active(&active_req).await.unwrap();
-  assert_err!(resp);
+  assert_ok!(resp);
   assert!(status.is_success(), "status: {status}");
 }

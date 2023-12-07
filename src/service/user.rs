@@ -28,15 +28,9 @@ pub async fn register(state: AppState, req: RegisterRequest) -> AppResult<Uuid> 
   check_unique_username_or_email(&tx, &req.username, &req.email).await?;
   let user_id = crate::repo::user::save(&tx, req.username, req.password, req.email).await?;
   let code = generate_active_code();
-  service::message::store(
-    &tx,
-    &state.messenger_notify,
-    user_id,
-    code,
-    MessageKind::ActiveCode,
-  )
-  .await?;
+  repo::message::save(&tx, user_id, code, MessageKind::ActiveCode).await?;
   tx.commit().await?;
+  state.messenger_notify.notify_one();
   Ok(user_id)
 }
 
@@ -137,14 +131,8 @@ pub async fn forget_password(state: &AppState, req: ForgetPasswordParamQuery) ->
     return Ok(());
   }
   let code = service::token::generate_forget_password_code(&state.redis, user.id).await?;
-  service::message::store(
-    &*state.db,
-    &state.messenger_notify,
-    user.id,
-    code,
-    MessageKind::ForgetPasswordCode,
-  )
-  .await?;
+  repo::message::save(&*state.db, user.id, code, MessageKind::ForgetPasswordCode).await?;
+  state.messenger_notify.notify_one();
   Ok(())
 }
 

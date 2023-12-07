@@ -38,34 +38,7 @@ pub async fn register(
     }
   }
 }
-// /// get invitation token registered user
-// #[utoipa::path(
-//     put,
-//     request_body = InvitationRequest,
-//     path = "/api/v1/users/invitation",
-//     responses(
-//         (status = 200, description = "success get invitation token", body = [InvitationResponse]),
-//         (status = 400, description = "invalid data input", body = [AppResponseError]),
-//         (status = 500, description = "internal server error", body = [AppResponseError])
-//     )
-// )]
-// pub async fn invitation(
-//   State(_state): State<AppState>,
-//   Json(req): Json<InvitationRequest>,
-// ) -> AppResult<Json<InvitationResponse>> {
-//   info!("invitation request user: {req:?}");
-//   // match service::user::invitation(&state, req).await {
-//   //   Ok(resp) => {
-//   //     info!("success invitation token send: {resp:?}");
-//   //     Ok(HttpResponse::Ok().json(resp))
-//   //   }
-//   //   Err(e) => {
-//   //     warn!("unsuccessfully get invitation token error: {e:?}",);
-//   //     Err(e)
-//   //   }
-//   // }
-//   todo!()
-// }
+
 /// active registered user
 #[utoipa::path(
     put,
@@ -78,22 +51,20 @@ pub async fn register(
     )
 )]
 pub async fn active(
-  State(_state): State<AppState>,
+  State(state): State<AppState>,
   Json(req): Json<ActiveRequest>,
-) -> AppResult<Response> {
-  info!("active user with token: {req:?}");
-  // match service::user::active(&state, req).await {
-  //   Ok(_) => {
-  //     info!("success active user");
-  //     Ok(HttpResponse::Ok().json(MessageResponse::new("user activated")))
-  //   }
-  //   Err(e) => {
-  //     info!("unsuccessfully active user: {e:?}");
-  //     Err(e)
-  //   }
-  // }
-
-  todo!()
+) -> AppResult<Json<MessageResponse>> {
+  info!("Active user with token: {req:?}.");
+  match service::user::active(&state, req).await {
+    Ok(_) => {
+      info!("User succesfully activated.");
+      Ok(Json(MessageResponse::new("User successfully activated.")))
+    }
+    Err(e) => {
+      info!("The user activation operation was not successful: {e:?}");
+      Err(e)
+    }
+  }
 }
 /// validate user token
 #[utoipa::path(

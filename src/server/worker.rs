@@ -1,8 +1,14 @@
 use tracing::info;
 
 use crate::{
-  client::email::EmailClientExt, constant::APP_EMAIL_ADDR, continue_if_fail, dto::Email,
-  entity::message::MessageStatus, error::AppResult, repo,
+  client::email::EmailClientExt,
+  configure::template::TEMPLATE_ENGIN,
+  constant::APP_EMAIL_ADDR,
+  continue_if_fail,
+  dto::{Email, Template},
+  entity::message::MessageStatus,
+  error::AppResult,
+  repo,
 };
 
 use super::state::AppState;
@@ -19,10 +25,10 @@ impl MessengerTask {
   pub async fn run(self) -> AppResult {
     info!("Messenger task start.");
     loop {
-      let messages = match repo::message::get_list(&self.state.db, 5, 10).await {
+      let messages = match repo::message::get_list(&*self.state.db, 5, 10).await {
         Ok(msg) => msg,
         Err(err) => {
-          tracing::error!("{err}");
+          tracing::error!("Fetch list failed: {err}");
           tokio::time::sleep(std::time::Duration::from_secs(10)).await;
           continue;
         }
@@ -42,11 +48,16 @@ impl MessengerTask {
             continue;
           }
         };
+        let template = Template::ActiveUser {
+          username: user.username,
+          code: message.content.clone(),
+        };
+        let message_content = TEMPLATE_ENGIN.render(&template)?;
         let email = Email::new(
           APP_EMAIL_ADDR.to_string(),
           user.email,
           message.kind.to_string(),
-          message.content.clone(),
+          message_content,
         );
         let status = match self.state.email.send_email(&email).await {
           Ok(_) => MessageStatus::Success,

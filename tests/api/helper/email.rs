@@ -69,15 +69,24 @@ impl MailHogClient {
     query_kind: QueryKindSearch,
     query: &str,
   ) -> Result<Response, reqwest::Error> {
-    let resp = CLIENT
-      .get_request(&format!(
-        "http://{}:8025/api/v2/search?kind={}&query={}",
-        self.addr, query_kind, query
-      ))
-      .await?;
-    let resp: Response = resp.json().await?;
-    info!("search mailhog {:?}", resp);
-    Ok(resp)
+    let resp = || async {
+      let resp = CLIENT
+        .get_request(&format!(
+          "http://{}:8025/api/v2/search?kind={}&query={}",
+          self.addr, query_kind, query
+        ))
+        .await?;
+      let resp: Response = resp.json().await?;
+      Ok(resp)
+    };
+    let resp = rustfulapi::retry!(resp, |r: &Result<Response, reqwest::Error>| {
+      match r {
+        Ok(r) => r.items.len() >= 1,
+        Err(_) => false,
+      }
+    });
+    info!("Search mailhog {resp:?}.");
+    resp
   }
 
   pub async fn get_code_from_email(&self, email: &str) -> anyhow::Result<String> {
@@ -85,7 +94,7 @@ impl MailHogClient {
     let body = resp
       .items
       .get(0)
-      .ok_or_else(|| anyhow!("item not found"))?
+      .ok_or_else(|| anyhow!("Item not found"))?
       .content
       .body
       .clone();
@@ -95,7 +104,7 @@ impl MailHogClient {
     let token = html
       .select(&selector)
       .nth(1)
-      .ok_or_else(|| anyhow!("item not found"))?
+      .ok_or_else(|| anyhow!("Item not found"))?
       .text()
       .collect::<String>();
     Ok(token)
@@ -237,7 +246,7 @@ mod tests {
   async fn test_mailhog_get_token() {
     let code: String = Faker.fake();
     let username: String = Faker.fake();
-    let template = Template::Invitation {
+    let template = Template::ActiveUser {
       username,
       code: code.clone(),
     };

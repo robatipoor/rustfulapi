@@ -54,7 +54,7 @@ impl TryFrom<&Email> for Message {
 }
 #[derive(Debug)]
 pub enum Template {
-  Invitation { username: String, code: String },
+  ActiveUser { username: String, code: String },
   Login { username: String, code: String },
   ForgetPassword { username: String, code: String },
 }
@@ -63,7 +63,7 @@ impl Template {
   pub fn get(&self) -> (tera::Context, &'static str) {
     let mut ctx = tera::Context::new();
     match self {
-      Self::Invitation { username, code } => {
+      Self::ActiveUser { username, code } => {
         ctx.insert("username", username);
         ctx.insert("code", code);
         (ctx, "invitation.html")
