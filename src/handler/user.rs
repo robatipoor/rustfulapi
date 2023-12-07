@@ -57,7 +57,7 @@ pub async fn active(
   info!("Active user with token: {req:?}.");
   match service::user::active(&state, req).await {
     Ok(_) => {
-      info!("User succesfully activated.");
+      info!("User successfully activated.");
       Ok(Json(MessageResponse::new("User successfully activated.")))
     }
     Err(e) => {

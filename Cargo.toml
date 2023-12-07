@@ -51,7 +51,7 @@ openssl = "0.10.60"
 project-root = "0.2.2"
 rand = "0.8.5"
 rand_core = { version = "0.6.4", features = ["std"] }
-redis = { version = "0.23.3", features = ["tokio-comp"] }
+redis = { version = "0.24.0", features = ["tokio-comp"] }
 reqwest = { version = "0.11.22", features = ["json", "multipart", "stream"] }
 sanitize-filename = "0.5.0"
 scraper = "0.18.1"
@@ -79,7 +79,7 @@ url = "2.5.0"
 utoipa = { version = "4.1.0", features = ["axum_extras", "uuid", "chrono"] }
 utoipa-swagger-ui = { version = "5.0.0", features = ["axum"] }
 uuid = { version = "1.4.1", features = ["v4", "serde"] }
-tokio-tungstenite = "0.20.1"
+tokio-tungstenite = "0.21.0"
 wiremock = "0.5.22"
 garde = "0.16.3"
 regex = "1.10.2"
