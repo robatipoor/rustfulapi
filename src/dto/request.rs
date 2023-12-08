@@ -34,7 +34,7 @@ impl RegisterRequest {
 }
 
 #[derive(Debug, Deserialize, Serialize, Dummy, ToSchema, IntoParams, Clone)]
-pub struct PageParamQuery {
+pub struct PageQueryParam {
   pub page_num: i64,
   pub page_size: i64,
   pub sort_by: Option<String>,
@@ -106,7 +106,7 @@ pub struct ValidateRequest {
   pub token: String,
 }
 #[derive(Debug, Deserialize, ToSchema, Validate, Dummy, IntoParams)]
-pub struct ForgetPasswordParamQuery {
+pub struct ForgetPasswordQueryParam {
   #[dummy(faker = "SafeEmail()")]
   #[garde(email)]
   pub email: String,

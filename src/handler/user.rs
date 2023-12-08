@@ -193,7 +193,7 @@ pub async fn logout(
 #[utoipa::path(
     get,
     path = "/api/v1/users/password",
-    params(ForgetPasswordParamQuery),
+    params(ForgetPasswordQueryParam),
     responses(
         (
             status = 200,
@@ -206,7 +206,7 @@ pub async fn logout(
 )]
 pub async fn forget_password(
   State(_state): State<AppState>,
-  Query(param): Query<ForgetPasswordParamQuery>,
+  Query(param): Query<ForgetPasswordQueryParam>,
 ) -> AppResult<Json<ForgetPasswordResponse>> {
   info!("Forget password user query parameter: {param:?}");
   // match service::user::forget_password(&state, query.0).await {

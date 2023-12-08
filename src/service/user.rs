@@ -124,8 +124,8 @@ pub async fn logout(state: &AppState, user_id: Uuid) -> AppResult {
   Ok(())
 }
 
-pub async fn forget_password(state: &AppState, req: ForgetPasswordParamQuery) -> AppResult {
-  info!("Forget password req: {req:?}");
+pub async fn forget_password(state: &AppState, req: ForgetPasswordQueryParam) -> AppResult {
+  info!("Forget password request: {req:?}");
   let user = repo::user::find_by_email_and_status(&state.db, &req.email, true)
     .await?
     .to_result()?;
