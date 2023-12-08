@@ -90,30 +90,17 @@ impl InvitationResponse {
     Self { id, expire_in }
   }
 }
-// TODO
+
 #[derive(Debug, Deserialize, Serialize, ToSchema, Dummy)]
 #[serde(tag = "type")]
 pub enum LoginResponse {
-  Token {
-    token_type: String,
-    access_token: String,
-    refresh_token: String,
-    expire_in: u64,
-  },
-  Id {
-    // expire_in: u64,
-    id: Uuid,
-  },
+  Token(TokenResponse),
+  Message(String),
 }
 
 impl From<TokenResponse> for LoginResponse {
   fn from(value: TokenResponse) -> Self {
-    LoginResponse::Token {
-      token_type: value.token_type,
-      access_token: value.access_token,
-      refresh_token: value.refresh_token,
-      expire_in: value.expire_in,
-    }
+    LoginResponse::Token(value)
   }
 }
 

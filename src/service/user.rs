@@ -58,8 +58,8 @@ pub async fn active(state: &AppState, req: ActiveRequest) -> AppResult {
   Ok(())
 }
 
-pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<Option<TokenResponse>> {
-  info!("User login req :{req:?}");
+pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<LoginResponse> {
+  info!("User login request :{req:?}.");
   let user = crate::repo::user::find_by_email_and_status(&state.db, &req.email, true)
     .await?
     .to_result()?;
@@ -68,11 +68,13 @@ pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<Option<Toke
     let code = service::token::generate_login_code(&state.redis, user.id).await?;
     crate::repo::message::save(&*state.db, user.id, code, MessageKind::LoginCode).await?;
     state.messenger_notify.notify_one();
-    return Ok(None);
+    return Ok(LoginResponse::Message(
+      "Please check you email.".to_string(),
+    ));
   }
   let session_id = service::session::set(&state.redis, user.id).await?;
   let resp = service::token::generate_tokens(&state.config.secret, user.id, user.role, session_id)?;
-  Ok(Some(resp))
+  Ok(LoginResponse::Token(resp))
 }
 
 pub async fn two_factor_login(state: &AppState, req: TwoFactorLogin) -> AppResult<TokenResponse> {
