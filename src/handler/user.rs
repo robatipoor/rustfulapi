@@ -129,6 +129,35 @@ pub async fn login(
   }
 }
 
+/// Login2fa user.
+#[utoipa::path(
+    post,
+    request_body = LoginRequest,
+    path = "/api/v1/users/login2fa",
+    responses(
+        (status = 200, description = "Success login user", body = [LoginResponse]),
+        (status = 400, description = "Invalid data input", body = [AppResponseError]),
+        (status = 404, description = "User not found", body = [AppResponseError]),
+        (status = 500, description = "Internal server error", body = [AppResponseError])
+    )
+)]
+pub async fn login2fa(
+  State(state): State<AppState>,
+  Json(req): Json<Login2fa>,
+) -> AppResult<Json<LoginResponse>> {
+  info!("Two factor login user with request: {req:?}.");
+  match service::user::login2fa(&state, req).await {
+    Ok(resp) => {
+      info!("Success login user_id: {resp:?}.");
+      Ok(Json(LoginResponse::Token(resp)))
+    }
+    Err(e) => {
+      warn!("Unsuccessfully login user error: {e:?}.");
+      Err(e)
+    }
+  }
+}
+
 /// Refresh token.
 #[utoipa::path(
     get,

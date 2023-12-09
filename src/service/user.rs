@@ -64,20 +64,20 @@ pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<LoginRespon
     .await?
     .to_result()?;
   util::password::verify(req.password.clone(), user.password.clone()).await?;
-  if user.is_tfa {
+  if user.is_2fa {
     let code = service::token::generate_login_code(&state.redis, user.id).await?;
     crate::repo::message::save(&*state.db, user.id, code, MessageKind::LoginCode).await?;
     state.messenger_notify.notify_one();
-    return Ok(LoginResponse::Message(
-      "Please check you email.".to_string(),
-    ));
+    return Ok(LoginResponse::Message {
+      content: "Please check you email.".to_string(),
+    });
   }
   let session_id = service::session::set(&state.redis, user.id).await?;
   let resp = service::token::generate_tokens(&state.config.secret, user.id, user.role, session_id)?;
   Ok(LoginResponse::Token(resp))
 }
 
-pub async fn two_factor_login(state: &AppState, req: TwoFactorLogin) -> AppResult<TokenResponse> {
+pub async fn login2fa(state: &AppState, req: Login2fa) -> AppResult<TokenResponse> {
   info!("User two factor login request: {req:?}");
   let key = LoginKey {
     user_id: req.user_id,
@@ -185,8 +185,8 @@ pub async fn update_profile(
     .await?
     .to_result()?
     .into();
-  if let Some(is_tfa) = req.is_tfa {
-    user.is_tfa = Set(is_tfa);
+  if let Some(is_2fa) = req.is_2fa {
+    user.is_2fa = Set(is_2fa);
   }
   if let Some(username) = req.username {
     user.username = Set(username);

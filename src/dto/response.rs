@@ -18,7 +18,7 @@ pub struct GetUserResponse {
   pub email: String,
   // pub role_name: RoleUser,
   pub is_active: bool,
-  pub is_tfa: bool,
+  pub is_2fa: bool,
   pub create_at: Option<DateTime<Utc>>,
 }
 
@@ -95,7 +95,7 @@ impl InvitationResponse {
 #[serde(tag = "type")]
 pub enum LoginResponse {
   Token(TokenResponse),
-  Message(String),
+  Message { content: String },
 }
 
 impl From<TokenResponse> for LoginResponse {

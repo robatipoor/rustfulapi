@@ -26,7 +26,7 @@ impl TestUser {
         email: Set(Faker.fake::<String>()),
         role: Set(role),
         is_active: Set(true),
-        is_tfa: Set(true),
+        is_2fa: Set(false),
         create_at: Set(Utc::now()),
         update_at: Set(Utc::now()),
       };

@@ -25,7 +25,7 @@ pub struct Model {
   pub email: String,
   pub role: RoleUser,
   pub is_active: bool,
-  pub is_tfa: bool,
+  pub is_2fa: bool,
   pub create_at: DateTime<Utc>,
   pub update_at: DateTime<Utc>,
 }
@@ -74,7 +74,7 @@ pub mod tests {
       email: Set(email.clone()),
       role: Set(fake::Faker.fake()),
       is_active: Set(fake::Faker.fake()),
-      is_tfa: Set(fake::Faker.fake()),
+      is_2fa: Set(fake::Faker.fake()),
       create_at: Set(fake::Faker.fake()),
       update_at: Set(fake::Faker.fake()),
     }

@@ -16,14 +16,14 @@ impl MigrationTrait for Migration {
             email VARCHAR(255) NOT NULL UNIQUE,
             role ROLE_USER NOT NULL,
             is_active BOOLEAN NOT NULL,
-            is_tfa BOOLEAN NOT NULL,
+            is_2fa BOOLEAN NOT NULL,
             create_at TIMESTAMPTZ DEFAULT current_timestamp,
             update_at TIMESTAMPTZ DEFAULT current_timestamp
         )"#,
     )
     .await?;
     tx.execute_unprepared(
-      r#"INSERT INTO users (id, username, password, email, role, is_active, is_tfa, create_at, update_at) VALUES
+      r#"INSERT INTO users (id, username, password, email, role, is_active, is_2fa, create_at, update_at) VALUES
    (
       gen_random_uuid(),
       'test-user',

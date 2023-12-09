@@ -29,7 +29,7 @@ entity "**users**" {
   *""email"": //character varying(255) //
   *""role_name"": //roleuser //
   *""is_active"": //boolean //
-  *""is_tfa"": //boolean //
+  *""is_2fa"": //boolean //
   ""create_at"": //timestamp with time zone //
   ""update_at"": //timestamp with time zone //
 }

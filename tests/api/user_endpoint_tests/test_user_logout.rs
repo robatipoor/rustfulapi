@@ -1,27 +1,29 @@
 use crate::{assert_ok, context::seeder::SeedDbTestContext, unwrap};
-use entity::role::RoleUser;
-use model::*;
+use rustfulapi::{
+  dto::{LoginRequest, LoginResponse},
+  entity::role::RoleUser,
+};
 use test_context::test_context;
 
 #[test_context(SeedDbTestContext)]
 #[tokio::test]
-pub async fn test_logout_user(ctx: &mut SeedDbTestContext) {
+pub async fn test_success_logout(ctx: &mut SeedDbTestContext) {
   let user = ctx.users.get(&RoleUser::User).unwrap();
-  let req = LoginRequest::Normal(NormalLogin {
+  let req = LoginRequest {
     email: user.email.clone(),
     password: user.password.clone(),
-  });
-  let (status, body) = ctx.app.api.login(&req).await.unwrap();
-  let body = unwrap!(body);
+  };
+  let (status, resp) = ctx.app.api.login(&req).await.unwrap();
+  let resp = unwrap!(resp);
   assert!(status.is_success(), "status: {status}");
-  match body {
-    LoginResponse::Token { access_token, .. } => {
-      let (status, body) = ctx.app.api.logout(&access_token).await.unwrap();
-      assert_ok!(body);
+  match resp {
+    LoginResponse::Token(token) => {
+      let (status, resp) = ctx.app.api.logout(&token.access_token).await.unwrap();
+      assert_ok!(resp);
       assert!(status.is_success(), "status: {status}");
     }
-    LoginResponse::Id { id } => {
-      panic!("logout user test failed: {id}");
+    LoginResponse::Message { .. } => {
+      panic!("It was not expected to receive message.");
     }
   }
 }

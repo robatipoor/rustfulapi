@@ -80,7 +80,7 @@ pub struct LoginRequest {
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema, Validate, Dummy)]
-pub struct TwoFactorLogin {
+pub struct Login2fa {
   #[garde(skip)]
   pub user_id: Uuid,
   #[garde(length(min = 5))]
@@ -132,7 +132,7 @@ pub struct UpdateProfileRequest {
   #[garde(length(min = 8))]
   pub password: Option<String>,
   #[garde(skip)]
-  pub is_tfa: Option<bool>,
+  pub is_2fa: Option<bool>,
   #[garde(skip)]
   pub is_private: Option<bool>,
 }

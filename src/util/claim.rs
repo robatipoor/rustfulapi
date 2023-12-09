@@ -21,7 +21,7 @@ use serde::Serialize;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::constant::{AUTHORIZATION, BEARER, DECODE_KEY};
+use crate::constant::{ACCESS_TOKEN_DECODE_KEY, AUTHORIZATION, BEARER};
 use crate::entity::role::RoleUser;
 use crate::error::{AppError, AppResult};
 
@@ -77,7 +77,10 @@ where
     let TypedHeader(Authorization(bearer)) = parts
       .extract::<TypedHeader<Authorization<Bearer>>>()
       .await?;
-    let token_data = UserClaims::decode(bearer.token(), &DECODE_KEY)?;
+    println!(">>>>>>>>>>>>>>{}", bearer.token());
+    let token_data = UserClaims::decode(bearer.token(), &ACCESS_TOKEN_DECODE_KEY);
+    println!(">>>>>>>>>>>>>>{:?}", token_data);
+    let token_data = token_data.unwrap();
     Ok(token_data.claims)
   }
 }
@@ -120,7 +123,7 @@ impl UserClaimsRequest for axum::extract::Request {
 #[cfg(test)]
 mod tests {
   use crate::util::key::RsaPairKey;
-  use axum::http::{HeaderValue, header};
+  use axum::http::{header, HeaderValue};
   use fake::{Fake, Faker};
 
   use super::*;
