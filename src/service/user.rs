@@ -66,6 +66,8 @@ pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<LoginRespon
   util::password::verify(req.password.clone(), user.password.clone()).await?;
   if user.is_2fa {
     let code = service::token::generate_login_code(&state.redis, user.id).await?;
+    let key = LoginKey { user_id: user.id };
+    service::redis::set(&state.redis, (&key, &code)).await?;
     crate::repo::message::save(&*state.db, user.id, code, MessageKind::LoginCode).await?;
     state.messenger_notify.notify_one();
     return Ok(LoginResponse::Message {
@@ -77,14 +79,14 @@ pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<LoginRespon
   Ok(LoginResponse::Token(resp))
 }
 
-pub async fn login2fa(state: &AppState, req: Login2fa) -> AppResult<TokenResponse> {
+pub async fn login2fa(state: &AppState, req: Login2faRequest) -> AppResult<TokenResponse> {
   info!("User two factor login request: {req:?}");
   let key = LoginKey {
     user_id: req.user_id,
   };
   let code = service::redis::get(&state.redis, &key).await?;
   if code != Some(req.code) {
-    return Err(invalid_input_error("code", "Code is Invalid"));
+    return Err(invalid_input_error("code", "Code is invalid."));
   }
   let user = crate::repo::user::find_by_id(&*state.db, req.user_id)
     .await?
@@ -176,7 +178,7 @@ pub async fn update_profile(
   user_id: Uuid,
   req: UpdateProfileRequest,
 ) -> AppResult {
-  info!("Update user profile with id: {user_id} req: {req:?}");
+  info!("Update user profile with id: {user_id} request: {req:?}");
   let tx = state.db.begin().await?;
   if let Some(username) = req.username.as_ref() {
     repo::user::check_unique_by_username(&tx, username).await?;

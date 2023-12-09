@@ -80,18 +80,11 @@ pub struct LoginRequest {
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema, Validate, Dummy)]
-pub struct Login2fa {
+pub struct Login2faRequest {
   #[garde(skip)]
   pub user_id: Uuid,
   #[garde(length(min = 5))]
   pub code: String,
-}
-
-#[derive(Debug, Deserialize, ToSchema, Validate, Dummy, IntoParams)]
-pub struct TwoFactorLoginRequest {
-  #[dummy(faker = "SafeEmail()")]
-  #[garde(email)]
-  pub email: String,
 }
 
 #[derive(Debug, Deserialize, ToSchema, Validate, Dummy, IntoParams)]

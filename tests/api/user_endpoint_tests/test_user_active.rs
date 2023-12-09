@@ -22,4 +22,11 @@ pub async fn test_active_user(ctx: &mut AppTestContext) {
   let (status, resp) = ctx.api.active(&active_req).await.unwrap();
   assert_ok!(resp);
   assert!(status.is_success(), "status: {status}");
+  let req = LoginRequest {
+    email: req.email.clone(),
+    password: req.password.clone(),
+  };
+  let (status, resp) = ctx.api.login(&req).await.unwrap();
+  let resp = unwrap!(resp);
+  assert!(status.is_success(), "status: {status}");
 }

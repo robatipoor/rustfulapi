@@ -36,7 +36,8 @@ pub async fn save(
 
 #[tracing::instrument]
 pub async fn active(tx: &DatabaseTransaction, user: entity::user::Model) -> AppResult<()> {
-  let user: entity::user::ActiveModel = user.into();
+  let mut user: entity::user::ActiveModel = user.into();
+  user.is_active = Set(true);
   user.update(tx).await?;
   Ok(())
 }

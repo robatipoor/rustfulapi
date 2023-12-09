@@ -72,6 +72,17 @@ impl Api {
   }
 
   #[logfn(Info)]
+  pub async fn login2fa(
+    &self,
+    req: &Login2faRequest,
+  ) -> anyhow::Result<(StatusCode, AppResponseResult<LoginResponse>)> {
+    let resp = CLIENT
+      .post_request(&format!("{}/api/v1/users/login2fa", self.addr), req)
+      .await?;
+    Ok((resp.status(), resp.json().await?))
+  }
+
+  #[logfn(Info)]
   pub async fn logout(&self, token: &str) -> anyhow::Result<(StatusCode, AppResponseResult)> {
     let resp = CLIENT
       .get(format!("{}/api/v1/users/logout", self.addr))

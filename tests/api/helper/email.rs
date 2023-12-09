@@ -107,6 +107,7 @@ impl MailHogClient {
       .ok_or_else(|| anyhow!("Item not found"))?
       .text()
       .collect::<String>();
+    let _ = self.delete(resp.items.get(0).unwrap().id.clone()).await;
     Ok(token)
   }
 }

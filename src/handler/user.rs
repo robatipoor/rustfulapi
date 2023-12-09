@@ -143,7 +143,7 @@ pub async fn login(
 )]
 pub async fn login2fa(
   State(state): State<AppState>,
-  Json(req): Json<Login2fa>,
+  Json(req): Json<Login2faRequest>,
 ) -> AppResult<Json<LoginResponse>> {
   info!("Two factor login user with request: {req:?}.");
   match service::user::login2fa(&state, req).await {
@@ -323,21 +323,19 @@ pub async fn get_profile(
     security(("jwt" = []))
 )]
 pub async fn update_profile(
-  State(_state): State<AppState>,
+  State(state): State<AppState>,
   user: UserClaims,
-  Json(_body): Json<UpdateProfileRequest>,
+  Json(req): Json<UpdateProfileRequest>,
 ) -> AppResult<Json<MessageResponse>> {
   info!("Update profile user_id: {}.", user.uid);
-  // match service::user::update_profile(&state, user_id, body).await {
-  //   Ok(_) => {
-  //     info!("success update profile user user_id: {user_id}");
-  //     Ok(HttpResponse::Ok().json(MessageResponse::new("user profile updated")))
-  //   }
-  //   Err(e) => {
-  //     info!("unsuccessful update profile user: {e:?}");
-  //     Err(e)
-  //   }
-  // }
-
-  todo!()
+  match service::user::update_profile(&state, user.uid, req).await {
+    Ok(_) => {
+      info!("Success update profile user user_id: {}", user.uid);
+      Ok(Json(MessageResponse::new("User profile updated.")))
+    }
+    Err(e) => {
+      info!("Unsuccessful update profile user: {e:?}");
+      Err(e)
+    }
+  }
 }

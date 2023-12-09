@@ -18,7 +18,7 @@ async fn main() -> AppResult<()> {
   let server = AppServer::new(config).await?;
   info!("Create a new messenger task.");
   let messenger = MessengerTask::new(server.state.clone());
-  info!("Run server.");
+  info!("Run server .");
   util::task::join_all(vec![
     (true, server.run().boxed()),
     (true, messenger.run().boxed()),
