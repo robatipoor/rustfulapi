@@ -1,9 +1,5 @@
-use crate::assert_ok;
-use crate::context::app::AppTestContext;
 use crate::context::seeder::SeedDbTestContext;
 use crate::unwrap;
-use fake::Fake;
-use fake::Faker;
 use rustfulapi::dto::LoginRequest;
 use rustfulapi::dto::LoginResponse;
 use rustfulapi::entity::role::RoleUser;

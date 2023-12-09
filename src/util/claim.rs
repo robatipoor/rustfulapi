@@ -54,15 +54,14 @@ impl UserClaims {
     }
   }
 
-  pub fn decode(
-    token: &str,
-    key: &DecodingKey,
-  ) -> Result<TokenData<UserClaims>, jsonwebtoken::errors::Error> {
-    jsonwebtoken::decode::<UserClaims>(token, key, Lazy::force(&DECODE_HEADER))
+  pub fn decode(token: &str, key: &DecodingKey) -> AppResult<TokenData<UserClaims>> {
+    let token_data = jsonwebtoken::decode::<UserClaims>(token, key, &DECODE_HEADER)?;
+    Ok(token_data)
   }
 
-  pub fn encode(&self, key: &EncodingKey) -> Result<String, jsonwebtoken::errors::Error> {
-    jsonwebtoken::encode(Lazy::force(&ENCODE_HEADER), self, key)
+  pub fn encode(&self, key: &EncodingKey) -> AppResult<String> {
+    let token = jsonwebtoken::encode(&ENCODE_HEADER, self, key)?;
+    Ok(token)
   }
 }
 
@@ -77,10 +76,7 @@ where
     let TypedHeader(Authorization(bearer)) = parts
       .extract::<TypedHeader<Authorization<Bearer>>>()
       .await?;
-    println!(">>>>>>>>>>>>>>{}", bearer.token());
-    let token_data = UserClaims::decode(bearer.token(), &ACCESS_TOKEN_DECODE_KEY);
-    println!(">>>>>>>>>>>>>>{:?}", token_data);
-    let token_data = token_data.unwrap();
+    let token_data = UserClaims::decode(bearer.token(), &ACCESS_TOKEN_DECODE_KEY)?;
     Ok(token_data.claims)
   }
 }
