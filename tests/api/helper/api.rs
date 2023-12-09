@@ -98,7 +98,7 @@ impl Api {
     refresh_token: &str,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<TokenResponse>)> {
     let resp = CLIENT
-      .get(format!("{}/api/v1/users/token", self.addr))
+      .get(format!("{}/api/v1/users/refresh-token", self.addr))
       .header(
         reqwest::header::AUTHORIZATION,
         format!("Bearer {refresh_token}"),
@@ -134,13 +134,13 @@ impl Api {
   }
 
   #[logfn(Info)]
-  pub async fn validate(
+  pub async fn token_info(
     &self,
     owner_token: &str,
     req: &ValidateRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<UserClaims>)> {
     let resp = CLIENT
-      .post(format!("{}/api/v1/users/validate", self.addr))
+      .post(format!("{}/api/v1/users/token-info", self.addr))
       .header(
         reqwest::header::AUTHORIZATION,
         format!("Bearer {owner_token}"),
