@@ -10,7 +10,7 @@ use crate::{dto::*, service};
 
 /// Refresh token.
 #[utoipa::path(
-    get,
+    post,
     path = "/api/v1/token/refresh",
     responses(
         (status = 200, description = "Success get new access token and refresh token", body = [TokenResponse]),
@@ -18,14 +18,13 @@ use crate::{dto::*, service};
         (status = 401, description = "Unauthorized user", body = [AppResponseError]),
         (status = 500, description = "Internal server error", body = [AppResponseError])
     ),
-    security(("jwt" = []))
 )]
 pub async fn refresh(
   State(state): State<AppState>,
-  user: UserClaims,
+  Json(req): Json<RefreshTokenRequest>,
 ) -> AppResult<Json<TokenResponse>> {
-  info!("Refresh token with claims: {user:?}.");
-  match service::token::refresh(&state, &user).await {
+  info!("Refresh token with request: {req:?}.");
+  match service::token::refresh(&state, req).await {
     Ok(resp) => {
       info!("Success refresh token user response: {resp:?}.");
       Ok(Json(resp))

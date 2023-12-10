@@ -75,16 +75,7 @@ where
     let TypedHeader(Authorization(bearer)) = parts
       .extract::<TypedHeader<Authorization<Bearer>>>()
       .await?;
-    let token = bearer.token();
-    let token_data = UserClaims::decode(token, &ACCESS_TOKEN_DECODE_KEY);
-    let user_claims = match token_data {
-      Err(e) if e.kind() == &jsonwebtoken::errors::ErrorKind::InvalidSignature => {
-        UserClaims::decode(token, &REFERESH_TOKEN_DECODE_KEY)
-      }
-      _ => token_data,
-    }?
-    .claims;
-    Ok(user_claims)
+    Ok(UserClaims::decode(bearer.token(), &ACCESS_TOKEN_DECODE_KEY)?.claims)
   }
 }
 

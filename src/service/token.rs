@@ -1,6 +1,6 @@
 use crate::constant::*;
 use crate::dto::response::TokenResponse;
-use crate::dto::TokenInfoRequest;
+use crate::dto::{RefreshTokenRequest, TokenInfoRequest};
 use crate::entity::role::RoleUser;
 use crate::error::{AppResult, ToAppResult};
 use crate::server::state::AppState;
@@ -21,9 +21,10 @@ pub async fn info(
   Ok(token_data.claims)
 }
 
-pub async fn refresh(state: &AppState, user_claims: &UserClaims) -> AppResult<TokenResponse> {
+pub async fn refresh(state: &AppState, req: RefreshTokenRequest) -> AppResult<TokenResponse> {
+  let user_claims = UserClaims::decode(&req.token, &REFERESH_TOKEN_DECODE_KEY)?.claims;
   info!("Refresh token: {user_claims:?}");
-  let user_id = service::session::check(&state.redis, user_claims).await?;
+  let user_id = service::session::check(&state.redis, &user_claims).await?;
   let user = crate::repo::user::find_by_id(&*state.db, user_id)
     .await?
     .to_result()?;
