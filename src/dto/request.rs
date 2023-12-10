@@ -94,7 +94,7 @@ pub struct RefreshTokenRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Validate, Dummy, IntoParams)]
-pub struct ValidateRequest {
+pub struct TokenInfoRequest {
   #[garde(length(min = 30))]
   pub token: String,
 }

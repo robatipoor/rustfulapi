@@ -1,12 +1,11 @@
-use axum::extract::{Query, Request, State};
-use axum::response::Response;
+use axum::extract::{Query, State};
 use axum::Json;
 use garde::Validate;
 use tracing::{info, warn};
 
 use crate::error::AppResult;
 use crate::server::state::AppState;
-use crate::util::claim::{UserClaims, UserClaimsRequest};
+use crate::util::claim::UserClaims;
 use crate::{dto::*, service};
 
 /// Register new user.
@@ -67,39 +66,6 @@ pub async fn active(
   }
 }
 
-/// Validate user token.
-#[utoipa::path(
-    post,
-    path = "/api/v1/users/validate",
-    request_body = ValidateRequest,
-    responses(
-        (status = 200, description = "Token is valid", body = [UserClaims]),
-        (status = 400, description = "Invalid token", body = [AppResponseError]),
-        (status = 401, description = "Unauthorized user", body = [AppResponseError]),
-        (status = 500, description = "Internal server error", body = [AppResponseError])
-    ),
-    security(("jwt" = []))
-)]
-pub async fn validate(
-  State(_state): State<AppState>,
-  Json(_body): Json<ValidateRequest>,
-  req: Request,
-) -> AppResult<Response> {
-  let user_id = req.get_user_id()?;
-  info!("get validate token user_id: {user_id}");
-  // match service::user::validate(&state, &user_id, validate_req).await {
-  //   Ok(resp) => {
-  //     info!("success validate token user_id: {user_id} resp: {resp:?}");
-  //     Ok(HttpResponse::Ok().json(resp))
-  //   }
-  //   Err(e) => {
-  //     warn!("unsuccessfully validate token user_id: {user_id} error: {e:?}");
-  //     Err(e)
-  //   }
-  // }
-  todo!()
-}
-
 /// Login user.
 #[utoipa::path(
     post,
@@ -156,36 +122,6 @@ pub async fn login2fa(
       Err(e)
     }
   }
-}
-
-/// Refresh token.
-#[utoipa::path(
-    get,
-    path = "/api/v1/users/token",
-    responses(
-        (status = 200, description = "Success get new access token and refresh token", body = [TokenResponse]),
-        (status = 400, description = "Invalid data input", body = [AppResponseError]),
-        (status = 401, description = "Unauthorized user", body = [AppResponseError]),
-        (status = 500, description = "Internal server error", body = [AppResponseError])
-    ),
-    security(("jwt" = []))
-)]
-pub async fn refresh_token(
-  State(_state): State<AppState>,
-  user: UserClaims,
-) -> AppResult<Json<TokenResponse>> {
-  info!("Refresh token with claims: {user:?}.");
-  // match service::user::refresh_token(&state, &claims).await {
-  //   Ok(resp) => {
-  //     info!("success refresh token user resp: {resp:?}");
-  //     Ok(HttpResponse::Ok().json(resp))
-  //   }
-  //   Err(e) => {
-  //     warn!("unsuccessfully refresh token error: {e:?}");
-  //     Err(e)
-  //   }
-  // }
-  todo!()
 }
 
 /// Logout user.

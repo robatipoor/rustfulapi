@@ -18,9 +18,7 @@ use crate::service;
 use crate::service::redis::ForgetPasswordKey;
 use crate::service::redis::LoginKey;
 use crate::service::redis::SessionKey;
-use crate::service::token::verify_access_token;
 use crate::util;
-use crate::util::claim::UserClaims;
 
 pub async fn register(state: AppState, req: RegisterRequest) -> AppResult<Uuid> {
   info!("Register a new user request: {req:?}.");
@@ -65,17 +63,17 @@ pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<LoginRespon
     .to_result()?;
   util::password::verify(req.password.clone(), user.password.clone()).await?;
   if user.is_2fa {
-    let code = service::token::generate_login_code(&state.redis, user.id).await?;
+    let login_code = util::random::generate_random_string(CODE_LEN);
     let key = LoginKey { user_id: user.id };
-    service::redis::set(&state.redis, (&key, &code)).await?;
-    crate::repo::message::save(&*state.db, user.id, code, MessageKind::LoginCode).await?;
+    crate::service::redis::set(&state.redis, (&key, &login_code)).await?;
+    crate::repo::message::save(&*state.db, user.id, login_code, MessageKind::LoginCode).await?;
     state.messenger_notify.notify_one();
     return Ok(LoginResponse::Message {
       content: "Please check you email.".to_string(),
     });
   }
   let session_id = service::session::set(&state.redis, user.id).await?;
-  let resp = service::token::generate_tokens(&state.config.secret, user.id, user.role, session_id)?;
+  let resp = service::token::generate_tokens(user.id, user.role, session_id)?;
   Ok(LoginResponse::Token(resp))
 }
 
@@ -92,31 +90,7 @@ pub async fn login2fa(state: &AppState, req: Login2faRequest) -> AppResult<Token
     .await?
     .to_result()?;
   let session_id = service::session::set(&state.redis, user.id).await?;
-  service::token::generate_tokens(&state.config.secret, req.user_id, user.role, session_id)
-}
-
-pub async fn validate(
-  state: &AppState,
-  user_id: &Uuid,
-  req: ValidateRequest,
-) -> AppResult<UserClaims> {
-  info!("Get validate token user_id: {user_id}");
-  let token_data = verify_access_token(&state.config.secret, &req.token)?;
-  service::session::check(&state.redis, &token_data.claims).await?;
-  Ok(token_data.claims)
-}
-
-pub async fn refresh_token(state: &AppState, user_claims: &UserClaims) -> AppResult<TokenResponse> {
-  info!("Refresh token: {user_claims:?}");
-  let user_id = service::session::check(&state.redis, user_claims).await?;
-  let user = crate::repo::user::find_by_id(&*state.db, user_id)
-    .await?
-    .to_result()?;
-  let session_id = service::session::set(&state.redis, user.id).await?;
-  info!("Set new session for user: {}", user.id);
-  let resp = service::token::generate_tokens(&state.config.secret, user.id, user.role, session_id)?;
-  info!("Refresh token success: {user_claims:?}");
-  Ok(resp)
+  service::token::generate_tokens(req.user_id, user.role, session_id)
 }
 
 pub async fn logout(state: &AppState, user_id: Uuid) -> AppResult {
@@ -134,7 +108,9 @@ pub async fn forget_password(state: &AppState, req: ForgetPasswordQueryParam) ->
   if service::redis::check_exist_key(&state.redis, &ForgetPasswordKey { user_id: user.id }).await? {
     return Ok(());
   }
-  let code = service::token::generate_forget_password_code(&state.redis, user.id).await?;
+  let code = util::random::generate_random_string(CODE_LEN);
+  let key = ForgetPasswordKey { user_id: user.id };
+  crate::service::redis::set(&state.redis, (&key, &code)).await?;
   repo::message::save(&*state.db, user.id, code, MessageKind::ForgetPasswordCode).await?;
   state.messenger_notify.notify_one();
   Ok(())

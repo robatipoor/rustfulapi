@@ -5,11 +5,9 @@ use axum_extra::{
   TypedHeader,
 };
 
-use anyhow::anyhow;
 use async_trait::async_trait;
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
-use axum::http::HeaderMap;
 use axum::RequestPartsExt;
 use chrono::Utc;
 use fake::Dummy;
@@ -21,7 +19,7 @@ use serde::Serialize;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::constant::{ACCESS_TOKEN_DECODE_KEY, AUTHORIZATION, BEARER};
+use crate::constant::{ACCESS_TOKEN_DECODE_KEY, REFERESH_TOKEN_DECODE_KEY};
 use crate::entity::role::RoleUser;
 use crate::error::{AppError, AppResult};
 
@@ -54,14 +52,15 @@ impl UserClaims {
     }
   }
 
-  pub fn decode(token: &str, key: &DecodingKey) -> AppResult<TokenData<UserClaims>> {
-    let token_data = jsonwebtoken::decode::<UserClaims>(token, key, &DECODE_HEADER)?;
-    Ok(token_data)
+  pub fn decode(
+    token: &str,
+    key: &DecodingKey,
+  ) -> Result<TokenData<Self>, jsonwebtoken::errors::Error> {
+    jsonwebtoken::decode::<UserClaims>(token, key, &DECODE_HEADER)
   }
 
-  pub fn encode(&self, key: &EncodingKey) -> AppResult<String> {
-    let token = jsonwebtoken::encode(&ENCODE_HEADER, self, key)?;
-    Ok(token)
+  pub fn encode(&self, key: &EncodingKey) -> Result<String, jsonwebtoken::errors::Error> {
+    jsonwebtoken::encode(&ENCODE_HEADER, self, key)
   }
 }
 
@@ -76,20 +75,16 @@ where
     let TypedHeader(Authorization(bearer)) = parts
       .extract::<TypedHeader<Authorization<Bearer>>>()
       .await?;
-    let token_data = UserClaims::decode(bearer.token(), &ACCESS_TOKEN_DECODE_KEY)?;
-    Ok(token_data.claims)
-  }
-}
-
-pub fn parse_bearer_token_from_header(headers: &HeaderMap) -> Result<String, anyhow::Error> {
-  let auth_header = headers
-    .get(AUTHORIZATION)
-    .ok_or_else(|| anyhow!("header auth not found"))?;
-  let auth_header = auth_header.to_str()?;
-  if let Some(token) = auth_header.strip_prefix(BEARER) {
-    Ok(token.trim().to_string())
-  } else {
-    Err(anyhow!("auth header not start with Bearer"))
+    let token = bearer.token();
+    let token_data = UserClaims::decode(token, &ACCESS_TOKEN_DECODE_KEY);
+    let user_claims = match token_data {
+      Err(e) if e.kind() == &jsonwebtoken::errors::ErrorKind::InvalidSignature => {
+        UserClaims::decode(token, &REFERESH_TOKEN_DECODE_KEY)
+      }
+      _ => token_data,
+    }?
+    .claims;
+    Ok(user_claims)
   }
 }
 
@@ -119,7 +114,6 @@ impl UserClaimsRequest for axum::extract::Request {
 #[cfg(test)]
 mod tests {
   use crate::util::key::RsaPairKey;
-  use axum::http::{header, HeaderValue};
   use fake::{Fake, Faker};
 
   use super::*;
@@ -153,39 +147,5 @@ mod tests {
     .unwrap()
     .claims;
     assert_eq!(actual_claims, claims)
-  }
-
-  #[test]
-  fn test_parse_valid_bearer_token_from_header() {
-    let token: String = Faker.fake();
-    let bearer = format!("Bearer {token}");
-    let mut headers = HeaderMap::new();
-    headers.insert(
-      header::AUTHORIZATION,
-      HeaderValue::from_str(&bearer).unwrap(),
-    );
-    let result = parse_bearer_token_from_header(&headers).unwrap();
-    assert_eq!(result, token)
-  }
-
-  #[test]
-  fn test_parse_invalid_bearer_prefix_token() {
-    let token: String = Faker.fake();
-    let bearer = format!("bearer {token}");
-    let mut headers = HeaderMap::new();
-    headers.insert(
-      header::AUTHORIZATION,
-      HeaderValue::from_str(&bearer).unwrap(),
-    );
-    let result = parse_bearer_token_from_header(&headers);
-    assert!(result.is_err(), "result: {result:?}");
-    let bearer = format!("b {token}");
-    let mut headers = HeaderMap::new();
-    headers.insert(
-      header::AUTHORIZATION,
-      HeaderValue::from_str(&bearer).unwrap(),
-    );
-    let result = parse_bearer_token_from_header(&headers);
-    assert!(result.is_err(), "result: {result:?}");
   }
 }
