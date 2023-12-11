@@ -1,32 +1,33 @@
 use crate::assert_ok;
 use crate::context::seeder::SeedDbTestContext;
 use crate::unwrap;
-use entity::role::RoleUser;
 use fake::{Fake, Faker};
-use model::request::*;
-use model::response::*;
+use rustfulapi::{
+  dto::{LoginRequest, LoginResponse, UpdateProfileRequest},
+  entity::role::RoleUser,
+};
 use test_context::test_context;
 
 #[test_context(SeedDbTestContext)]
 #[tokio::test]
 pub async fn test_get_profile_user(ctx: &mut SeedDbTestContext) {
   let user = ctx.users.get(&RoleUser::User).unwrap();
-  let req = LoginRequest::Normal(NormalLogin {
+  let req = LoginRequest {
     email: user.email.clone(),
     password: user.password.clone(),
-  });
-  let (status, body) = ctx.app.api.login(&req).await.unwrap();
-  let body = unwrap!(body);
+  };
+  let (status, resp) = ctx.app.api.login(&req).await.unwrap();
+  let resp = unwrap!(resp);
   assert!(status.is_success(), "status: {status}");
-  match body {
-    LoginResponse::Token { access_token, .. } => {
-      let (status, body) = ctx.app.api.get_profile(&access_token).await.unwrap();
+  match resp {
+    LoginResponse::Token(token) => {
+      let (status, resp) = ctx.app.api.get_profile(&token.access_token).await.unwrap();
       assert!(status.is_success(), "status: {status}");
-      let body = unwrap!(body);
-      assert!(!body.username.is_empty());
+      let resp = unwrap!(resp);
+      assert!(!resp.username.is_empty());
     }
-    LoginResponse::Id { id } => {
-      panic!("get_profile_user_test failed: {id}");
+    LoginResponse::Code { .. } => {
+      panic!("get_profile_user_test failed.");
     }
   }
 }
@@ -35,39 +36,39 @@ pub async fn test_get_profile_user(ctx: &mut SeedDbTestContext) {
 #[tokio::test]
 pub async fn test_update_profile_user(ctx: &mut SeedDbTestContext) {
   let user = ctx.users.get(&RoleUser::User).unwrap();
-  let req = LoginRequest::Normal(NormalLogin {
+  let req = LoginRequest {
     email: user.email.clone(),
     password: user.password.clone(),
-  });
-  let (status, body) = ctx.app.api.login(&req).await.unwrap();
-  let body = unwrap!(body);
+  };
+  let (status, resp) = ctx.app.api.login(&req).await.unwrap();
+  let resp = unwrap!(resp);
   assert!(status.is_success());
   assert!(status.is_success(), "status: {status}");
-  match body {
-    LoginResponse::Token { access_token, .. } => {
-      let (status, body) = ctx.app.api.get_profile(&access_token).await.unwrap();
-      let body = unwrap!(body);
+  match resp {
+    LoginResponse::Token(token) => {
+      let (status, resp) = ctx.app.api.get_profile(&token.access_token).await.unwrap();
+      let resp = unwrap!(resp);
       assert!(status.is_success(), "status: {status}");
-      assert!(!body.username.is_empty());
+      assert!(!resp.username.is_empty());
       let req = UpdateProfileRequest {
         username: Some(Faker.fake()),
         ..Default::default()
       };
-      let (status, body) = ctx
+      let (status, resp) = ctx
         .app
         .api
-        .update_profile(&access_token, &req)
+        .update_profile(&token.access_token, &req)
         .await
         .unwrap();
-      assert_ok!(body);
+      assert_ok!(resp);
       assert!(status.is_success(), "status: {status}");
-      let (status, body) = ctx.app.api.get_profile(&access_token).await.unwrap();
-      let body = unwrap!(body);
+      let (status, resp) = ctx.app.api.get_profile(&token.access_token).await.unwrap();
+      let resp = unwrap!(resp);
       assert!(status.is_success(), "status: {status}");
-      assert_eq!(body.username, req.username.unwrap());
+      assert_eq!(resp.username, req.username.unwrap());
     }
-    LoginResponse::Id { id } => {
-      panic!("update_profile_user_test failed: {id}");
+    LoginResponse::Code { .. } => {
+      panic!("update_profile_user_test failed. ");
     }
   }
 }

@@ -265,7 +265,7 @@ pub async fn update_profile(
   info!("Update profile user_id: {}.", user.uid);
   match service::user::update_profile(&state, user.uid, req).await {
     Ok(_) => {
-      info!("Success update profile user user_id: {}", user.uid);
+      info!("Success update profile user user_id: {}.", user.uid);
       Ok(Json(MessageResponse::new("User profile updated.")))
     }
     Err(e) => {
