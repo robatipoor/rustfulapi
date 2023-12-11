@@ -44,7 +44,7 @@ impl MessengerTask {
         let user = match repo::user::find_by_id(&*self.state.db, message.user_id).await {
           Ok(user) => user.unwrap(),
           Err(err) => {
-            tracing::error!("Faild get user: {err}");
+            tracing::error!("Failed get user: {err}");
             continue;
           }
         };
