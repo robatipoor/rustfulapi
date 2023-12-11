@@ -19,7 +19,7 @@ use serde::Serialize;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::constant::{ACCESS_TOKEN_DECODE_KEY, REFERESH_TOKEN_DECODE_KEY};
+use crate::constant::ACCESS_TOKEN_DECODE_KEY;
 use crate::entity::role::RoleUser;
 use crate::error::{AppError, AppResult};
 

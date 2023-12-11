@@ -44,7 +44,7 @@ impl Api {
     req: &RegisterRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<RegisterResponse>)> {
     let resp = CLIENT
-      .post_request(&format!("{}/api/v1/users/register", self.addr), req)
+      .post_request(&format!("{}/api/v1/user/register", self.addr), req)
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
@@ -55,7 +55,7 @@ impl Api {
     req: &ActiveRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<MessageResponse>)> {
     let resp = CLIENT
-      .put_request(&format!("{}/api/v1/users/active", self.addr), req)
+      .put_request(&format!("{}/api/v1/user/active", self.addr), req)
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
@@ -66,7 +66,7 @@ impl Api {
     req: &LoginRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<LoginResponse>)> {
     let resp = CLIENT
-      .post_request(&format!("{}/api/v1/users/login", self.addr), req)
+      .post_request(&format!("{}/api/v1/user/login", self.addr), req)
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
@@ -77,7 +77,7 @@ impl Api {
     req: &Login2faRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<LoginResponse>)> {
     let resp = CLIENT
-      .post_request(&format!("{}/api/v1/users/login2fa", self.addr), req)
+      .post_request(&format!("{}/api/v1/user/login2fa", self.addr), req)
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
@@ -85,7 +85,7 @@ impl Api {
   #[logfn(Info)]
   pub async fn logout(&self, token: &str) -> anyhow::Result<(StatusCode, AppResponseResult)> {
     let resp = CLIENT
-      .get(format!("{}/api/v1/users/logout", self.addr))
+      .get(format!("{}/api/v1/user/logout", self.addr))
       .header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"))
       .send()
       .await?;
@@ -115,7 +115,7 @@ impl Api {
   ) -> anyhow::Result<(StatusCode, AppResponseResult<ForgetPasswordResponse>)> {
     let resp = CLIENT
       .get_request(&format!(
-        "{}/api/v1/users/password?email={}",
+        "{}/api/v1/user/password?email={}",
         self.addr, email
       ))
       .await?;
@@ -128,7 +128,7 @@ impl Api {
     req: &SetPasswordRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult)> {
     let resp = CLIENT
-      .put_request(&format!("{}/api/v1/users/password", self.addr), req)
+      .put_request(&format!("{}/api/v1/user/password", self.addr), req)
       .await?;
     Ok((resp.status(), resp.json().await?))
   }
@@ -157,7 +157,7 @@ impl Api {
     token: &str,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<ProfileResponse>)> {
     let resp = CLIENT
-      .get(format!("{}/api/v1/users/profile", self.addr))
+      .get(format!("{}/api/v1/user/profile", self.addr))
       .header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"))
       .send()
       .await?;
@@ -171,7 +171,7 @@ impl Api {
     req: &UpdateProfileRequest,
   ) -> reqwest::Result<(StatusCode, AppResponseResult)> {
     let resp = CLIENT
-      .put(format!("{}/api/v1/users/profile", self.addr))
+      .put(format!("{}/api/v1/user/profile", self.addr))
       .json(req)
       .header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"))
       .send()
