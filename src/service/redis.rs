@@ -99,25 +99,13 @@ where
   )
 }
 pub async fn del(client: &RedisClient, key: &impl RedisKey) -> Result<bool, redis::RedisError> {
-  info!("delete key in redis : {:?}", key);
+  info!("Delete key in redis :{:?}", key);
   client.del(&key.to_string()).await
 }
 
 pub async fn get_tll(client: &RedisClient, key: &impl RedisKey) -> Result<i64, redis::RedisError> {
-  info!("Get ttl key in redis : {:?}", key);
+  info!("Get ttl key in redis :{:?}", key);
   client.ttl(&key.to_string()).await
-}
-
-pub async fn pull<K>(client: &RedisClient, key: &K) -> AppResult<Option<K::Value>>
-where
-  K: RedisKey,
-{
-  info!("get and delete key from redis key : {:?}", key);
-  let result = get(client, key).await?;
-  if result.is_some() {
-    del(client, key).await?;
-  }
-  Ok(result)
 }
 
 pub async fn check_exist_key(redis: &RedisClient, key: &impl RedisKey) -> AppResult<bool> {
@@ -137,17 +125,6 @@ mod tests {
     set(&REDIS, (&key, &value)).await.unwrap();
     let actual_value = get(&REDIS, &key).await.unwrap().unwrap();
     assert_eq!(actual_value, value);
-  }
-
-  #[tokio::test]
-  async fn test_pull_redis_service() {
-    let key: SessionKey = Faker.fake();
-    let value = Uuid::new_v4();
-    set(&REDIS, (&key, &value)).await.unwrap();
-    let actual_value = pull(&REDIS, &key).await.unwrap().unwrap();
-    assert_eq!(actual_value, value);
-    let actual_value = get(&REDIS, &key).await.unwrap();
-    assert!(actual_value.is_none());
   }
 
   #[tokio::test]

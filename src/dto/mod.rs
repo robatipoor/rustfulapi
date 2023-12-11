@@ -10,6 +10,7 @@ pub mod response;
 
 pub use request::*;
 pub use response::*;
+use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Serialize, Dummy, Validate)]
 pub struct Email {
@@ -54,29 +55,56 @@ impl TryFrom<&Email> for Message {
 }
 #[derive(Debug)]
 pub enum Template {
-  ActiveUser { username: String, code: String },
-  Login { username: String, code: String },
-  ForgetPassword { username: String, code: String },
+  ActiveUser {
+    username: String,
+    user_id: Uuid,
+    code: String,
+  },
+  Login2fa {
+    username: String,
+    user_id: Uuid,
+    code: String,
+  },
+  ForgetPassword {
+    username: String,
+    user_id: Uuid,
+    code: String,
+  },
 }
 
 impl Template {
   pub fn get(&self) -> (tera::Context, &'static str) {
     let mut ctx = tera::Context::new();
     match self {
-      Self::ActiveUser { username, code } => {
+      Self::ActiveUser {
+        username,
+        code,
+        user_id,
+      } => {
         ctx.insert("username", username);
         ctx.insert("code", code);
-        (ctx, "invitation.html")
+        ctx.insert("user_id", user_id);
+        (ctx, "activation.html")
       }
-      Self::Login { username, code } => {
+      Self::Login2fa {
+        username,
+        code,
+        user_id,
+      } => {
         ctx.insert("username", username);
         ctx.insert("code", code);
-        (ctx, "login.html")
+        ctx.insert("user_id", user_id);
+        (ctx, "login2fa.html")
       }
-      Self::ForgetPassword { username, code } => {
+      Self::ForgetPassword {
+        username,
+        code,
+        user_id,
+      } => {
         ctx.insert("username", username);
         ctx.insert("code", code);
-        (ctx, "password.html")
+        ctx.insert("user_id", user_id);
+        (ctx, "forget_password.html")
       }
     }
   }

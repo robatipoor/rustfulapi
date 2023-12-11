@@ -33,6 +33,7 @@ impl TemplateEngine {
 #[cfg(test)]
 mod tests {
   use fake::{Fake, Faker};
+  use uuid::Uuid;
 
   use crate::dto::Template;
 
@@ -42,12 +43,15 @@ mod tests {
   fn template_engin_test() {
     let username: String = Faker.fake();
     let code: String = Faker.fake();
-    let template = Template::Login {
+    let user_id: Uuid = Faker.fake();
+    let template = Template::Login2fa {
       username: username.clone(),
+      user_id,
       code: code.clone(),
     };
     let content = TEMPLATE_ENGIN.render(&template).unwrap();
     assert!(content.contains(&username));
     assert!(content.contains(&code));
+    assert!(content.contains(&user_id.to_string()));
   }
 }

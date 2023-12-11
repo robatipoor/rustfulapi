@@ -6,7 +6,7 @@ use crate::{
   constant::APP_EMAIL_ADDR,
   continue_if_fail,
   dto::{Email, Template},
-  entity::message::MessageStatus,
+  entity::{self, message::MessageStatus},
   error::AppResult,
   repo,
 };
@@ -44,15 +44,11 @@ impl MessengerTask {
         let user = match repo::user::find_by_id(&*self.state.db, message.user_id).await {
           Ok(user) => user.unwrap(),
           Err(err) => {
-            tracing::error!("{err}");
+            tracing::error!("Faild get user: {err}");
             continue;
           }
         };
-        let template = Template::ActiveUser {
-          username: user.username,
-          code: message.content.clone(),
-        };
-        let message_content = TEMPLATE_ENGIN.render(&template)?;
+        let message_content = render_template(&message, &user)?;
         let email = Email::new(
           APP_EMAIL_ADDR.to_string(),
           user.email,
@@ -62,7 +58,7 @@ impl MessengerTask {
         let status = match self.state.email.send_email(&email).await {
           Ok(_) => MessageStatus::Success,
           Err(err) => {
-            tracing::error!("{err}");
+            tracing::error!("Failed send email: {err}");
             MessageStatus::Failed
           }
         };
@@ -70,4 +66,28 @@ impl MessengerTask {
       }
     }
   }
+}
+
+pub fn render_template(
+  message: &entity::message::Model,
+  user: &entity::user::Model,
+) -> AppResult<String> {
+  let template = match message.kind {
+    entity::message::MessageKind::ActiveCode => Template::ActiveUser {
+      username: user.username.clone(),
+      user_id: user.id,
+      code: message.content.clone(),
+    },
+    entity::message::MessageKind::LoginCode => Template::Login2fa {
+      username: user.username.clone(),
+      user_id: user.id,
+      code: message.content.clone(),
+    },
+    entity::message::MessageKind::ForgetPasswordCode => Template::ForgetPassword {
+      username: user.username.clone(),
+      user_id: user.id,
+      code: message.content.clone(),
+    },
+  };
+  Ok(TEMPLATE_ENGIN.render(&template)?)
 }

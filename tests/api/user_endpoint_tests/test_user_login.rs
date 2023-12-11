@@ -35,10 +35,13 @@ pub async fn test_success_login(ctx: &mut SeedDbTestContext) {
 pub async fn test_success_2fa_login(ctx: &mut AppTestContext) {
   let req: RegisterRequest = Faker.fake();
   let (status, resp) = ctx.api.register(&req).await.unwrap();
-  let resp = unwrap!(resp);
-  let user_id = resp.id;
+  assert_ok!(resp);
   assert!(status.is_success());
-  let code = ctx.mail.get_code_from_email(&req.email).await.unwrap();
+  let (code, user_id) = ctx
+    .mail
+    .get_code_and_id_from_email(&req.email)
+    .await
+    .unwrap();
   let active_req = ActiveRequest {
     user_id,
     code: code.clone(),
@@ -71,7 +74,11 @@ pub async fn test_success_2fa_login(ctx: &mut AppTestContext) {
       match resp {
         LoginResponse::Code { message, .. } => {
           assert_eq!(message, "Please check you email.");
-          let code = ctx.mail.get_code_from_email(&req.email).await.unwrap();
+          let (code, user_id) = ctx
+            .mail
+            .get_code_and_id_from_email(&req.email)
+            .await
+            .unwrap();
           let login_req = Login2faRequest { user_id, code };
           let (status, resp) = ctx.api.login2fa(&login_req).await.unwrap();
           let resp = unwrap!(resp);

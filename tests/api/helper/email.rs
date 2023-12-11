@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::str::FromStr;
 
 use super::http::CLIENT;
 use anyhow::anyhow;
@@ -11,6 +12,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 use tracing::info;
+use uuid::Uuid;
 
 pub struct MailHogClient {
   addr: String,
@@ -89,7 +91,7 @@ impl MailHogClient {
     resp
   }
 
-  pub async fn get_code_from_email(&self, email: &str) -> anyhow::Result<String> {
+  pub async fn get_code_and_id_from_email(&self, email: &str) -> anyhow::Result<(String, Uuid)> {
     let resp = self.search(QueryKindSearch::To, email).await?;
     let body = resp
       .items
@@ -101,14 +103,22 @@ impl MailHogClient {
     let html = Html::parse_document(&body);
     let selector =
       Selector::parse(r#"strong"#).map_err(|e| anyhow!("parse strong tag failed {:?}", e))?;
-    let token = html
+    let user_id = Uuid::from_str(
+      &html
+        .select(&selector)
+        .nth(1)
+        .ok_or_else(|| anyhow!("Item not found"))?
+        .text()
+        .collect::<String>(),
+    )?;
+    let code = html
       .select(&selector)
-      .nth(1)
+      .nth(2)
       .ok_or_else(|| anyhow!("Item not found"))?
       .text()
       .collect::<String>();
     let _ = self.delete(resp.items.get(0).unwrap().id.clone()).await;
-    Ok(token)
+    Ok((code, user_id))
   }
 }
 
@@ -247,8 +257,10 @@ mod tests {
   async fn test_mailhog_get_token() {
     let code: String = Faker.fake();
     let username: String = Faker.fake();
+    let user_id: uuid::Uuid = Faker.fake();
     let template = Template::ActiveUser {
       username,
+      user_id,
       code: code.clone(),
     };
     let body = TEMPLATE_ENGIN.render(&template).unwrap();
@@ -259,8 +271,8 @@ mod tests {
     let mailer = MailHogClient::new(&CONFIG.email);
     let mut resp: Option<String> = None;
     for _ in 0..10 {
-      if let Ok(r) = mailer.get_code_from_email(&email.to).await {
-        resp = Some(r);
+      if let Ok((code, _)) = mailer.get_code_and_id_from_email(&email.to).await {
+        resp = Some(code);
         break;
       }
       tokio::time::sleep(std::time::Duration::from_nanos(1000)).await;
