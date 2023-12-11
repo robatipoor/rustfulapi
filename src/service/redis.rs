@@ -103,6 +103,11 @@ pub async fn del(client: &RedisClient, key: &impl RedisKey) -> Result<bool, redi
   client.del(&key.to_string()).await
 }
 
+pub async fn get_tll(client: &RedisClient, key: &impl RedisKey) -> Result<i64, redis::RedisError> {
+  info!("Get ttl key in redis : {:?}", key);
+  client.ttl(&key.to_string()).await
+}
+
 pub async fn pull<K>(client: &RedisClient, key: &K) -> AppResult<Option<K::Value>>
 where
   K: RedisKey,

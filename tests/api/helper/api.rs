@@ -95,14 +95,11 @@ impl Api {
   #[logfn(Info)]
   pub async fn refresh_token(
     &self,
-    refresh_token: &str,
+    req: &RefreshTokenRequest,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<TokenResponse>)> {
     let resp = CLIENT
-      .get(format!("{}/api/v1/token/refresh", self.addr))
-      .header(
-        reqwest::header::AUTHORIZATION,
-        format!("Bearer {refresh_token}"),
-      )
+      .post(format!("{}/api/v1/token/refresh", self.addr))
+      .json(req)
       .send()
       .await?;
     Ok((resp.status(), resp.json().await?))

@@ -170,21 +170,22 @@ pub async fn logout(
     )
 )]
 pub async fn forget_password(
-  State(_state): State<AppState>,
+  State(state): State<AppState>,
   Query(param): Query<ForgetPasswordQueryParam>,
-) -> AppResult<Json<ForgetPasswordResponse>> {
+) -> AppResult<Json<MessageResponse>> {
   info!("Forget password user query parameter: {param:?}");
-  // match service::user::forget_password(&state, query.0).await {
-  //   Ok(resp) => {
-  //     info!("success forget password user response");
-  //     Ok(HttpResponse::Created().json(resp))
-  //   }
-  //   Err(e) => {
-  //     warn!("unsuccessful forget password user: {e:?}");
-  //     Err(e)
-  //   }
-  // }
-  todo!()
+  match service::user::forget_password(&state, param).await {
+    Ok(_) => {
+      info!("success forget password user response");
+      Ok(Json(MessageResponse {
+        message: "Please check your email".to_string(),
+      }))
+    }
+    Err(e) => {
+      warn!("unsuccessful forget password user: {e:?}");
+      Err(e)
+    }
+  }
 }
 
 /// Reset user password.
@@ -199,21 +200,20 @@ pub async fn forget_password(
     )
 )]
 pub async fn reset_password(
-  State(_state): State<AppState>,
+  State(state): State<AppState>,
   Json(req): Json<SetPasswordRequest>,
 ) -> AppResult<Json<MessageResponse>> {
-  info!("Reset password user request: {req:?}.");
-  // match service::user::reset_password(&state, req).await {
-  //   Ok(_) => {
-  //     info!("success set new password");
-  //     Ok(HttpResponse::Ok().json(MessageResponse::new("the password has been updated")))
-  //   }
-  //   Err(e) => {
-  //     warn!("unsuccessful set password user: {e:?}");
-  //     Err(e)
-  //   }
-  // }
-  todo!()
+  info!("Reset password user: {}.", req.user_id);
+  match service::user::reset_password(&state, req).await {
+    Ok(_) => {
+      info!("Success set new password.");
+      Ok(Json(MessageResponse::new("The password has been updated.")))
+    }
+    Err(e) => {
+      warn!("Unsuccessful set password user: {e:?}.");
+      Err(e)
+    }
+  }
 }
 
 /// Get user profile information.
@@ -228,21 +228,20 @@ pub async fn reset_password(
     security(("jwt" = []))
 )]
 pub async fn get_profile(
-  State(_state): State<AppState>,
+  State(state): State<AppState>,
   user: UserClaims,
 ) -> AppResult<Json<ProfileResponse>> {
   info!("Get profile user id: {}.", user.uid);
-  // match service::user::get_profile(&state, &user_id).await {
-  //   Ok(resp) => {
-  //     info!("success get profile user: {user_id}");
-  //     Ok(HttpResponse::Ok().json(resp))
-  //   }
-  //   Err(e) => {
-  //     warn!("unsuccessfully get profile user: {e:?}");
-  //     Err(e)
-  //   }
-  // }
-  todo!()
+  match service::user::get_profile(&state, user.uid).await {
+    Ok(resp) => {
+      info!("Success get profile user: {}.", user.uid);
+      Ok(Json(resp))
+    }
+    Err(e) => {
+      warn!("Unsuccessfully get profile user: {e:?}.");
+      Err(e)
+    }
+  }
 }
 
 /// Update user profile.

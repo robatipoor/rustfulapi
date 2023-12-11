@@ -19,9 +19,9 @@ use serde::Serialize;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::constant::ACCESS_TOKEN_DECODE_KEY;
-use crate::entity::role::RoleUser;
 use crate::error::{AppError, AppResult};
+use crate::{constant::ACCESS_TOKEN_DECODE_KEY, server::state::AppState};
+use crate::{entity::role::RoleUser, service};
 
 pub static DECODE_HEADER: Lazy<Validation> = Lazy::new(|| Validation::new(Algorithm::RS256));
 pub static ENCODE_HEADER: Lazy<Header> = Lazy::new(|| Header::new(Algorithm::RS256));
@@ -65,17 +65,19 @@ impl UserClaims {
 }
 
 #[async_trait]
-impl<S> FromRequestParts<S> for UserClaims
-where
-  S: Send + Sync,
-{
+impl FromRequestParts<AppState> for UserClaims {
   type Rejection = AppError;
 
-  async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+  async fn from_request_parts(
+    parts: &mut Parts,
+    state: &AppState,
+  ) -> Result<Self, Self::Rejection> {
     let TypedHeader(Authorization(bearer)) = parts
       .extract::<TypedHeader<Authorization<Bearer>>>()
       .await?;
-    Ok(UserClaims::decode(bearer.token(), &ACCESS_TOKEN_DECODE_KEY)?.claims)
+    let user_claims = UserClaims::decode(bearer.token(), &ACCESS_TOKEN_DECODE_KEY)?.claims;
+    service::session::check(&state.redis, &user_claims).await?;
+    Ok(user_claims)
   }
 }
 

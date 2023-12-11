@@ -80,22 +80,10 @@ pub struct RegisterResponse {
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema, Dummy)]
-pub struct InvitationResponse {
-  pub id: Uuid,
-  pub expire_in: u64,
-}
-
-impl InvitationResponse {
-  pub fn new(id: Uuid, expire_in: u64) -> Self {
-    Self { id, expire_in }
-  }
-}
-
-#[derive(Debug, Deserialize, Serialize, ToSchema, Dummy)]
 #[serde(tag = "type")]
 pub enum LoginResponse {
   Token(TokenResponse),
-  Message { content: String },
+  Code { message: String, expire_in: u64 },
 }
 
 impl From<TokenResponse> for LoginResponse {
@@ -125,8 +113,8 @@ impl TokenResponse {
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Dummy)]
 pub struct ForgetPasswordResponse {
-  // expire_in: u64,
-  pub id: Uuid,
+  pub expire_in: u64,
+  pub message: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]

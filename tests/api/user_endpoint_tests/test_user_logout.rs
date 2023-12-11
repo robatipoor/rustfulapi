@@ -22,7 +22,7 @@ pub async fn test_success_logout(ctx: &mut SeedDbTestContext) {
       assert_ok!(resp);
       assert!(status.is_success(), "status: {status}");
     }
-    LoginResponse::Message { .. } => {
+    LoginResponse::Code { .. } => {
       panic!("It was not expected to receive message.");
     }
   }

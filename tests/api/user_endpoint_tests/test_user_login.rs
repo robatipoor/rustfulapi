@@ -24,7 +24,7 @@ pub async fn test_success_login(ctx: &mut SeedDbTestContext) {
       assert!(!token.access_token.is_empty());
       assert!(!token.refresh_token.is_empty());
     }
-    LoginResponse::Message { .. } => {
+    LoginResponse::Code { .. } => {
       panic!("It was not expected to receive message.");
     }
   }
@@ -69,8 +69,8 @@ pub async fn test_success_2fa_login(ctx: &mut AppTestContext) {
       let resp = unwrap!(resp);
       assert!(status.is_success());
       match resp {
-        LoginResponse::Message { content } => {
-          assert_eq!(content, "Please check you email.");
+        LoginResponse::Code { message, .. } => {
+          assert_eq!(message, "Please check you email.");
           let code = ctx.mail.get_code_from_email(&req.email).await.unwrap();
           let login_req = Login2faRequest { user_id, code };
           let (status, resp) = ctx.api.login2fa(&login_req).await.unwrap();
@@ -80,7 +80,7 @@ pub async fn test_success_2fa_login(ctx: &mut AppTestContext) {
             LoginResponse::Token(token) => {
               assert!(!token.access_token.is_empty());
             }
-            LoginResponse::Message { .. } => {
+            LoginResponse::Code { .. } => {
               panic!("Three login failed.");
             }
           }

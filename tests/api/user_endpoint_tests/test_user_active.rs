@@ -2,7 +2,7 @@ use fake::{Fake, Faker};
 use rustfulapi::dto::{request::*, LoginResponse};
 use test_context::test_context;
 
-use crate::{assert_ok, assert_okk, context::app::AppTestContext, unwrap};
+use crate::{assert_ok, context::app::AppTestContext, unwrap};
 
 #[test_context(AppTestContext)]
 #[tokio::test]
@@ -27,6 +27,6 @@ pub async fn test_active_user(ctx: &mut AppTestContext) {
     password: req.password.clone(),
   };
   let (status, resp) = ctx.api.login(&req).await.unwrap();
-  assert_okk!(resp, |d| matches!(d, &LoginResponse::Token(_)));
+  assert_ok!(resp, |d| matches!(d, &LoginResponse::Token(_)));
   assert!(status.is_success(), "status: {status}");
 }

@@ -4,39 +4,6 @@ use std::{collections::HashMap, hash::Hash};
 
 use crate::dto::request::Direction;
 
-#[macro_export]
-macro_rules! assert_ok {
-  ($result:expr) => {
-    assert!(
-      matches!($result, common::protocol::response::ResultResponse::Ok(_)),
-      "match failed: {:?}",
-      $result,
-    )
-  };
-}
-
-#[macro_export]
-macro_rules! unwrap {
-  ($result:expr) => {
-    match $result {
-      common::protocol::response::ResultResponse::Ok(resp) => resp,
-      common::protocol::response::ResultResponse::Err(e) => {
-        panic!("called `common::unwrap!()` on an `Err` value {e:?}")
-      }
-    }
-  };
-}
-
-#[macro_export]
-macro_rules! assert_err {
-    ($result:expr $(, $closure:expr )?) => {
-        assert!(
-          matches!($result,common::protocol::response::ResultResponse::Err(ref e) $( if $closure(e) )?),
-          "match failed: {:?}",$result,
-        )
-    };
-}
-
 pub fn eq<T>(result: &[T], expected: &[T]) -> bool
 where
   T: Eq + Hash,

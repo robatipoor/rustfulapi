@@ -87,7 +87,7 @@ pub struct Login2faRequest {
   pub code: String,
 }
 
-#[derive(Debug, Deserialize, ToSchema, Validate, Dummy, IntoParams)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Validate, Dummy, IntoParams)]
 pub struct RefreshTokenRequest {
   #[garde(length(min = 30))]
   pub token: String,

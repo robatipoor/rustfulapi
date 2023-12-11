@@ -5,7 +5,10 @@ use sea_orm::TransactionTrait;
 use tracing::info;
 use uuid::Uuid;
 
+use crate::constant::CHECK_EMAIL_MESSAGE;
 use crate::constant::CODE_LEN;
+use crate::constant::EXPIRE_FORGET_PASS_CODE_SECS;
+use crate::constant::EXPIRE_TWO_FACTOR_CODE_SECS;
 use crate::dto::*;
 use crate::entity;
 use crate::entity::message::MessageKind;
@@ -63,13 +66,27 @@ pub async fn login(state: &AppState, req: LoginRequest) -> AppResult<LoginRespon
     .to_result()?;
   util::password::verify(req.password.clone(), user.password.clone()).await?;
   if user.is_2fa {
-    let login_code = util::random::generate_random_string(CODE_LEN);
     let key = LoginKey { user_id: user.id };
+    let ttl = service::redis::get_tll(&state.redis, &key).await?;
+    if ttl > 0 {
+      return Ok(LoginResponse::Code {
+        expire_in: ttl as u64,
+        message: CHECK_EMAIL_MESSAGE.to_string(),
+      });
+    }
+    let login_code = util::random::generate_random_string(CODE_LEN);
+    crate::repo::message::save(
+      &*state.db,
+      user.id,
+      login_code.clone(),
+      MessageKind::LoginCode,
+    )
+    .await?;
     crate::service::redis::set(&state.redis, (&key, &login_code)).await?;
-    crate::repo::message::save(&*state.db, user.id, login_code, MessageKind::LoginCode).await?;
     state.messenger_notify.notify_one();
-    return Ok(LoginResponse::Message {
-      content: "Please check you email.".to_string(),
+    return Ok(LoginResponse::Code {
+      expire_in: EXPIRE_TWO_FACTOR_CODE_SECS.as_secs(),
+      message: CHECK_EMAIL_MESSAGE.to_string(),
     });
   }
   let session_id = service::session::set(&state.redis, user.id).await?;
@@ -100,24 +117,40 @@ pub async fn logout(state: &AppState, user_id: Uuid) -> AppResult {
   Ok(())
 }
 
-pub async fn forget_password(state: &AppState, req: ForgetPasswordQueryParam) -> AppResult {
+pub async fn forget_password(
+  state: &AppState,
+  req: ForgetPasswordQueryParam,
+) -> AppResult<ForgetPasswordResponse> {
   info!("Forget password request: {req:?}");
   let user = repo::user::find_by_email_and_status(&state.db, &req.email, true)
     .await?
     .to_result()?;
-  if service::redis::check_exist_key(&state.redis, &ForgetPasswordKey { user_id: user.id }).await? {
-    return Ok(());
+  let key = ForgetPasswordKey { user_id: user.id };
+  let ttl = service::redis::get_tll(&state.redis, &key).await?;
+  if ttl > 0 {
+    return Ok(ForgetPasswordResponse {
+      expire_in: ttl as u64,
+      message: CHECK_EMAIL_MESSAGE.to_string(),
+    });
   }
   let code = util::random::generate_random_string(CODE_LEN);
-  let key = ForgetPasswordKey { user_id: user.id };
+  repo::message::save(
+    &*state.db,
+    user.id,
+    code.clone(),
+    MessageKind::ForgetPasswordCode,
+  )
+  .await?;
   crate::service::redis::set(&state.redis, (&key, &code)).await?;
-  repo::message::save(&*state.db, user.id, code, MessageKind::ForgetPasswordCode).await?;
   state.messenger_notify.notify_one();
-  Ok(())
+  Ok(ForgetPasswordResponse {
+    expire_in: EXPIRE_FORGET_PASS_CODE_SECS.as_secs(),
+    message: CHECK_EMAIL_MESSAGE.to_string(),
+  })
 }
 
 pub async fn reset_password(state: &AppState, req: SetPasswordRequest) -> AppResult {
-  info!("Reset password request: {req:?}");
+  info!("Reset password user: {}", req.user_id);
   let code = service::redis::get(
     &state.redis,
     &ForgetPasswordKey {
@@ -126,18 +159,11 @@ pub async fn reset_password(state: &AppState, req: SetPasswordRequest) -> AppRes
   )
   .await?;
   if code != Some(req.code) {
-    return Err(invalid_input_error("code", "Code is Invalid"));
+    return Err(invalid_input_error("code", "Code is invalid"));
   }
   let password =
     tokio::task::spawn_blocking(move || crate::util::hash::argon_hash(req.new_password)).await??;
-  let tx = state.db.begin().await?;
-  let mut user: entity::user::ActiveModel = repo::user::find_by_id(&tx, req.user_id)
-    .await?
-    .to_result()?
-    .into();
-  user.password = Set(password);
-  user.update(&tx).await?;
-  tx.commit().await?;
+  repo::user::update_password(&state.db, req.user_id, password).await?;
   Ok(())
 }
 

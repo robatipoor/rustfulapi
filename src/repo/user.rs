@@ -1,6 +1,6 @@
 use chrono::Utc;
 use sea_orm::{
-  ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseConnection,
+  sea_query::Expr, ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseConnection,
   DatabaseTransaction, EntityTrait, QueryFilter, Set,
 };
 use uuid::Uuid;
@@ -39,6 +39,20 @@ pub async fn active(tx: &DatabaseTransaction, user: entity::user::Model) -> AppR
   let mut user: entity::user::ActiveModel = user.into();
   user.is_active = Set(true);
   user.update(tx).await?;
+  Ok(())
+}
+
+#[tracing::instrument]
+pub async fn update_password(
+  db: &DatabaseConnection,
+  user_id: Uuid,
+  password: String,
+) -> AppResult<()> {
+  entity::user::Entity::update_many()
+    .col_expr(entity::user::Column::Password, Expr::value(password))
+    .filter(entity::user::Column::Id.contains(user_id))
+    .exec(db)
+    .await?;
   Ok(())
 }
 
