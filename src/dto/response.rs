@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{constant::BEARER, entity, error::AppResponseError};
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Dummy, Clone)]
-pub struct SaveUserResponse {
+pub struct _SaveUserResponse {
   pub id: Uuid,
 }
 

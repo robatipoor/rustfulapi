@@ -3,15 +3,6 @@ use tera::Tera;
 
 use crate::{dto::Template, util};
 
-pub static TEMPLATE_ENGIN: Lazy<TemplateEngine> = Lazy::new(|| {
-  let path = util::dir::root_dir("static/template/**/*")
-    .unwrap()
-    .into_os_string()
-    .into_string()
-    .unwrap();
-  TemplateEngine::new(&path).unwrap()
-});
-
 #[derive(Clone)]
 pub struct TemplateEngine {
   tera: Tera,
@@ -35,9 +26,7 @@ mod tests {
   use fake::{Fake, Faker};
   use uuid::Uuid;
 
-  use crate::dto::Template;
-
-  use super::*;
+  use crate::{constant::TEMPLATE_ENGIN, dto::Template};
 
   #[test]
   fn template_engin_test() {

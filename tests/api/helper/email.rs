@@ -231,8 +231,7 @@ mod tests {
       email::{EmailClient, EmailClientExt},
       ClientBuilder,
     },
-    configure::template::TEMPLATE_ENGIN,
-    constant::CONFIG,
+    constant::{CONFIG, TEMPLATE_ENGIN},
     dto::{Email, Template},
   };
 

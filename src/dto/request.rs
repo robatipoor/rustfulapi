@@ -6,7 +6,7 @@ use strum::Display;
 use utoipa::{IntoParams, ToSchema};
 use uuid::Uuid;
 
-#[derive(Debug, Deserialize, Serialize, Dummy, Validate, ToSchema)]
+#[derive(Debug, Deserialize, Serialize, Dummy, Validate, utoipa::ToSchema)]
 pub struct RegisterRequest {
   #[dummy(faker = "Username()")]
   #[garde(ascii, length(min = 3, max = 25))]

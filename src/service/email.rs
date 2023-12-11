@@ -1,8 +1,7 @@
 use tracing::info;
 
 use crate::client::email::{EmailClient, EmailClientExt};
-use crate::configure::template::TEMPLATE_ENGIN;
-use crate::constant::APP_EMAIL_ADDR;
+use crate::constant::{APP_EMAIL_ADDR, TEMPLATE_ENGIN};
 use crate::dto::{Email, Template};
 use crate::error::AppResult;
 

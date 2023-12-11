@@ -1,6 +1,7 @@
 use jsonwebtoken::{DecodingKey, EncodingKey};
 use once_cell::sync::Lazy;
 use std::{path::PathBuf, time::Duration};
+use utoipa::OpenApi;
 
 use crate::{
   client::{
@@ -10,7 +11,9 @@ use crate::{
     redis::RedisClient,
     ClientBuilder,
   },
+  configure::template::TemplateEngine,
   error::AppResult,
+  handler::openapi::ApiDoc,
   util,
 };
 
@@ -65,3 +68,12 @@ pub async fn DATABASE() -> AppResult<&'static DatabaseClient> {
   DB.get_or_try_init(|| async { DatabaseClient::build_from_config(&CONFIG).await })
     .await
 }
+pub static API_DOC: Lazy<utoipa::openapi::OpenApi> = Lazy::new(ApiDoc::openapi);
+pub static TEMPLATE_ENGIN: Lazy<TemplateEngine> = Lazy::new(|| {
+  let path = util::dir::root_dir("static/template/**/*")
+    .unwrap()
+    .into_os_string()
+    .into_string()
+    .unwrap();
+  TemplateEngine::new(&path).unwrap()
+});

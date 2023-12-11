@@ -6,7 +6,7 @@ use axum::extract::State;
 use axum::Json;
 use tracing::error;
 
-// check server health check
+// Health check.
 #[utoipa::path(
     get,
     path = "/api/v1/server/health_check",
@@ -15,10 +15,10 @@ use tracing::error;
     )
 )]
 pub async fn health_check() -> AppResult<Json<MessageResponse>> {
-  Ok(Json(MessageResponse::new("ok")))
+  Ok(Json(MessageResponse::new("Ok")))
 }
 
-// check server connection state
+// Sever connection state.
 #[utoipa::path(
     get,
     path = "/api/v1/server/state",
@@ -52,11 +52,10 @@ pub async fn server_state(State(state): State<AppState>) -> AppResult<Json<Servi
 #[cfg(test)]
 pub mod tests {
 
+  use super::*;
+
   #[tokio::test]
-  async fn health_check_handler_test() {
-    // assert_eq!(
-    //   health_check().await.unwrap().status(),
-    //   HttpResponse::Ok().finish().status()
-    // );
+  async fn test_health_check_handler() {
+    assert_eq!(health_check().await.unwrap().0.message, "Ok");
   }
 }

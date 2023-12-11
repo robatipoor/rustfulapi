@@ -1,15 +1,11 @@
-use once_cell::sync::Lazy;
 use utoipa::{
   openapi::security::{Http, HttpAuthScheme, SecurityScheme},
   Modify, OpenApi,
 };
 
-use entity::*;
-use error::{AppError, AppResponseError};
-use model::*;
-use util::claim::UserClaims;
-
-pub static API_DOC: Lazy<utoipa::openapi::OpenApi> = Lazy::new(ApiDoc::openapi);
+use crate::dto::*;
+use crate::error::{AppError, AppResponseError};
+use crate::util::claim::UserClaims;
 
 #[derive(OpenApi)]
 #[openapi(
@@ -19,57 +15,56 @@ pub static API_DOC: Lazy<utoipa::openapi::OpenApi> = Lazy::new(ApiDoc::openapi);
     ),
     paths(
         // server api 
-        crate::server::health_check,
-        crate::server::server_state,
+        crate::handler::server::health_check,
+        crate::handler::server::server_state,
         // user api
-        crate::user::register,
-        crate::user::invitation,
-        crate::user::active,
-        crate::user::validate,
-        crate::user::refresh_token,
-        crate::user::login,
-        crate::user::forget_password,
-        crate::user::reset_password,
-        crate::user::get_profile,
-        crate::user::update_profile,
-        crate::user::logout,
+        crate::handler::user::register,
+        crate::handler::user::active,
+        crate::handler::user::login,
+        crate::handler::user::login2fa,
+        crate::handler::user::forget_password,
+        crate::handler::user::reset_password,
+        crate::handler::user::get_profile,
+        crate::handler::user::update_profile,
+        crate::handler::user::logout,
+        // token api
+        crate::handler::token::info,
+        crate::handler::token::refresh,
         //admin user api 
-        crate::admin::user::list,
+        crate::handler::admin::user::list,
 
     ),
     components(
         schemas(
-            RoleUser,
             RegisterRequest,
             RegisterResponse,
-            InvitationRequest,
-            InvitationResponse,
+            ActiveRequest,
             ActiveRequest,
             LoginRequest,
-            TwoFactorLogin,
-            NormalLogin,
             LoginResponse,
-            TwoFactorLoginRequest,
+            LoginRequest,
             AppResponseError,
             AppError,
             MessageResponse,
-            ValidateRequest,
+            TokenInfoRequest,
             UserClaims,
             ForgetPasswordResponse,
             SetPasswordRequest,
             RegisterResponse,
             TokenResponse,
-            PageParamQuery,
             ProfileResponse,
             UpdateProfileRequest,
             Direction,
             ServiceStatusResponse,
             GetUserResponse,
+            MessageResponse,
         )
     ),
     tags(
-        (name = "crate::server", description = "server endpoints."),
-        (name = "crate::user", description = "user endpoints."),
+        (name = "crate::handler::server", description = "server endpoints."),
+        (name = "crate::handler::user", description = "user endpoints."),
+        (name = "crate::handler::token", description = "token endpoints."),
+        (name = "crate::handler::admin", description = "admin endpoints."),
     ),
     modifiers(&SecurityAddon)
 )]

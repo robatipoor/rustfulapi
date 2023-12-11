@@ -2,8 +2,7 @@ use tracing::info;
 
 use crate::{
   client::email::EmailClientExt,
-  configure::template::TEMPLATE_ENGIN,
-  constant::APP_EMAIL_ADDR,
+  constant::{APP_EMAIL_ADDR, TEMPLATE_ENGIN},
   continue_if_fail,
   dto::{Email, Template},
   entity::{self, message::MessageStatus},

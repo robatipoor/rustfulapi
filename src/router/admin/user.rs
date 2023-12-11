@@ -1,10 +1,8 @@
+use axum::routing::get;
 
-use axum::routing::{post};
-
+use crate::handler::admin;
 use crate::server::state::AppState;
-use crate::handler::user;
 
 pub fn add_routers(router: axum::Router<AppState>) -> axum::Router<AppState> {
-  router
-    .route("/admin/users", post(user::register))
+  router.route("/v1/api/admin/user/list", get(admin::user::list))
 }

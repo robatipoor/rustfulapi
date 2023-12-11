@@ -12,7 +12,7 @@ use crate::{dto::*, service};
 #[utoipa::path(
     post,
     request_body = RegisterRequest,
-    path = "/api/v1/users/register",
+    path = "/api/v1/user/register",
     responses(
         (status = 200, description = "Success register user", body = [RegisterResponse]),
         (status = 400, description = "Invalid data input", body = [AppResponseError]),
@@ -42,7 +42,7 @@ pub async fn register(
 #[utoipa::path(
     put,
     request_body = ActiveRequest,
-    path = "/api/v1/users/active",
+    path = "/api/v1/user/active",
     responses(
         (status = 200, description = "Success active user", body = [MessageResponse]),
         (status = 400, description = "Invalid data input", body = [AppResponseError]),
@@ -70,7 +70,7 @@ pub async fn active(
 #[utoipa::path(
     post,
     request_body = LoginRequest,
-    path = "/api/v1/users/login",
+    path = "/api/v1/user/login",
     responses(
         (status = 200, description = "Success login user", body = [LoginResponse]),
         (status = 400, description = "Invalid data input", body = [AppResponseError]),
@@ -99,7 +99,7 @@ pub async fn login(
 #[utoipa::path(
     post,
     request_body = LoginRequest,
-    path = "/api/v1/users/login2fa",
+    path = "/api/v1/user/login2fa",
     responses(
         (status = 200, description = "Success login user", body = [LoginResponse]),
         (status = 400, description = "Invalid data input", body = [AppResponseError]),
@@ -127,7 +127,7 @@ pub async fn login2fa(
 /// Logout user.
 #[utoipa::path(
     get,
-    path = "/api/v1/users/logout",
+    path = "/api/v1/user/logout",
     responses(
         (status = 200, description = "Success logout user", body = [MessageResponse]),
         (status = 401, description = "Unauthorized user", body = [AppResponseError]),
@@ -157,7 +157,7 @@ pub async fn logout(
 /// Forgot user password.
 #[utoipa::path(
     get,
-    path = "/api/v1/users/password",
+    path = "/api/v1/user/password",
     params(ForgetPasswordQueryParam),
     responses(
         (
@@ -191,7 +191,7 @@ pub async fn forget_password(
 /// Reset user password.
 #[utoipa::path(
     put,
-    path = "/api/v1/users/password",
+    path = "/api/v1/user/password",
     request_body = SetPasswordRequest,
     responses(
         (status = 200, description = "Success update password login" , body = [MessageResponse]),
@@ -219,7 +219,7 @@ pub async fn reset_password(
 /// Get user profile information.
 #[utoipa::path(
     get,
-    path = "/api/v1/users/profile",
+    path = "/api/v1/user/profile",
     responses(
         (status = 200, description = "Success get user profile", body = [ProfileResponse]),
         (status = 401, description = "Unauthorized user", body = [AppResponseError]),
@@ -247,7 +247,7 @@ pub async fn get_profile(
 /// Update user profile.
 #[utoipa::path(
     put,
-    path = "/api/v1/users/profile",
+    path = "/api/v1/user/profile",
     request_body = UpdateProfileRequest,
     responses(
         (status = 200, description = "Success update profile information", body = [MessageResponse]),
