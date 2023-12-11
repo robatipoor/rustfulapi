@@ -1,10 +1,11 @@
-use axum::extract::State;
+use axum::extract::{Query, State};
 use axum::Json;
+use tracing::info;
 
-use crate::dto::*;
 use crate::error::AppResult;
 use crate::server::state::AppState;
 use crate::util::claim::UserClaims;
+use crate::{dto::*, service};
 
 /// Get list of user .
 #[utoipa::path(
@@ -20,19 +21,19 @@ use crate::util::claim::UserClaims;
     security(("jwt" = []))
 )]
 pub async fn list(
-  State(_state): State<AppState>,
-  _user: UserClaims,
-) -> AppResult<Json<MessageResponse>> {
-  // info!("Update profile user_id: {}.", user.uid);
-  // match service::user::update_profile(&state, user.uid, req).await {
-  //   Ok(_) => {
-  //     info!("Success update profile user user_id: {}.", user.uid);
-  //     Ok(Json(MessageResponse::new("User profile updated.")))
-  //   }
-  //   Err(e) => {
-  //     info!("Unsuccessful update profile user: {e:?}");
-  //     Err(e)
-  //   }
-  // }
-  todo!()
+  State(state): State<AppState>,
+  user: UserClaims,
+  Query(param): Query<PageQueryParam>,
+) -> AppResult<Json<Vec<GetUserResponse>>> {
+  info!("Get list of user by: {} parameter: {:?}.", user.uid, param);
+  match service::admin::user::list(&state, param).await {
+    Ok(resp) => {
+      info!("Sucess get list of users by user_id: {}.", user.uid);
+      Ok(Json(resp))
+    }
+    Err(e) => {
+      info!("Unsuccessful get user list: {e:?}");
+      Err(e)
+    }
+  }
 }

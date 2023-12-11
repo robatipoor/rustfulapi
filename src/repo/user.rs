@@ -1,7 +1,7 @@
 use chrono::Utc;
 use sea_orm::{
   sea_query::Expr, ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseConnection,
-  DatabaseTransaction, EntityTrait, QueryFilter, Set,
+  DatabaseTransaction, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, Set,
 };
 use uuid::Uuid;
 
@@ -63,6 +63,20 @@ where
 {
   let model = entity::user::Entity::find_by_id(id).one(conn).await?;
   Ok(model)
+}
+
+#[tracing::instrument(skip_all)]
+pub async fn find_page(
+  conn: &DatabaseConnection,
+  page_size: u64,
+  page_num: u64,
+) -> AppResult<Vec<entity::user::Model>> {
+  let models = entity::user::Entity::find()
+    .order_by_asc(entity::user::Column::CreateAt)
+    .paginate(conn, page_size)
+    .fetch_page(page_num)
+    .await?;
+  Ok(models)
 }
 
 #[tracing::instrument(skip_all)]

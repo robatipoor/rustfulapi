@@ -35,8 +35,8 @@ impl RegisterRequest {
 
 #[derive(Debug, Deserialize, Serialize, Dummy, ToSchema, IntoParams, Clone)]
 pub struct PageQueryParam {
-  pub page_num: i64,
-  pub page_size: i64,
+  pub page_num: u64,
+  pub page_size: u64,
   pub sort_by: Option<String>,
   pub sort_direction: Option<Direction>,
 }

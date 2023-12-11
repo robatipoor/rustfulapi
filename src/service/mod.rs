@@ -1,4 +1,4 @@
-// pub mod admin;
+pub mod admin;
 pub mod code;
 pub mod email;
 pub mod redis;

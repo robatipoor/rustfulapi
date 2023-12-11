@@ -4,22 +4,21 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::{constant::BEARER, entity, error::AppResponseError};
-
-#[derive(Debug, Serialize, Deserialize, ToSchema, Dummy, Clone)]
-pub struct _SaveUserResponse {
-  pub id: Uuid,
-}
+use crate::{
+  constant::BEARER,
+  entity::{self, role::RoleUser},
+  error::AppResponseError,
+};
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Dummy, Clone)]
 pub struct GetUserResponse {
   pub id: Uuid,
   pub username: String,
   pub email: String,
-  // pub role_name: RoleUser,
+  pub role_name: RoleUser,
   pub is_active: bool,
   pub is_2fa: bool,
-  pub create_at: Option<DateTime<Utc>>,
+  pub create_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Dummy, Clone)]
@@ -120,13 +119,34 @@ pub struct ForgetPasswordResponse {
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ProfileResponse {
   pub username: String,
-  // TODO
+  pub email: String,
+  pub is_active: bool,
+  pub is_2fa: bool,
+  pub create_at: DateTime<Utc>,
 }
 
 impl From<entity::user::Model> for ProfileResponse {
   fn from(user: entity::user::Model) -> Self {
     ProfileResponse {
-      username: user.username.clone(),
+      username: user.username,
+      email: user.email,
+      is_active: user.is_active,
+      is_2fa: user.is_2fa,
+      create_at: user.create_at,
+    }
+  }
+}
+
+impl From<entity::user::Model> for GetUserResponse {
+  fn from(user: entity::user::Model) -> Self {
+    GetUserResponse {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role_name: user.role,
+      is_active: user.is_active,
+      is_2fa: user.is_2fa,
+      create_at: user.create_at,
     }
   }
 }
