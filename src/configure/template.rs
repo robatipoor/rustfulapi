@@ -1,7 +1,6 @@
-use once_cell::sync::Lazy;
 use tera::Tera;
 
-use crate::{dto::Template, util};
+use crate::dto::Template;
 
 #[derive(Clone)]
 pub struct TemplateEngine {

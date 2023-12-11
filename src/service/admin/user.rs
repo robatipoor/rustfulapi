@@ -10,7 +10,7 @@ use crate::util::claim::UserClaims;
 // TODO fix order
 pub async fn list(
   state: &AppState,
-  user: UserClaims,
+  user: &UserClaims,
   param: PageQueryParam,
 ) -> AppResult<Vec<GetUserResponse>> {
   if user.rol != RoleUser::Admin {
