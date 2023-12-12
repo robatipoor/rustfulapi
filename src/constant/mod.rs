@@ -5,14 +5,10 @@ use utoipa::OpenApi;
 
 use crate::{
   client::{
-    database::{DatabaseClient, DatabaseClientExt},
-    email::EmailClient,
-    http::HttpClient,
-    redis::RedisClient,
+    database::DatabaseClientExt, email::EmailClient, http::HttpClient, redis::RedisClient,
     ClientBuilder,
   },
   configure::template::TemplateEngine,
-  error::AppResult,
   handler::openapi::ApiDoc,
   util,
 };
