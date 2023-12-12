@@ -9,8 +9,10 @@ DB_NAME="${DATABASE_NAME:=database_name}"
 DB_PORT="${DATABASE_PORT:=5432}"
 DB_HOST="${DATABASE_HOST:=localhost}"
 CONTAINER_NAME="${DATABASE}_container"
-RESTART_CONTAINER="${RESTART_CONTAINER:=true}"
-RUNNING_CONTAINER=$(docker ps --filter "name=$CONTAINER_NAME" --format '{{.Names}}')
+RESTART_CONTAINER="${RESTART_CONTAINER:=false}"
+RUNNING_CONTAINER=$(docker ps --filter "name=$DATABASE" --format '{{.Names}}')
+CONTAINER_NAME="${RUNNING_CONTAINER:-${DATABASE}_container}"
+
 
 function run_container() {
   docker run \
@@ -36,7 +38,6 @@ if [[ -n $RUNNING_CONTAINER ]]; then
   else
     echo >&2 "you can kill container with command :"
     echo >&2 "docker kill ${RUNNING_CONTAINER}"
-    exit 0
   fi
 else
   run_container
