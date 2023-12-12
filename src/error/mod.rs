@@ -93,7 +93,7 @@ impl From<argon2::password_hash::Error> for AppError {
 }
 
 impl AppError {
-  pub fn response(self) -> (AppResponseError, StatusCode) {
+  pub fn response(self) -> (StatusCode, AppResponseError) {
     use AppError::*;
     let message = self.to_string();
     let (kind, code, details, status_code) = match self {
@@ -248,10 +248,10 @@ impl AppError {
         StatusCode::INTERNAL_SERVER_ERROR,
       ),
       JwtError(_err) => (
-        "JWT_ERROR".to_string(),
+        "UNAUTHORIZED_ERROR".to_string(),
         None,
         vec![],
-        StatusCode::INTERNAL_SERVER_ERROR,
+        StatusCode::UNAUTHORIZED,
       ),
       RedisError(_err) => (
         "REDIS_ERROR".to_string(),
@@ -325,24 +325,24 @@ impl AppError {
     };
 
     (
-      AppResponseError::new(kind, message, code, details),
       status_code,
+      AppResponseError::new(kind, message, code, details),
     )
   }
 }
 
 impl IntoResponse for AppError {
   fn into_response(self) -> Response {
-    let (body, status_code) = self.response();
+    let (status_code, body) = self.response();
     (status_code, Json(body)).into_response()
   }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, utoipa::ToSchema)]
-#[serde(tag = "type", rename = "AppError")]
+// #[serde(tag = "type", rename = "AppError")]
 pub struct AppResponseError {
   pub kind: String,
-  pub message: String,
+  pub error_message: String,
   pub code: Option<i32>,
   pub details: Vec<(String, String)>,
 }
@@ -356,7 +356,7 @@ impl AppResponseError {
   ) -> Self {
     Self {
       kind: kind.into(),
-      message: message.into(),
+      error_message: message.into(),
       code,
       details,
     }
