@@ -4,10 +4,7 @@ use std::{path::PathBuf, time::Duration};
 use utoipa::OpenApi;
 
 use crate::{
-  client::{
-    database::DatabaseClientExt, email::EmailClient, http::HttpClient, redis::RedisClient,
-    ClientBuilder,
-  },
+  client::{email::EmailClient, http::HttpClient, redis::RedisClient, ClientBuilder},
   configure::template::TemplateEngine,
   handler::openapi::ApiDoc,
   util,
