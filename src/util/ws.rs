@@ -3,8 +3,8 @@ use crate::error::AppResult;
 use anyhow::anyhow;
 use futures::stream::{SplitSink, SplitStream};
 use futures::{SinkExt, StreamExt};
-use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{MaybeTlsStream, WebSocketStream};
 
@@ -28,9 +28,7 @@ where
   Ok(())
 }
 
-pub async fn receive_message<T>(
-  receiver: &mut WsClientReceiver,
-) -> AppResult<AppResultResponse<T>>
+pub async fn receive_message<T>(receiver: &mut WsClientReceiver) -> AppResult<AppResultResponse<T>>
 where
   T: DeserializeOwned,
 {

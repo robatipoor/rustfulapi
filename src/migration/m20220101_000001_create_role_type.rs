@@ -8,12 +8,10 @@ pub struct Migration;
 impl MigrationTrait for Migration {
   async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
     let db = manager.get_connection();
-    
+
     let tx = db.begin().await?;
-    tx.execute_unprepared(
-      r#"CREATE TYPE ROLE_USER AS ENUM ('Admin', 'User', 'System')"#,
-    )
-    .await?;
+    tx.execute_unprepared(r#"CREATE TYPE ROLE_USER AS ENUM ('Admin', 'User', 'System')"#)
+      .await?;
     tx.commit().await?;
     Ok(())
   }

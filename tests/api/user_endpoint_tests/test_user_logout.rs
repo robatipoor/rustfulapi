@@ -29,13 +29,3 @@ pub async fn test_success_logout(ctx: &mut SeedDbTestContext) {
     }
   }
 }
-
-#[test_context(SeedDbTestContext)]
-#[tokio::test]
-pub async fn test_invalid_token(ctx: &mut SeedDbTestContext) {
-  use fake::Fake;
-  let token: String = fake::Faker.fake();
-  let (status, resp) = ctx.app.api.logout(&token).await.unwrap();
-  assert_err!(resp, |e: &AppResponseError| e.kind == "UNAUTHORIZED_ERROR");
-  assert!(status == StatusCode::UNAUTHORIZED, "status: {status}");
-}

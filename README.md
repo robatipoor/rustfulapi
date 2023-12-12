@@ -81,7 +81,7 @@ export APP_PROFILE=prod # switch to production profile
 ```
 ### Check code formatting and typo at commit time
 ```
-cp ./scripts/git-hooks ./.git/hooks/
+cp ./scripts/git-hooks/* ./.git/hooks/
 ```
 ### Update ERD (Entity-Relationship Diagram) use [planter](https://github.com/achiku/planter)
 ```bash

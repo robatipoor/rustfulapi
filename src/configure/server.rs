@@ -1,4 +1,4 @@
-use std::net::{SocketAddr, AddrParseError};
+use std::net::{AddrParseError, SocketAddr};
 
 use serde::Deserialize;
 
