@@ -5,10 +5,10 @@ port = 8_080
 [db]
 host = "127.0.0.1"
 port = 5_432
-username = "postgres_user"
-password = "postgres_pass"
+username = "username"
+password = "password"
+database_name = "database_name"
 max_connections = 5
-database_name = "postgres_db"
 
 [redis]
 username = "redis_user"

@@ -1,5 +1,5 @@
-# RUSTfulapi
-Reusable template for building REST Web Services in Rust. Uses [Actix-Web](https://actix.rs/) HTTP web framework and [SQLX](https://github.com/launchbadge/sqlx) Toolkit and [PostgreSQL](https://www.postgresql.org/).
+# RUSTfulapi (Please refrain from using this for production purposes at the moment as it is currently undergoing significant development.)
+Reusable template for building REST Web Services in Rust. Uses [Axum](https://github.com/tokio-rs/axum) HTTP web framework and [SeaORM](https://github.com/SeaQL/sea-orm) Toolkit and [PostgreSQL](https://www.postgresql.org/).
 
 ![License](https://img.shields.io/github/license/robatipoor/rustfulapi)
 ![Lines of code](https://img.shields.io/tokei/lines/github/robatipoor/rustfulapi)
@@ -16,7 +16,6 @@ Reusable template for building REST Web Services in Rust. Uses [Actix-Web](https
 
 - [rust](https://www.rust-lang.org/tools/install)
 - [postgres](https://www.postgresql.org/)
-- [sqlx-cli](https://github.com/launchbadge/sqlx/tree/main/sqlx-cli)
 - [docker](https://www.docker.com/)
 - [docker-compose](https://docs.docker.com/compose/)
 
@@ -80,19 +79,13 @@ export APP_SERVER__ADDR=127.0.0.1
 ```bash
 export APP_PROFILE=prod # switch to production profile
 ```
-### Update sqlx data json 
-```bash
-# https://crates.io/crates/sqlx-cli
-cargo sqlx prepare --merged -- --all-features
-
-```
 ### Check code formatting and typo at commit time
 ```
-cp ./scripts/git-hooks ./.git/hooks/
+cp ./scripts/git-hooks/* ./.git/hooks/
 ```
 ### Update ERD (Entity-Relationship Diagram) use [planter](https://github.com/achiku/planter)
 ```bash
-planter postgres://postgres_user:postgres_pass@localhost:5432/postgres_db\?sslmode=disable -o docs/schema.puml
+planter postgres://username:password@localhost:5432/database_name\?sslmode=disable -o docs/schema.puml
 ```
 ## License
 

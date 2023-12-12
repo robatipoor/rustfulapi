@@ -12,9 +12,9 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: postgres_user
-          POSTGRES_PASSWORD: postgres_pass
-          POSTGRES_DB: postgres_db
+          POSTGRES_USER: username
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: database_name
         ports:
           - 5432:5432
       redis:
@@ -35,39 +35,15 @@ jobs:
           - 8026:8026
     env:
       APP_PROFILE: test
-      SQLX_VERSION: 0.7.1
-      SQLX_FEATURES: postgres
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install stable toolchain
+      - name: Install nightly toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           override: true
-
-      - name: Cache sqlx-cli
-        uses: actions/cache@v3
-        id: cache-sqlx
-        with:
-          path: |
-            ~/.cargo/bin/sqlx
-            ~/.cargo/bin/cargo-sqlx
-          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
-
-      - name: Install sqlx-cli
-        uses: actions-rs/cargo@v1
-        if: steps.cache-sqlx.outputs.cache-hit == false
-        with:
-          command: install
-          args: >
-            sqlx-cli
-            --force
-            --version=${{ env.SQLX_VERSION }}
-            --features=native-tls,${{ env.SQLX_FEATURES }}
-            --no-default-features
-            --locked
 
       - name: Cache tarpaulin
         uses: actions/cache@v3
@@ -87,8 +63,7 @@ jobs:
       
       - name: Migrate database
         run: |
-          sudo apt-get install -y libpq-dev
-          ./scripts/init_postgres.sh
+          ./scripts/init_db.sh
 
       - name: Add mockserver expections
         run: |
