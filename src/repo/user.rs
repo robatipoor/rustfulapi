@@ -51,7 +51,7 @@ pub async fn update_password(
 ) -> AppResult<()> {
   entity::user::Entity::update_many()
     .col_expr(entity::user::Column::Password, Expr::value(password))
-    .filter(entity::user::Column::Id.contains(user_id))
+    .filter(entity::user::Column::Id.eq(user_id))
     .exec(db)
     .await?;
   Ok(())

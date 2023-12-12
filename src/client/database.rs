@@ -66,11 +66,12 @@ pub async fn migrate_database(db: &DatabaseConnection) -> AppResult {
 
 #[cfg(test)]
 mod tests {
-  use crate::constant::DATABASE;
+  use super::*;
+  use crate::constant::CONFIG;
 
   #[tokio::test]
   async fn test_ping_database() {
-    DATABASE()
+    DatabaseClient::build_from_config(&CONFIG)
       .await
       .unwrap()
       .ping()

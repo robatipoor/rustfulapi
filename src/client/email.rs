@@ -37,7 +37,7 @@ impl ClientBuilder for EmailClient {
 impl EmailClientExt for EmailClient {
   async fn send_email(&self, email: &Email) -> AppResult {
     let resp = self.send(Message::try_from(email)?).await?;
-    info!("sent email successfully code: {:?}", resp.code());
+    info!("Sent email successfully code: {:?}.", resp.code());
     Ok(())
   }
 }

@@ -1,9 +1,7 @@
-use crate::{assert_err, assert_ok, context::seeder::SeedDbTestContext, unwrap};
-use reqwest::StatusCode;
+use crate::{assert_ok, context::seeder::SeedDbTestContext, unwrap};
 use rustfulapi::{
   dto::{LoginRequest, LoginResponse},
   entity::role::RoleUser,
-  error::AppResponseError,
 };
 use test_context::test_context;
 

@@ -85,7 +85,7 @@ mod tests {
 
   #[test]
   pub fn test_profile_to_string() {
-    let profile: Profile = Profile::try_from("Dev").unwrap();
+    let profile: Profile = Profile::try_from("dev").unwrap();
     assert_eq!(profile, Profile::Dev)
   }
 }

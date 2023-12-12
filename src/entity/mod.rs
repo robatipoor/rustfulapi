@@ -2,7 +2,11 @@ use sea_orm::{DatabaseTransaction, TransactionTrait};
 use test_context::AsyncTestContext;
 use tracing::info;
 
-use crate::error::ResourceType;
+use crate::{
+  client::database::{DatabaseClient, DatabaseClientExt},
+  constant::CONFIG,
+  error::ResourceType,
+};
 
 pub mod message;
 pub mod role;
@@ -20,9 +24,9 @@ pub struct TransactionTestContext {
 impl AsyncTestContext for TransactionTestContext {
   async fn setup() -> Self {
     info!("Setup database for the test.");
-    let conn = crate::constant::DATABASE().await.unwrap();
+    let db = DatabaseClient::build_from_config(&CONFIG).await.unwrap();
     Self {
-      tx: conn.begin().await.unwrap(),
+      tx: db.begin().await.unwrap(),
     }
   }
 

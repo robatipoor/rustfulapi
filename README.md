@@ -1,5 +1,5 @@
 # RUSTfulapi (Please refrain from using this for production purposes at the moment as it is currently undergoing significant development.)
-Reusable template for building REST Web Services in Rust. Uses [Axum](https://github.com/tokio-rs/axum) HTTP web framework and [SeaORM](https://github.com/SeaQL/sea-orm) Toolkit and [PostgreSQL](https://www.postgresql.org/).
+Reusable template for building REST Web Services in Rust. Uses [Axum](https://github.com/tokio-rs/axum) HTTP web framework and [SeaORM](https://github.com/SeaQL/sea-orm) ORM and [PostgreSQL](https://www.postgresql.org/).
 
 ![License](https://img.shields.io/github/license/robatipoor/rustfulapi)
 ![Lines of code](https://img.shields.io/tokei/lines/github/robatipoor/rustfulapi)
@@ -44,7 +44,7 @@ To use this template as your project starting point, click "Use this template" a
 ```bash
 ./run.sh
 # open swagger panel
-xdg-open http://127.0.0.1:8080/api/v1/swagger-ui/
+xdg-open http://127.0.0.1:8080/swagger-ui/
 # manually testing your API routes with curl commands
 curl -X GET http://127.0.0.1:8080/api/v1/server/health_check
 ```

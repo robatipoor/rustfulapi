@@ -172,17 +172,15 @@ pub async fn logout(
 pub async fn forget_password(
   State(state): State<AppState>,
   Query(param): Query<ForgetPasswordQueryParam>,
-) -> AppResult<Json<MessageResponse>> {
+) -> AppResult<Json<ForgetPasswordResponse>> {
   info!("Forget password user query parameter: {param:?}");
   match service::user::forget_password(&state, param).await {
-    Ok(_) => {
-      info!("success forget password user response");
-      Ok(Json(MessageResponse {
-        message: "Please check your email".to_string(),
-      }))
+    Ok(resp) => {
+      info!("Success forget password user response.");
+      Ok(Json(resp))
     }
     Err(e) => {
-      warn!("unsuccessful forget password user: {e:?}");
+      warn!("Unsuccessful forget password user: {e:?}.");
       Err(e)
     }
   }

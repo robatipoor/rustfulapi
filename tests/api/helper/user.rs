@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use chrono::Utc;
+use fake::faker::internet::en::FreeEmail;
 use fake::{Fake, Faker};
 use rustfulapi::{entity, util};
 use rustfulapi::{entity::role::RoleUser, error::AppResult};
@@ -23,7 +24,7 @@ impl TestUser {
         password: Set(util::password::hash(password.clone()).await?),
         id: Set(Uuid::new_v4()),
         username: Set(Faker.fake::<String>()),
-        email: Set(Faker.fake::<String>()),
+        email: Set(FreeEmail().fake::<String>()),
         role: Set(role),
         is_active: Set(true),
         is_2fa: Set(false),
