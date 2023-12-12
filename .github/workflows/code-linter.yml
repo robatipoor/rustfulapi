@@ -11,8 +11,6 @@ jobs:
   clippy:
     name: cargo clippy
     runs-on: ubuntu-latest
-    env:
-      SQLX_OFFLINE: true
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1

@@ -15,9 +15,9 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: postgres_user
-          POSTGRES_PASSWORD: postgres_pass
-          POSTGRES_DB: postgres_db
+          POSTGRES_USER: username
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: database_name
         ports:
           - 5432:5432
       redis:
@@ -38,8 +38,6 @@ jobs:
           - 8026:8026
     env:
       APP_PROFILE: test
-      SQLX_VERSION: 0.7.1
-      SQLX_FEATURES: postgres
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -57,7 +55,6 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
-
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -65,36 +62,9 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Cache sqlx-cli
-        uses: actions/cache@v2
-        id: cache-sqlx
-        with:
-          path: |
-            ~/.cargo/bin/sqlx
-            ~/.cargo/bin/cargo-sqlx
-          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
-
-      - name: Install sqlx-cli
-        uses: actions-rs/cargo@v1
-        if: steps.cache-sqlx.outputs.cache-hit == false
-        with:
-          command: install
-          args: >
-            sqlx-cli
-            --force
-            --version=${{ env.SQLX_VERSION }}
-            --features=native-tls,${{ env.SQLX_FEATURES }}
-            --no-default-features
-            --locked
-
       - name: Migrate database
         run: |
-          sudo apt-get install libpq-dev -y
-          ./scripts/init_postgres.sh
-
-      - name: Check .sqlx is up-to-date
-        run: |
-          cargo sqlx prepare --check --workspace
+          ./scripts/init_db.sh
 
       - name: Add mockserver expections
         run: |

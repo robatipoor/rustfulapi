@@ -6,6 +6,7 @@ use sea_orm::{
 use uuid::Uuid;
 
 use crate::{
+  dto::{Direction, PageQueryParam},
   entity,
   error::{AppResult, ToAppResult},
   util,
@@ -68,13 +69,21 @@ where
 #[tracing::instrument(skip_all)]
 pub async fn find_page(
   conn: &DatabaseConnection,
-  page_size: u64,
-  page_num: u64,
+  param: PageQueryParam,
 ) -> AppResult<Vec<entity::user::Model>> {
-  let models = entity::user::Entity::find()
-    .order_by_asc(entity::user::Column::CreateAt)
-    .paginate(conn, page_size)
-    .fetch_page(page_num)
+  let mut select = entity::user::Entity::find();
+  match param.sort_direction {
+    Some(d) if d == Direction::DESC => {
+      // TODO fix me
+      select = select.order_by_desc(entity::user::Column::CreateAt);
+    }
+    _ => {
+      select = select.order_by_asc(entity::user::Column::CreateAt);
+    }
+  }
+  let models = select
+    .paginate(conn, param.page_size)
+    .fetch_page(param.page_num)
     .await?;
   Ok(models)
 }

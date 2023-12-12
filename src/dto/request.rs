@@ -41,7 +41,20 @@ pub struct PageQueryParam {
   pub sort_direction: Option<Direction>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Display, Dummy, ToSchema, Clone, Copy)]
+#[derive(
+  Serialize,
+  Deserialize,
+  Debug,
+  Display,
+  Dummy,
+  ToSchema,
+  Clone,
+  Copy,
+  PartialEq,
+  Eq,
+  PartialOrd,
+  Ord,
+)]
 pub enum Direction {
   DESC,
   ASC,
