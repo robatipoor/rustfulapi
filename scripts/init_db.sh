@@ -44,7 +44,7 @@ else
 fi
 
 export PGPASSWORD="${DB_PASSWORD}"
-until docker exec -it $CONTAINER_NAME psql -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -c '\q'; do
+until docker exec $CONTAINER_NAME psql -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -c '\q'; do
   echo >&2 "Database is still unavailable - sleeping"
   sleep 1
 done
