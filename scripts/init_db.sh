@@ -9,7 +9,7 @@ DB_NAME="${DATABASE_NAME:=database_name}"
 DB_PORT="${DATABASE_PORT:=5432}"
 DB_HOST="${DATABASE_HOST:=localhost}"
 CONTAINER_NAME="${DATABASE}_container"
-RESTART_CONTAINER="${RESTART_CONTAINER:=false}"
+RESTART_CONTAINER="${RESTART_CONTAINER:=true}"
 RUNNING_CONTAINER=$(docker ps --filter "name=$CONTAINER_NAME" --format '{{.Names}}')
 
 function run_container() {
