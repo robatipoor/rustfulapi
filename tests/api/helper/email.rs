@@ -1,11 +1,11 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use super::http::CLIENT;
 use anyhow::anyhow;
 use reqwest::StatusCode;
 use rustfulapi::client::http::HttpClientExt;
 use rustfulapi::configure::email::EmailConfig;
+use rustfulapi::constant::HTTP;
 use scraper::Html;
 use scraper::Selector;
 use serde::Deserialize;
@@ -45,7 +45,7 @@ impl Display for QueryKindSearch {
 
 impl MailHogClient {
   pub async fn get(&self, msg_id: String) -> Result<Item, reqwest::Error> {
-    let resp = CLIENT
+    let resp = HTTP
       .get_request(&format!(
         "http://{}:8025/api/v1/messages/{msg_id}",
         self.addr
@@ -57,7 +57,7 @@ impl MailHogClient {
   }
 
   pub async fn delete(&self, msg_id: String) -> Result<StatusCode, reqwest::Error> {
-    let resp = CLIENT
+    let resp = HTTP
       .delete_request(&format!(
         "http://{}:8025/api/v1/messages/{msg_id}",
         self.addr
@@ -72,7 +72,7 @@ impl MailHogClient {
     query: &str,
   ) -> Result<Response, reqwest::Error> {
     let resp = || async {
-      let resp = CLIENT
+      let resp = HTTP
         .get_request(&format!(
           "http://{}:8025/api/v2/search?kind={}&query={}",
           self.addr, query_kind, query

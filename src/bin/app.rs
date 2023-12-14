@@ -9,16 +9,16 @@ use tracing::info;
 #[tokio::main]
 async fn main() -> AppResult<()> {
   let _file_appender_guard = configure::tracing::init()?;
-  info!("Initialization of tracing was successful.");
+  info!("The initialization of Tracing was successful.");
   let config = CONFIG.clone();
-  info!("Read the config file was successful.");
+  info!("Reading the config file was successful.");
   let _sentry_guard = configure::sentry::init(&config.sentry);
-  info!("Initialization of sentry was successful.");
+  info!("The initialization of Sentry was successful.");
   info!("Create a new server.");
   let server = AppServer::new(config).await?;
   info!("Create a new messenger task.");
   let messenger = MessengerTask::new(server.state.clone());
-  info!("Run server .");
+  info!("Run the server.");
   util::task::join_all(vec![
     (true, server.run().boxed()),
     (true, messenger.run().boxed()),

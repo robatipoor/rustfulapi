@@ -1,4 +1,4 @@
-# RUSTfulapi (Please refrain from using this for production purposes at the moment as it is currently undergoing significant development.)
+# RUSTfulapi
 Reusable template for building REST Web Services in Rust. Uses [Axum](https://github.com/tokio-rs/axum) HTTP web framework and [SeaORM](https://github.com/SeaQL/sea-orm) ORM and [PostgreSQL](https://www.postgresql.org/).
 
 ![License](https://img.shields.io/github/license/robatipoor/rustfulapi)

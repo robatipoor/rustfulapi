@@ -22,20 +22,24 @@ impl MessengerTask {
   }
 
   pub async fn run(self) -> AppResult {
-    info!("Messenger task start.");
+    info!("The messenger task has started.");
     loop {
       let messages = match repo::message::get_list(&self.state.db, 5, 10).await {
         Ok(msg) => msg,
         Err(err) => {
-          tracing::error!("Fetch list failed: {err}");
+          tracing::error!("Fetching the list of messages failed: {err}");
           tokio::time::sleep(std::time::Duration::from_secs(10)).await;
           continue;
         }
       };
       if messages.is_empty() {
         tokio::select! {
-          _ = tokio::time::sleep(std::time::Duration::from_secs(120)) => {},
-          _ = self.state.messenger_notify.notified() => {},
+          _ = tokio::time::sleep(std::time::Duration::from_secs(120)) => {
+            tracing::info!("The messenger task has awakened.");
+          },
+          _ = self.state.messenger_notify.notified() => {
+            tracing::error!("The messenger task has been notified.");
+          },
         }
         continue;
       }
@@ -43,11 +47,17 @@ impl MessengerTask {
         let user = match repo::user::find_by_id(&*self.state.db, message.user_id).await {
           Ok(user) => user.unwrap(),
           Err(err) => {
-            tracing::error!("Failed get user: {err}");
+            tracing::error!("Fetching the list of users failed: {err}.");
             continue;
           }
         };
-        let message_content = render_template(&message, &user)?;
+        let message_content = match render_template(&message, &user) {
+          Ok(m) => m,
+          Err(err) => {
+            tracing::error!("Rendering the message failed: {err}.");
+            continue;
+          }
+        };
         let email = Email::new(
           APP_EMAIL_ADDR.to_string(),
           user.email,
@@ -57,7 +67,7 @@ impl MessengerTask {
         let status = match self.state.email.send_email(&email).await {
           Ok(_) => MessageStatus::Success,
           Err(err) => {
-            tracing::error!("Failed send email: {err}");
+            tracing::error!("Sending the email failed: {err}.");
             MessageStatus::Failed
           }
         };

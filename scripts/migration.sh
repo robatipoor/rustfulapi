@@ -12,6 +12,6 @@ RESTART_CONTAINER="${RESTART_CONTAINER:=false}"
 RUNNING_CONTAINER=$(docker ps --filter "name=$DATABASE" --format '{{.Names}}')
 CONTAINER_NAME="${RUNNING_CONTAINER:-${DATABASE}_container}"
 DATABASE_URL=${DATABASE}://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
-cargo run --manifest-path ./migration/Cargo.toml -- refresh -u $DATABASE_URL
+cargo run --bin migration -- refresh -u $DATABASE_URL
 
 

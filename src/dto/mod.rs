@@ -3,14 +3,13 @@ use fake::faker::lorem::en::{Paragraph, Sentence};
 use fake::Dummy;
 use garde::Validate;
 use lettre::Message;
-use serde::{Deserialize, Serialize};
-pub mod record;
-pub mod request;
-pub mod response;
-
 pub use request::*;
 pub use response::*;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+pub mod request;
+pub mod response;
 
 #[derive(Debug, Deserialize, Serialize, Dummy, Validate)]
 pub struct Email {

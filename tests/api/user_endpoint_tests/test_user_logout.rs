@@ -1,8 +1,5 @@
-use crate::{assert_ok, context::seeder::SeedDbTestContext, unwrap};
-use rustfulapi::{
-  dto::{LoginRequest, LoginResponse},
-  entity::role::RoleUser,
-};
+use crate::{assert_ok, context::seeder::SeedDbTestContext};
+use rustfulapi::{dto::LoginRequest, entity::role::RoleUser};
 use test_context::test_context;
 
 #[test_context(SeedDbTestContext)]
@@ -13,17 +10,8 @@ pub async fn test_success_logout(ctx: &mut SeedDbTestContext) {
     email: user.email.clone(),
     password: user.password.clone(),
   };
-  let (status, resp) = ctx.app.api.login(&req).await.unwrap();
-  let resp = unwrap!(resp);
+  let token = ctx.app.api.get_token(&req).await.unwrap();
+  let (status, resp) = ctx.app.api.logout(&token.access_token).await.unwrap();
+  assert_ok!(resp);
   assert!(status.is_success(), "status: {status}");
-  match resp {
-    LoginResponse::Token(token) => {
-      let (status, resp) = ctx.app.api.logout(&token.access_token).await.unwrap();
-      assert_ok!(resp);
-      assert!(status.is_success(), "status: {status}");
-    }
-    LoginResponse::Code { .. } => {
-      panic!("It was not expected to receive message.");
-    }
-  }
 }
