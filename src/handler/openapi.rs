@@ -11,7 +11,7 @@ use crate::util::claim::UserClaims;
 #[openapi(
     info(
         version = "v0.1.0",
-        title = "RUSTful APIs",
+        title = "RUSTful API",
     ),
     paths(
         // server api 

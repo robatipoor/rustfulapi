@@ -42,7 +42,7 @@ async fn create_database(db: &DatabaseConnection, database_name: &str) -> AppRes
 }
 
 pub async fn setup_new_database(config: &mut AppConfig) -> AppResult<DatabaseClient> {
-  info!("Setup new postgres database for the test.");
+  info!("Setup new database for the test.");
   let db = DatabaseClient::build_from_config(config).await?;
   config.db.database_name =
     util::random::generate_random_string_with_prefix("test_db").to_lowercase();

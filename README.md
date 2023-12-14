@@ -1,4 +1,4 @@
-# RUSTfulapi
+# rustfulapi
 Reusable template for building REST Web Services in Rust. Uses [Axum](https://github.com/tokio-rs/axum) HTTP web framework and [SeaORM](https://github.com/SeaQL/sea-orm) ORM and [PostgreSQL](https://www.postgresql.org/).
 
 [![License](https://img.shields.io/github/license/robatipoor/rustfulapi)
@@ -82,6 +82,10 @@ export APP_PROFILE=prod # switch to production profile
 ### Check code formatting and typo at commit time
 ```
 cp ./scripts/git-hooks/* ./.git/hooks/
+```
+### Migrate database
+```
+cargo run --bin migration -- up -u $DATABASE_URL
 ```
 ### Update ERD (Entity-Relationship Diagram) use [planter](https://github.com/achiku/planter)
 ```bash
