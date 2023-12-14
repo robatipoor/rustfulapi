@@ -88,7 +88,7 @@ impl Api {
     &self,
     param: &PageQueryParam,
     token: &str,
-  ) -> anyhow::Result<(StatusCode, AppResponseResult<LoginResponse>)> {
+  ) -> anyhow::Result<(StatusCode, AppResponseResult<GetUserListResponse>)> {
     let resp = HTTP
       .get(&format!("{}/api/v1/admin/user/list", self.addr))
       .header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"))

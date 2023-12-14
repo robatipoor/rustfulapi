@@ -7,7 +7,7 @@ Reusable template for building REST Web Services in Rust. Uses [Axum](https://gi
 [![Build Check](https://github.com/robatipoor/rustfulapi/actions/workflows/build-checker.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/check.yml)
 [![Test](https://github.com/robatipoor/rustfulapi/actions/workflows/test.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/test.yml)
 [![Clippy Check](https://github.com/robatipoor/rustfulapi/actions/workflows/code-linter.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/clippy.yml)
-[![Docker Image](https://github.com/robatipoor/rustfulapi/actions/workflows/build.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/build.yml)
+[![Docker Image](https://github.com/robatipoor/rustfulapi/actions/workflows/image-builder.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/build.yml)
 [![Test Coverage](https://github.com/robatipoor/rustfulapi/actions/workflows/test-coverage.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/coverage.yml)
 [![Codecov](https://codecov.io/gh/robatipoor/rustfulapi/branch/main/graph/badge.svg?token=BIMUKRJPE7)](https://codecov.io/gh/robatipoor/rustfulapi)
 [![Dependency status](https://deps.rs/repo/github/robatipoor/rustfulapi/status.svg)](https://deps.rs/repo/github/robatipoor/rustfulapi)

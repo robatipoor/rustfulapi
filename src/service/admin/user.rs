@@ -11,7 +11,7 @@ pub async fn list(
   state: &AppState,
   user: &UserClaims,
   param: PageQueryParam,
-) -> AppResult<Vec<GetUserResponse>> {
+) -> AppResult<GetUserListResponse> {
   if user.rol != RoleUser::Admin {
     return Err(AppError::UnauthorizedError(
       "This user is not authorized to use this resource.".to_string(),
@@ -23,5 +23,5 @@ pub async fn list(
     .into_iter()
     .map(|u| GetUserResponse::from(u))
     .collect::<Vec<_>>();
-  Ok(list)
+  Ok(GetUserListResponse { list })
 }
