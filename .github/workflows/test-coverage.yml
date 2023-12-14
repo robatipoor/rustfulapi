@@ -51,11 +51,11 @@ jobs:
         with:
           path: |
             ~/.cargo/bin/cargo-tarpaulin
-          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
 
       - name: Install tarpaulin
         uses: actions-rs/cargo@v1
-        if: steps.cache-sqlx.outputs.cache-hit == false
+        if: steps.cache.outputs.cache-hit != 'true'
         with:
           command: install
           args: >
