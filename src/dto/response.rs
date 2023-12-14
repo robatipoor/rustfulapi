@@ -11,6 +11,11 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Dummy, Clone)]
+pub struct GetUserListResponse {
+  pub list: Vec<GetUserResponse>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema, Dummy, Clone)]
 pub struct GetUserResponse {
   pub id: Uuid,
   pub username: String,

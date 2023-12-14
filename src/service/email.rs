@@ -11,15 +11,15 @@ pub async fn send_email(
   subject: &str,
   receiver_addr: &str,
 ) -> AppResult {
-  info!("send: {subject} email to addr: {receiver_addr}");
+  info!("Send: {subject} email to addr: {receiver_addr}.");
   let email = create_email(template, subject, receiver_addr)?;
   client.send_email(&email).await?;
-  info!("sent email: {email:?} successfully");
+  info!("Sent the email successfully: {email:?}.");
   Ok(())
 }
 
 pub fn create_email(template: &Template, subject: &str, receiver_addr: &str) -> AppResult<Email> {
-  info!("create email object: {template:?}");
+  info!("Create the email object: {template:?}.");
   Ok(Email::new(
     APP_EMAIL_ADDR.to_string(),
     receiver_addr.to_string(),

@@ -24,8 +24,8 @@ macro_rules! unwrap {
   ($result:expr) => {
     match $result {
       $crate::helper::result::AppResponseResult::Ok(resp) => resp,
-      $crate::helper::result::AppResponseResult::Err(e) => {
-        panic!("called `common::unwrap!()` on an `Err` value {e:?}")
+      $crate::helper::result::AppResponseResult::Err(err) => {
+        panic!("Called `common::unwrap!()` on an `Err` value {err:?}.")
       }
     }
   };

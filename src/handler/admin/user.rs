@@ -24,11 +24,14 @@ pub async fn list(
   State(state): State<AppState>,
   user: UserClaims,
   Query(param): Query<PageQueryParam>,
-) -> AppResult<Json<Vec<GetUserResponse>>> {
+) -> AppResult<Json<GetUserListResponse>> {
   info!("Get list of user by: {} parameter: {:?}.", user.uid, param);
   match service::admin::user::list(&state, &user, param).await {
     Ok(resp) => {
-      info!("Success get list of users by user_id: {}.", user.uid);
+      info!(
+        "Success get list of users by user_id: {} response: {resp:?}.",
+        user.uid
+      );
       Ok(Json(resp))
     }
     Err(e) => {

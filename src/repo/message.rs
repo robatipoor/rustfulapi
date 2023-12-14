@@ -83,9 +83,9 @@ where
         .add(entity::message::Column::Status.eq(MessageStatus::Pending))
         .add(entity::message::Column::Status.eq(MessageStatus::Failed))
         .add(
+          // Resend the email if it times out.
           Condition::all()
             .add(entity::message::Column::Status.eq(MessageStatus::Sending))
-            // Resend the email if it times out.
             .add(
               entity::message::Column::UpdateAt
                 .lte(Utc::now() - chrono::Duration::minutes(timeout)),

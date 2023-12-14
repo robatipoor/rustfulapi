@@ -339,7 +339,6 @@ impl IntoResponse for AppError {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, utoipa::ToSchema)]
-// #[serde(tag = "type", rename = "AppError")]
 pub struct AppResponseError {
   pub kind: String,
   pub error_message: String,
