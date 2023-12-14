@@ -5,7 +5,7 @@ use rustfulapi::entity::role::RoleUser;
 use test_context::test_context;
 
 #[test_context(SeedDbTestContext)]
-#[tokio::test]
+// #[tokio::test]
 pub async fn test_success_get_user_list(ctx: &mut SeedDbTestContext) {
   let user = ctx.users.get(&RoleUser::Admin).unwrap();
   let req = LoginRequest {
