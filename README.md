@@ -2,16 +2,16 @@
 Reusable template for building REST Web Services in Rust. Uses [Axum](https://github.com/tokio-rs/axum) HTTP web framework and [SeaORM](https://github.com/SeaQL/sea-orm) ORM and [PostgreSQL](https://www.postgresql.org/).
 
 ![License](https://img.shields.io/github/license/robatipoor/rustfulapi)
-![Lines Of Code](https://tokei.rs/b1/github/robatipoor/rustfulapi?category=code)](https://github.com/robatipoor/rustfulapi)
-![Format check](https://github.com/robatipoor/rustfulapi/actions/workflows/code-formater.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/format.yml)
-![Build Check](https://github.com/robatipoor/rustfulapi/actions/workflows/build-checker.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/check.yml)
-![Test](https://github.com/robatipoor/rustfulapi/actions/workflows/test.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/test.yml)
-![Clippy Check](https://github.com/robatipoor/rustfulapi/actions/workflows/code-linter.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/clippy.yml)
-![Docker Image](https://github.com/robatipoor/rustfulapi/actions/workflows/image-builder.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/build.yml)
-![Test Coverage](https://github.com/robatipoor/rustfulapi/actions/workflows/test-coverage.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/coverage.yml)
-![Codecov](https://codecov.io/gh/robatipoor/rustfulapi/branch/main/graph/badge.svg?token=BIMUKRJPE7)](https://codecov.io/gh/robatipoor/rustfulapi)
-![Dependency status](https://deps.rs/repo/github/robatipoor/rustfulapi/status.svg)](https://deps.rs/repo/github/robatipoor/rustfulapi)
-// ![RUSTfulapi-logo](/static/images/logo.jpg)
+[![Lines Of Code](https://tokei.rs/b1/github/robatipoor/rustfulapi?category=code)](https://github.com/robatipoor/rustfulapi)
+[![Format check](https://github.com/robatipoor/rustfulapi/actions/workflows/code-formater.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/format.yml)
+[![Build Check](https://github.com/robatipoor/rustfulapi/actions/workflows/build-checker.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/check.yml)
+[![Test](https://github.com/robatipoor/rustfulapi/actions/workflows/test.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/test.yml)
+[![Clippy Check](https://github.com/robatipoor/rustfulapi/actions/workflows/code-linter.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/clippy.yml)
+[![Docker Image](https://github.com/robatipoor/rustfulapi/actions/workflows/image-builder.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/build.yml)
+[![Test Coverage](https://github.com/robatipoor/rustfulapi/actions/workflows/test-coverage.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/coverage.yml)
+[![Codecov](https://codecov.io/gh/robatipoor/rustfulapi/branch/main/graph/badge.svg?token=BIMUKRJPE7)](https://codecov.io/gh/robatipoor/rustfulapi)
+[![Dependency status](https://deps.rs/repo/github/robatipoor/rustfulapi/status.svg)](https://deps.rs/repo/github/robatipoor/rustfulapi)
+![RUSTfulapi-logo](/static/images/_logo.jpg)
 ### Requirements
 
 - [rust](https://www.rust-lang.org/tools/install)
