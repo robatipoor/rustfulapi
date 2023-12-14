@@ -4,6 +4,7 @@ use utoipa::{
 };
 
 use crate::dto::*;
+use crate::entity::role::RoleUser;
 use crate::error::{AppError, AppResponseError};
 use crate::util::claim::UserClaims;
 
@@ -57,7 +58,10 @@ use crate::util::claim::UserClaims;
             Direction,
             ServiceStatusResponse,
             GetUserResponse,
+            GetUserListResponse,
+            RefreshTokenRequest,
             MessageResponse,
+            RoleUser,
         )
     ),
     tags(

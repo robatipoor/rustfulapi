@@ -34,8 +34,6 @@ pub enum AppError {
   BadRequestError(String),
   #[error("{0}")]
   InvalidPayloadError(String),
-  #[error("access denied {0}")]
-  AccessDeniedError(String),
   #[error("{0}")]
   HashError(String),
   #[error(transparent)]
@@ -120,12 +118,6 @@ impl AppError {
         Some(resource.resource_type as i32),
         resource.details.clone(),
         StatusCode::NOT_FOUND,
-      ),
-      AccessDeniedError(_err) => (
-        "ACCESS_DENIED_ERROR".to_string(),
-        None,
-        vec![],
-        StatusCode::FORBIDDEN,
       ),
       ResourceExistsError(resource) => (
         format!("{resource}_ALREADY_EXISTS_ERROR"),

@@ -236,24 +236,17 @@ mod tests {
   };
 
   #[tokio::test]
-  async fn test_mailhog_search() {
+  async fn test_success_mail_search() {
     let email: Email = Faker.fake();
     let email_client = EmailClient::build_from_config(&CONFIG).unwrap();
     email_client.send_email(&email).await.unwrap();
     let mailer = MailHogClient::new(&CONFIG.email);
-    let mut resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
-    for _ in 0..10 {
-      if resp.total > 0 {
-        break;
-      }
-      tokio::time::sleep(std::time::Duration::from_nanos(1000)).await;
-      resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
-    }
+    let resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
     assert!(resp.total > 0);
   }
 
   #[tokio::test]
-  async fn test_mailhog_get_token() {
+  async fn test_get_token_and_id_from_email() {
     let code: String = Faker.fake();
     let username: String = Faker.fake();
     let user_id: uuid::Uuid = Faker.fake();
@@ -268,51 +261,32 @@ mod tests {
     let email_client = EmailClient::build_from_config(&CONFIG).unwrap();
     email_client.send_email(&email).await.unwrap();
     let mailer = MailHogClient::new(&CONFIG.email);
-    let mut resp: Option<String> = None;
-    for _ in 0..10 {
-      if let Ok((code, _)) = mailer.get_code_and_id_from_email(&email.to).await {
-        resp = Some(code);
-        break;
-      }
-      tokio::time::sleep(std::time::Duration::from_nanos(1000)).await;
-    }
-    assert!(matches!(resp, Some(c) if c == code));
+    let (result_code, result_user_id) = mailer.get_code_and_id_from_email(&email.to).await.unwrap();
+    assert_eq!(result_code, code);
+    assert_eq!(result_user_id, user_id);
   }
 
   #[tokio::test]
-  async fn test_mailhog_get() {
+  async fn test_success_mail_get() {
     let email: Email = Faker.fake();
     let email_client = EmailClient::build_from_config(&CONFIG).unwrap();
     email_client.send_email(&email).await.unwrap();
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     let mailer = MailHogClient::new(&CONFIG.email);
-    let mut resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
-    for _ in 0..10 {
-      if resp.total > 0 {
-        break;
-      }
-      tokio::time::sleep(std::time::Duration::from_nanos(1000)).await;
-      resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
-    }
+    let resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
     assert!(resp.total > 0);
     mailer.get(resp.items[0].id.clone()).await.unwrap();
   }
 
   #[tokio::test]
-  async fn test_mailhog_delete() {
+  async fn test_success_mail_delete() {
     let email: Email = Faker.fake();
     let email_client = EmailClient::build_from_config(&CONFIG).unwrap();
     email_client.send_email(&email).await.unwrap();
     let mailer = MailHogClient::new(&CONFIG.email);
-    let mut resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
-    for _ in 0..10 {
-      if resp.total > 0 {
-        break;
-      }
-      tokio::time::sleep(std::time::Duration::from_nanos(1000)).await;
-      resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
-    }
+    let resp = mailer.search(QueryKindSearch::To, &email.to).await.unwrap();
     assert!(resp.total > 0);
-    mailer.delete(resp.items[0].id.clone()).await.unwrap();
+    let status = mailer.delete(resp.items[0].id.clone()).await.unwrap();
+    assert_eq!(status, reqwest::StatusCode::OK)
   }
 }

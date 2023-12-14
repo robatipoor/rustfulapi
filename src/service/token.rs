@@ -2,7 +2,7 @@ use crate::constant::*;
 use crate::dto::response::TokenResponse;
 use crate::dto::{RefreshTokenRequest, TokenInfoRequest};
 use crate::entity::role::RoleUser;
-use crate::error::{AppResult, ToAppResult};
+use crate::error::{AppError, AppResult, ToAppResult};
 use crate::server::state::AppState;
 use crate::service;
 use crate::util::claim::UserClaims;
@@ -15,7 +15,11 @@ pub async fn info(
   req: TokenInfoRequest,
 ) -> AppResult<UserClaims> {
   info!("Get token info by user_id: {}", user.uid);
-  if user.rol != RoleUser::System {}
+  if user.rol != RoleUser::System {
+    return Err(AppError::PermissionDeniedError(
+      "This user does not have permission to use this resource.".to_string(),
+    ));
+  }
   let token_data = UserClaims::decode(&req.token, &ACCESS_TOKEN_DECODE_KEY)?;
   service::session::check(&state.redis, &token_data.claims).await?;
   Ok(token_data.claims)

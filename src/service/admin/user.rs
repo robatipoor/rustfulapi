@@ -13,8 +13,8 @@ pub async fn list(
   param: PageQueryParam,
 ) -> AppResult<GetUserListResponse> {
   if user.rol != RoleUser::Admin {
-    return Err(AppError::UnauthorizedError(
-      "This user is not authorized to use this resource.".to_string(),
+    return Err(AppError::PermissionDeniedError(
+      "This user does not have permission to use this resource.".to_string(),
     ));
   }
   info!("Get user list with parameter: {param:?}");

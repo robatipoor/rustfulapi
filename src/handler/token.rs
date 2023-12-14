@@ -40,7 +40,7 @@ pub async fn refresh(
 #[utoipa::path(
     post,
     path = "/api/v1/token/info",
-    request_body = ValidateRequest,
+    request_body = TokenInfoRequest,
     responses(
         (status = 200, description = "Success get token information", body = [UserClaims]),
         (status = 400, description = "Invalid token", body = [AppResponseError]),
