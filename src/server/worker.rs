@@ -1,3 +1,4 @@
+use fake::Fake;
 use tracing::info;
 
 use crate::{
@@ -99,4 +100,21 @@ pub fn render_template(
     },
   };
   Ok(TEMPLATE_ENGIN.render(&template)?)
+}
+
+#[cfg(test)]
+mod tests {
+  use fake::Fake;
+
+  use super::render_template;
+  use crate::entity::{self, message::MessageKind};
+
+  #[test]
+  fn test_render_template() {
+    let mut message: entity::message::Model = fake::Faker.fake();
+    message.kind = MessageKind::LoginCode;
+    let user: entity::user::Model = fake::Faker.fake();
+    let result = render_template(&message, &user).unwrap();
+    assert!(result.to_lowercase().contains("login"))
+  }
 }

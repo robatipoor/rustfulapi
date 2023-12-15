@@ -11,6 +11,7 @@ use uuid::Uuid;
 
 pub struct TestUser {
   pub id: Uuid,
+  pub username: String,
   pub email: String,
   pub password: String,
 }
@@ -35,6 +36,7 @@ impl TestUser {
       let test_user = TestUser {
         id: user.id,
         email: user.email,
+        username: user.username,
         password,
       };
       users.insert(user.role, test_user);

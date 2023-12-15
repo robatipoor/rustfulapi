@@ -20,7 +20,8 @@ pub async fn test_get_profile_user(ctx: &mut SeedDbTestContext) {
   let (status, resp) = ctx.app.api.get_profile(&token.access_token).await.unwrap();
   assert!(status.is_success(), "status: {status}");
   let resp = unwrap!(resp);
-  assert!(!resp.username.is_empty());
+  assert_eq!(user.username, resp.username);
+  assert_eq!(user.email, resp.email);
 }
 
 #[test_context(SeedDbTestContext)]
