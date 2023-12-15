@@ -1,14 +1,13 @@
-use fake::{Fake, Faker};
+
 use rustfulapi::{
   dto::{LoginRequest, TokenInfoRequest},
   entity::role::RoleUser,
-  service,
 };
 use test_context::test_context;
 
 use crate::{
-  assert_err, assert_ok,
-  context::{app::AppTestContext, seeder::SeedDbTestContext},
+  assert_ok,
+  context::{seeder::SeedDbTestContext},
 };
 
 #[test_context(SeedDbTestContext)]

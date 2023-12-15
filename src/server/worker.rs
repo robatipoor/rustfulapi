@@ -1,4 +1,4 @@
-use fake::Fake;
+
 use tracing::info;
 
 use crate::{
