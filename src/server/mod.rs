@@ -12,13 +12,16 @@ pub struct AppServer {
 impl AppServer {
   pub async fn new(mut config: AppConfig) -> AppResult<Self> {
     let tcp = tokio::net::TcpListener::bind(config.server.get_socket_addr()?).await?;
-    config.server.port = tcp.local_addr()?.port();
+    let addr = tcp.local_addr()?;
+    tracing::info!("The server is listening on: {addr}");
+    config.server.port = addr.port();
     let state = AppState::new(config).await?;
     Ok(Self { state, tcp })
   }
 
   pub async fn run(self) -> AppResult<()> {
-    let app = create_router_app(self.state);
-    axum::serve(self.tcp, app).await.map_err(|e| e.into())
+    let router = create_router_app(self.state);
+    axum::serve(self.tcp, router).await?;
+    Ok(())
   }
 }

@@ -1,14 +1,10 @@
-
 use rustfulapi::{
   dto::{LoginRequest, TokenInfoRequest},
   entity::role::RoleUser,
 };
 use test_context::test_context;
 
-use crate::{
-  assert_ok,
-  context::{seeder::SeedDbTestContext},
-};
+use crate::{assert_ok, context::seeder::SeedDbTestContext};
 
 #[test_context(SeedDbTestContext)]
 #[tokio::test]
