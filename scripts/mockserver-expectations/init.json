@@ -2,7 +2,7 @@
   {
     "httpRequest": {
       "method": "GET",
-      "path": "/api/v3/ping",
+      "path": "/api/v1/ping",
     },
     "httpResponse": {
       "statusCode": 200,

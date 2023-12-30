@@ -3,7 +3,7 @@
 set -euxo pipefail
 
 PORT="${MOCK_SERVER_PORT:=8026}"
-CONFIG_PATH="${MOCK_SERVER_CONFIG_PATH:=/expections/init.json}"
+CONFIG_PATH="${MOCK_SERVER_CONFIG_PATH:=/mockserver-expectations/init.json}"
 SCRIPT_PATH="$(
   cd -- "$(dirname "$0")" >/dev/null 2>&1
   pwd -P
@@ -12,7 +12,7 @@ RESTART_CONTAINER="${RESTART_CONTAINER:=false}"
 RUNNING_CONTAINER=$(docker ps --filter 'name=mockserver' --format '{{.ID}}')
 
 function run_container() {
-  docker run -v "${SCRIPT_PATH}"/mockserver-exceptions:/exceptions \
+  docker run -v "${SCRIPT_PATH}"/mockserver-expectations:/mockserver-expectations \
     -e MOCKSERVER_LOG_LEVEL=DEBUG \
     -e MOCKSERVER_INITIALIZATION_JSON_PATH="$CONFIG_PATH" \
     -e SERVER_PORT="${PORT}" \
