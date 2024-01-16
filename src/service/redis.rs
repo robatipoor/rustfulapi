@@ -79,7 +79,7 @@ pub async fn set<K>(client: &RedisClient, (key, value): (&K, &K::Value)) -> AppR
 where
   K: RedisKey,
 {
-  info!("set value to redis key : {:?} value : {:?}", key, value);
+  info!("Set value to redis key :{key:?} value :{value:?}");
   let value = serde_json::to_string(value)?;
   client.set(&key.to_string(), &value, K::EXPIRE_TIME).await?;
   Ok(())
@@ -89,7 +89,7 @@ pub async fn get<K>(client: &RedisClient, key: &K) -> AppResult<Option<K::Value>
 where
   K: RedisKey,
 {
-  info!("get value from redis key :{key} ");
+  info!("Get value from redis key :{key}");
   Ok(
     client
       .get(&key.to_string())
@@ -99,12 +99,12 @@ where
   )
 }
 pub async fn del(client: &RedisClient, key: &impl RedisKey) -> Result<bool, redis::RedisError> {
-  info!("Delete key in redis :{:?}", key);
+  info!("Delete key in redis :{key:?}");
   client.del(&key.to_string()).await
 }
 
 pub async fn get_tll(client: &RedisClient, key: &impl RedisKey) -> Result<i64, redis::RedisError> {
-  info!("Get ttl key in redis :{:?}", key);
+  info!("Get ttl key in redis :{key:?}");
   client.ttl(&key.to_string()).await
 }
 

@@ -32,7 +32,6 @@ mod tests {
   use tokio::fs;
   use uuid::Uuid;
 
-  pub use super::*;
   #[allow(dead_code)]
   struct FileTestContext {
     content: Vec<u8>,

@@ -73,7 +73,7 @@ pub async fn find_page(
 ) -> AppResult<Vec<entity::user::Model>> {
   let mut select = entity::user::Entity::find();
   match param.sort_direction {
-    Some(d) if d == Direction::DESC => {
+    Some(Direction::DESC) => {
       // TODO fix me
       select = select.order_by_desc(entity::user::Column::CreateAt);
     }

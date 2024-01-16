@@ -21,7 +21,7 @@ pub async fn list(
   let list = repo::user::find_page(&state.db, param)
     .await?
     .into_iter()
-    .map(|u| GetUserResponse::from(u))
+    .map(GetUserResponse::from)
     .collect::<Vec<_>>();
   Ok(GetUserListResponse { list })
 }
