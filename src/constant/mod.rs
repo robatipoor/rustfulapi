@@ -39,11 +39,11 @@ pub static EMAIL: Lazy<EmailClient> =
   Lazy::new(|| EmailClient::build_from_config(&CONFIG).unwrap());
 pub const MAX_RETRY: u32 = 10;
 pub const MINIMUM_DELAY_TIME: std::time::Duration = std::time::Duration::from_millis(100);
-pub static REFERESH_TOKEN_ENCODE_KEY: Lazy<EncodingKey> = Lazy::new(|| {
+pub static REFRESH_TOKEN_ENCODE_KEY: Lazy<EncodingKey> = Lazy::new(|| {
   let key = CONFIG.secret.read_private_refresh_key().unwrap();
   EncodingKey::from_rsa_pem(key.as_bytes()).unwrap()
 });
-pub static REFERESH_TOKEN_DECODE_KEY: Lazy<DecodingKey> = Lazy::new(|| {
+pub static REFRESH_TOKEN_DECODE_KEY: Lazy<DecodingKey> = Lazy::new(|| {
   let key = CONFIG.secret.read_public_refresh_key().unwrap();
   DecodingKey::from_rsa_pem(key.as_bytes()).unwrap()
 });
