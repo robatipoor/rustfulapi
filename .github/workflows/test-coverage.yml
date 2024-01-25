@@ -37,7 +37,7 @@ jobs:
       APP_PROFILE: test
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install nightly toolchain
         uses: actions-rs/toolchain@v1
@@ -46,7 +46,7 @@ jobs:
           override: true
 
       - name: Cache tarpaulin
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-tarpaulin
         with:
           path: |
@@ -71,7 +71,7 @@ jobs:
           ./scripts/init_mockserver.sh
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Generate code coverage
         run: |

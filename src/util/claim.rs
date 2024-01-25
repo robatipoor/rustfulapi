@@ -5,7 +5,6 @@ use axum_extra::{
   TypedHeader,
 };
 
-use async_trait::async_trait;
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use axum::RequestPartsExt;
@@ -64,7 +63,7 @@ impl UserClaims {
   }
 }
 
-#[async_trait]
+#[async_trait::async_trait]
 impl FromRequestParts<AppState> for UserClaims {
   type Rejection = AppError;
 
