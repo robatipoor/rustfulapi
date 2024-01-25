@@ -26,7 +26,7 @@ pub async fn info(
 }
 
 pub async fn refresh(state: &AppState, req: RefreshTokenRequest) -> AppResult<TokenResponse> {
-  let user_claims = UserClaims::decode(&req.token, &REFERESH_TOKEN_DECODE_KEY)?.claims;
+  let user_claims = UserClaims::decode(&req.token, &REFRESH_TOKEN_DECODE_KEY)?.claims;
   info!("Refresh token: {user_claims:?}");
   let user_id = service::session::check(&state.redis, &user_claims).await?;
   let user = crate::repo::user::find_by_id(&*state.db, user_id)
@@ -47,7 +47,7 @@ pub fn generate_tokens(
   let access_token = UserClaims::new(EXPIRE_BEARER_TOKEN_SECS, user_id, session_id, role)
     .encode(&ACCESS_TOKEN_ENCODE_KEY)?;
   let refresh_token = UserClaims::new(EXPIRE_REFRESH_TOKEN_SECS, user_id, session_id, role)
-    .encode(&REFERESH_TOKEN_ENCODE_KEY)?;
+    .encode(&REFRESH_TOKEN_ENCODE_KEY)?;
   Ok(TokenResponse::new(
     access_token,
     refresh_token,
