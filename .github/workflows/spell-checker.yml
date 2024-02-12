@@ -1,5 +1,10 @@
 name: spell checker
-on: [pull_request]
+
+on:
+  push:
+    branches:    
+      - '**'
+
 
 env:
   CARGO_TERM_COLOR: always

@@ -37,7 +37,7 @@ chrono = { version = "0.4.31", default-features = false, features = [
   "clock",
   "serde",
 ] }
-config = "0.13.4"
+config = "0.14.0"
 fake = { version = "2.9.2", features = ["derive", "uuid", "chrono"] }
 futures = "0.3.30"
 itertools = "0.12.0"
@@ -75,6 +75,6 @@ utoipa = { version = "4.2.0", features = ["axum_extras", "uuid", "chrono"] }
 utoipa-swagger-ui = { version = "6.0.0", features = ["axum"] }
 uuid = { version = "1.6.1", features = ["v4", "serde"] }
 tokio-tungstenite = "0.21.0"
-wiremock = "0.5.22"
-garde = "0.17.0"
-regex = "1.10.2"
+garde = { version = "0.18.0", features = ["full"] }
+regex = "1.10.3"
+wiremock = "0.6.0"

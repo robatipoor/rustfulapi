@@ -76,8 +76,9 @@ export APP_SERVER__PORT=8080
 export APP_SERVER__ADDR=127.0.0.1
 ```
 #### Switching profiles
+Before running the application, export this variable:
 ```bash
-export APP_PROFILE=prod # switch to production profile
+export APP_PROFILE=prod # Switch to production profile
 ```
 ### Check code formatting and typo at commit time
 ```
