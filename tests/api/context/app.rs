@@ -1,7 +1,8 @@
 use once_cell::sync::Lazy;
 use rustfulapi::{
   client::database::{drop_database, migrate_database, setup_new_database, DatabaseClient},
-  configure::AppConfig,
+  configure::{env::get_env_source, AppConfig},
+  constant::ENV_PREFIX,
   error::AppResult,
   server::{self, state::AppState, worker::MessengerTask},
 };
@@ -25,7 +26,7 @@ pub struct AppTestContext {
 impl AsyncTestContext for AppTestContext {
   async fn setup() -> Self {
     Lazy::force(&INIT_SUBSCRIBER);
-    let mut config = AppConfig::read().unwrap();
+    let mut config = AppConfig::read(get_env_source(ENV_PREFIX)).unwrap();
     let default_db = setup_new_database(&mut config).await.unwrap();
     let server = server::AppServer::new(config).await.unwrap();
     migrate_database(&server.state.db).await.unwrap();

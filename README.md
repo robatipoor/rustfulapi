@@ -42,7 +42,7 @@ To use this template as your project starting point, click "Use this template" a
 ### Running locally
 
 ```bash
-./run.sh
+./run
 # open swagger panel
 xdg-open http://127.0.0.1:8080/swagger-ui/
 # manually testing your API routes with curl commands
@@ -92,6 +92,13 @@ cargo run --bin migration -- up -u $DATABASE_URL
 ```bash
 planter postgres://username:password@localhost:5432/database_name\?sslmode=disable -o docs/schema.puml
 ```
+
+## Run tests
+```sh
+# Execute all test projects.
+./test
+```
+
 ## License
 
 Licensed under either of

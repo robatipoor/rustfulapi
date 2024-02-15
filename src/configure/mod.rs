@@ -1,10 +1,10 @@
 use std::str::FromStr;
 
 use ::tracing::info;
-use config::ConfigError;
+use config::{ConfigError, Environment};
 use serde::Deserialize;
 
-use crate::util;
+use crate::util::dir::get_project_root;
 
 use self::{
   db::DatabaseConfig, email::EmailConfig, http::HttpClientConfig, redis::RedisConfig,
@@ -13,6 +13,7 @@ use self::{
 
 pub mod db;
 pub mod email;
+pub mod env;
 pub mod http;
 pub mod redis;
 pub mod secret;
@@ -36,9 +37,8 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-  pub fn read() -> Result<Self, config::ConfigError> {
-    let config_dir =
-      util::dir::root_dir("settings").map_err(|e| ConfigError::Message(e.to_string()))?;
+  pub fn read(env_src: Environment) -> Result<Self, config::ConfigError> {
+    let config_dir = get_settings_dir()?;
     let profile = std::env::var("APP_PROFILE")
       .map(|env| Profile::from_str(&env).map_err(|e| ConfigError::Message(e.to_string())))
       .unwrap_or_else(|_e| Ok(Profile::Dev))?;
@@ -46,15 +46,27 @@ impl AppConfig {
     let config = config::Config::builder()
       .add_source(config::File::from(config_dir.join("base.toml")))
       .add_source(config::File::from(config_dir.join(profile_filename)))
-      .add_source(
-        config::Environment::with_prefix("APP")
-          .prefix_separator("_")
-          .separator("__"),
-      )
+      .add_source(env_src)
       .build()?;
     info!("Successfully read config profile: {profile}.");
     config.try_deserialize()
   }
+}
+
+pub fn get_settings_dir() -> Result<std::path::PathBuf, ConfigError> {
+  Ok(
+    get_project_root()
+      .map_err(|e| ConfigError::Message(e.to_string()))?
+      .join("settings"),
+  )
+}
+
+pub fn get_static_dir() -> Result<std::path::PathBuf, ConfigError> {
+  Ok(
+    get_project_root()
+      .map_err(|e| ConfigError::Message(e.to_string()))?
+      .join("static"),
+  )
 }
 
 #[derive(
@@ -76,11 +88,13 @@ pub enum Profile {
 mod tests {
   use std::convert::TryFrom;
 
+  use self::env::get_env_source;
+
   pub use super::*;
 
   #[test]
   pub fn test_read_app_config() {
-    let _config = AppConfig::read().unwrap();
+    let _config = AppConfig::read(get_env_source("TEST_APP")).unwrap();
   }
 
   #[test]

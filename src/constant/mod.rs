@@ -5,11 +5,11 @@ use utoipa::OpenApi;
 
 use crate::{
   client::{email::EmailClient, http::HttpClient, redis::RedisClient, ClientBuilder},
-  configure::template::TemplateEngine,
+  configure::{env::get_env_source, get_static_dir, template::TemplateEngine},
   handler::openapi::ApiDoc,
-  util,
 };
 
+pub const ENV_PREFIX: &str = "APP";
 pub const CODE_LEN: usize = 5;
 pub const CLIENT_TIMEOUT: Duration = Duration::from_secs(120);
 pub const EXPIRE_SESSION_CODE_SECS: Duration = Duration::from_secs(2000);
@@ -26,11 +26,11 @@ pub const AUTHORIZATION: &str = "Authorization";
 pub const BEARER: &str = "Bearer";
 pub const APP_DOMAIN: &str = "rustfulapi.com";
 pub const APP_EMAIL_ADDR: &str = "rustfulapi@email.com";
-pub static IMAGES_PATH: Lazy<PathBuf> = Lazy::new(|| util::dir::root_dir("static/images").unwrap());
+pub static IMAGES_PATH: Lazy<PathBuf> = Lazy::new(|| get_static_dir().unwrap().join("images"));
 pub static APP_IMAGE: Lazy<PathBuf> =
-  Lazy::new(|| util::dir::root_dir("static/images/logo.jpg").unwrap());
+  Lazy::new(|| get_static_dir().unwrap().join("images/logo.jpg"));
 pub static CONFIG: Lazy<crate::configure::AppConfig> =
-  Lazy::new(|| crate::configure::AppConfig::read().unwrap());
+  Lazy::new(|| crate::configure::AppConfig::read(get_env_source(ENV_PREFIX)).unwrap());
 pub static HTTP: Lazy<reqwest::Client> =
   Lazy::new(|| HttpClient::build_from_config(&CONFIG).unwrap());
 pub static REDIS: Lazy<RedisClient> =
@@ -57,8 +57,9 @@ pub static ACCESS_TOKEN_DECODE_KEY: Lazy<DecodingKey> = Lazy::new(|| {
 });
 pub static API_DOC: Lazy<utoipa::openapi::OpenApi> = Lazy::new(ApiDoc::openapi);
 pub static TEMPLATE_ENGIN: Lazy<TemplateEngine> = Lazy::new(|| {
-  let path = util::dir::root_dir("static/template/**/*")
+  let path = get_static_dir()
     .unwrap()
+    .join("template/**/*")
     .into_os_string()
     .into_string()
     .unwrap();
