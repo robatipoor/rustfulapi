@@ -4,7 +4,6 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 use strum::Display;
 use utoipa::ToSchema;
-use uuid::Uuid;
 
 use crate::error::ResourceType;
 

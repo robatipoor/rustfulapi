@@ -5,8 +5,8 @@ on:
     branches: ["main"]
 
 jobs:
-  test:
-    name: coverage
+  test_coverage:
+    name: test coverage
     runs-on: ubuntu-latest
     services:
       postgres:

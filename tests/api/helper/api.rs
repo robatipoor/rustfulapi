@@ -8,7 +8,6 @@ use rustfulapi::configure::server::ServerConfig;
 use rustfulapi::constant::HTTP;
 use rustfulapi::dto::request::*;
 use rustfulapi::dto::response::*;
-use rustfulapi::dto::ServiceStatusResponse;
 use rustfulapi::util::claim::UserClaims;
 
 pub struct Api {

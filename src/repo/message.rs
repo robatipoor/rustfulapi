@@ -125,16 +125,10 @@ pub async fn update_status(
 #[cfg(test)]
 mod tests {
   use super::*;
-  use chrono::{Duration, Utc};
-  use sea_orm::{ActiveModelTrait, EntityTrait, Set};
+  use chrono::Duration;
   use test_context::test_context;
-  use uuid::Uuid;
 
-  use crate::entity::{
-    self,
-    message::{MessageKind, MessageStatus},
-    TransactionTestContext,
-  };
+  use crate::entity::TransactionTestContext;
 
   #[test_context(TransactionTestContext)]
   #[tokio::test]

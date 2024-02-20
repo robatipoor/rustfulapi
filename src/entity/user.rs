@@ -2,7 +2,6 @@ use chrono::{DateTime, Utc};
 use fake::faker::internet::en::{FreeEmail, Password, Username};
 use fake::Dummy;
 use sea_orm::entity::prelude::*;
-use uuid::Uuid;
 
 use crate::error::ResourceType;
 

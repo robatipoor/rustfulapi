@@ -86,8 +86,6 @@ pub enum Profile {
 
 #[cfg(test)]
 mod tests {
-  use std::convert::TryFrom;
-
   use self::env::get_env_source;
 
   pub use super::*;
