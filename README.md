@@ -2,8 +2,9 @@
 Reusable template for building REST Web Services in Rust. Uses [Axum](https://github.com/tokio-rs/axum) HTTP web framework and [SeaORM](https://github.com/SeaQL/sea-orm) ORM and [PostgreSQL](https://www.postgresql.org/).
 
 ![License](https://img.shields.io/github/license/robatipoor/rustfulapi)
-[![Lines Of Code](https://tokei.rs/b1/github/robatipoor/rustfulapi?category=code)](https://github.com/robatipoor/rustfulapi)
-[![Format check](https://github.com/robatipoor/rustfulapi/actions/workflows/code-formater.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/code-formater.yml)
+
+[![Lines Of Code](https://tokei.rs/b1/github/robatipoor/rustfulapi?category=lines)](https://github.com/robatipoor/rustfulapi)
+[![Format check](https://github.com/robatipoor/rustfulapi/actions/workflows/code-style-checker.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/code-style-checker.yml)
 [![Build Check](https://github.com/robatipoor/rustfulapi/actions/workflows/build-checker.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/build-checker.yml)
 [![Test](https://github.com/robatipoor/rustfulapi/actions/workflows/test.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/test.yml)
 [![Clippy Check](https://github.com/robatipoor/rustfulapi/actions/workflows/code-linter.yml/badge.svg)](https://github.com/robatipoor/rustfulapi/actions/workflows/code-linter.yml)
