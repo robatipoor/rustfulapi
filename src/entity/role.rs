@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
   fake::Dummy,
   Clone,
   Copy,
-  strum::EnumIter,
+  EnumIter,
   strum::Display,
   Hash,
   DeriveActiveEnum,

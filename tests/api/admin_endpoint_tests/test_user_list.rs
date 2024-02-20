@@ -26,6 +26,6 @@ pub async fn test_success_get_user_list(ctx: &mut SeedDbTestContext) {
     .await
     .unwrap();
   let resp = unwrap!(resp);
-  assert!(resp.list.len() > 0);
+  assert!(!resp.list.is_empty());
   assert!(status.is_success(), "status: {status}");
 }

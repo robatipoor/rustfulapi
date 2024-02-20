@@ -21,7 +21,7 @@ where
   count(result) == count(expected)
 }
 
-pub fn vecs_match<T: PartialEq>(a: &Vec<T>, b: &Vec<T>) -> bool {
+pub fn vecs_match<T: PartialEq>(a: &[T], b: &[T]) -> bool {
   a.len() == b.len() && !a.iter().zip(b.iter()).any(|(a, b)| *a != *b)
 }
 

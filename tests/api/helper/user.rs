@@ -5,8 +5,7 @@ use fake::faker::internet::en::FreeEmail;
 use fake::{Fake, Faker};
 use rustfulapi::{entity, util};
 use rustfulapi::{entity::role::RoleUser, error::AppResult};
-use sea_orm::{ActiveModelTrait, DatabaseConnection, Set};
-use strum::IntoEnumIterator;
+use sea_orm::{ActiveModelTrait, DatabaseConnection, Iterable, Set};
 use uuid::Uuid;
 
 pub struct TestUser {

@@ -185,7 +185,7 @@ mod tests {
     assert_eq!(list.len(), 2);
     let list = get_list_and_update(&**ctx, 100, 2).await.unwrap();
     assert_eq!(list.len(), 1);
-    assert_eq!(list.get(0).unwrap().content, "code3");
+    assert_eq!(list.first().unwrap().content, "code3");
     let list = get_list_and_update(&**ctx, 100, 2).await.unwrap();
     assert_eq!(list.len(), 0);
   }

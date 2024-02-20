@@ -83,7 +83,7 @@ impl MailHogClient {
     };
     let resp = rustfulapi::retry!(resp, |r: &Result<Response, reqwest::Error>| {
       match r {
-        Ok(r) => r.items.len() >= 1,
+        Ok(r) => !r.items.is_empty(),
         Err(_) => false,
       }
     });
@@ -95,7 +95,7 @@ impl MailHogClient {
     let resp = self.search(QueryKindSearch::To, email).await?;
     let body = resp
       .items
-      .get(0)
+      .first()
       .ok_or_else(|| anyhow!("Item not found"))?
       .content
       .body
@@ -117,7 +117,7 @@ impl MailHogClient {
       .ok_or_else(|| anyhow!("Item not found"))?
       .text()
       .collect::<String>();
-    let _ = self.delete(resp.items.get(0).unwrap().id.clone()).await;
+    let _ = self.delete(resp.items.first().unwrap().id.clone()).await;
     Ok((code, user_id))
   }
 }
