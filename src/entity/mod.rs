@@ -20,7 +20,6 @@ pub struct TransactionTestContext {
   pub tx: DatabaseTransaction,
 }
 
-#[async_trait::async_trait]
 impl AsyncTestContext for TransactionTestContext {
   async fn setup() -> Self {
     info!("Setup database for the test.");

@@ -30,7 +30,6 @@ mod tests {
     path: PathBuf,
   }
 
-  #[async_trait::async_trait]
   impl AsyncTestContext for FileTestContext {
     async fn setup() -> Self {
       let image = Lazy::force(&APP_IMAGE);

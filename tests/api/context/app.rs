@@ -22,7 +22,6 @@ pub struct AppTestContext {
   pub mail: MailHogClient,
 }
 
-#[async_trait::async_trait]
 impl AsyncTestContext for AppTestContext {
   async fn setup() -> Self {
     Lazy::force(&INIT_SUBSCRIBER);
@@ -48,7 +47,7 @@ impl AsyncTestContext for AppTestContext {
     }
   }
 
-  async fn teardown(mut self) {
+  async fn teardown(self) {
     drop_database(&self.default_db, &self.state.config.db.database_name)
       .await
       .unwrap();

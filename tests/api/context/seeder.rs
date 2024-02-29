@@ -10,7 +10,6 @@ pub struct SeedDbTestContext {
   pub users: HashMap<RoleUser, TestUser>,
 }
 
-#[async_trait::async_trait]
 impl AsyncTestContext for SeedDbTestContext {
   async fn setup() -> Self {
     let app = AppTestContext::setup().await;
@@ -18,7 +17,7 @@ impl AsyncTestContext for SeedDbTestContext {
     Self { app, users }
   }
 
-  async fn teardown(mut self) {
+  async fn teardown(self) {
     self.app.teardown().await
   }
 }

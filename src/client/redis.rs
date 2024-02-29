@@ -34,7 +34,6 @@ pub struct RedisTestContext {
   pub redis: RedisClient,
 }
 
-#[async_trait::async_trait]
 impl AsyncTestContext for RedisTestContext {
   async fn setup() -> Self {
     info!("setup redis config for the test");
