@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use async_trait::async_trait;
 use sea_orm::{ConnectOptions, ConnectionTrait, Database, DatabaseConnection};
 use sea_orm_migration::MigratorTrait;
 use tracing::info;
@@ -11,12 +10,10 @@ use crate::util;
 
 pub type DatabaseClient = DatabaseConnection;
 
-#[async_trait]
 pub trait DatabaseClientExt: Sized {
-  async fn build_from_config(config: &AppConfig) -> AppResult<Self>;
+  fn build_from_config(config: &AppConfig) -> impl std::future::Future<Output = AppResult<Self>>;
 }
 
-#[async_trait]
 impl DatabaseClientExt for DatabaseClient {
   async fn build_from_config(config: &AppConfig) -> AppResult<Self> {
     let mut opt = ConnectOptions::new(config.db.get_url());

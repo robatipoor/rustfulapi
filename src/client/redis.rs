@@ -3,7 +3,6 @@ use crate::{
   constant::CONFIG,
   error::AppResult,
 };
-use async_trait::async_trait;
 use redis::{Client, RedisError};
 use std::time::Duration;
 use test_context::AsyncTestContext;
@@ -13,14 +12,19 @@ use super::ClientBuilder;
 
 pub type RedisClient = redis::Client;
 
-#[async_trait]
 pub trait RedisClientExt: ClientBuilder {
-  async fn ping(&self) -> Result<Option<String>, RedisError>;
-  async fn set(&self, key: &str, value: &str, expire: Duration) -> Result<(), RedisError>;
-  async fn exist(&self, key: &str) -> Result<bool, RedisError>;
-  async fn get(&self, key: &str) -> Result<Option<String>, RedisError>;
-  async fn del(&self, key: &str) -> Result<bool, RedisError>;
-  async fn ttl(&self, key: &str) -> Result<i64, RedisError>;
+  fn ping(&self) -> impl std::future::Future<Output = Result<Option<String>, RedisError>>;
+  fn set(
+    &self,
+    key: &str,
+    value: &str,
+    expire: Duration,
+  ) -> impl std::future::Future<Output = Result<(), RedisError>>;
+  fn exist(&self, key: &str) -> impl std::future::Future<Output = Result<bool, RedisError>>;
+  fn get(&self, key: &str)
+    -> impl std::future::Future<Output = Result<Option<String>, RedisError>>;
+  fn del(&self, key: &str) -> impl std::future::Future<Output = Result<bool, RedisError>>;
+  fn ttl(&self, key: &str) -> impl std::future::Future<Output = Result<i64, RedisError>>;
 }
 
 impl ClientBuilder for RedisClient {
@@ -50,7 +54,6 @@ impl AsyncTestContext for RedisTestContext {
   }
 }
 
-#[async_trait]
 impl RedisClientExt for Client {
   async fn ping(&self) -> Result<Option<String>, RedisError> {
     let mut conn = self.get_async_connection().await?;

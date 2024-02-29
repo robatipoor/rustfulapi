@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::transport::smtp::client::Tls;
 use lettre::{AsyncSmtpTransport, Tokio1Executor};
@@ -13,9 +12,8 @@ use super::ClientBuilder;
 
 pub type EmailClient = AsyncSmtpTransport<Tokio1Executor>;
 
-#[async_trait]
 pub trait EmailClientExt: Clone + Send + Sync + ClientBuilder {
-  async fn send_email(&self, email: &Email) -> AppResult;
+  fn send_email(&self, email: &Email) -> impl std::future::Future<Output = AppResult>;
 }
 
 impl ClientBuilder for EmailClient {
@@ -33,7 +31,6 @@ impl ClientBuilder for EmailClient {
   }
 }
 
-#[async_trait]
 impl EmailClientExt for EmailClient {
   async fn send_email(&self, email: &Email) -> AppResult {
     let resp = self.send(Message::try_from(email)?).await?;

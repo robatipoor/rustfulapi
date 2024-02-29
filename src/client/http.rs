@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use async_trait::async_trait;
 use reqwest::Response;
 use serde::Serialize;
 
@@ -10,20 +9,25 @@ use super::ClientBuilder;
 
 pub type HttpClient = reqwest::Client;
 
-#[async_trait]
 pub trait HttpClientExt: ClientBuilder {
-  async fn post_request<T: Serialize + ?Sized + Send + Sync>(
+  fn post_request<T: Serialize + ?Sized + Send + Sync>(
     &self,
     url: &str,
     body: &T,
-  ) -> Result<Response, reqwest::Error>;
-  async fn put_request<T: Serialize + ?Sized + Send + Sync>(
+  ) -> impl std::future::Future<Output = Result<Response, reqwest::Error>>;
+  fn put_request<T: Serialize + ?Sized + Send + Sync>(
     &self,
     url: &str,
     body: &T,
-  ) -> Result<Response, reqwest::Error>;
-  async fn delete_request(&self, url: &str) -> Result<Response, reqwest::Error>;
-  async fn get_request(&self, url: &str) -> Result<Response, reqwest::Error>;
+  ) -> impl std::future::Future<Output = Result<Response, reqwest::Error>>;
+  fn delete_request(
+    &self,
+    url: &str,
+  ) -> impl std::future::Future<Output = Result<Response, reqwest::Error>>;
+  fn get_request(
+    &self,
+    url: &str,
+  ) -> impl std::future::Future<Output = Result<Response, reqwest::Error>>;
 }
 
 impl ClientBuilder for HttpClient {
@@ -36,7 +40,6 @@ impl ClientBuilder for HttpClient {
   }
 }
 
-#[async_trait::async_trait]
 impl HttpClientExt for HttpClient {
   async fn post_request<T: Serialize + ?Sized + Send + Sync>(
     &self,
