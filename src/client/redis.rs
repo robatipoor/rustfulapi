@@ -56,14 +56,14 @@ impl AsyncTestContext for RedisTestContext {
 
 impl RedisClientExt for Client {
   async fn ping(&self) -> Result<Option<String>, RedisError> {
-    let mut conn = self.get_async_connection().await?;
+    let mut conn = self.get_multiplexed_async_connection().await?;
     let value: Option<String> = redis::cmd("PING").query_async(&mut conn).await?;
     info!("ping redis server");
     Ok(value)
   }
 
   async fn set(&self, key: &str, value: &str, expire: Duration) -> Result<(), RedisError> {
-    let mut conn = self.get_async_connection().await?;
+    let mut conn = self.get_multiplexed_async_connection().await?;
     let msg: String = redis::cmd("SET")
       .arg(&[key, value])
       .query_async(&mut conn)
@@ -78,27 +78,27 @@ impl RedisClientExt for Client {
   }
 
   async fn exist(&self, key: &str) -> Result<bool, RedisError> {
-    let mut conn = self.get_async_connection().await?;
+    let mut conn = self.get_multiplexed_async_connection().await?;
     let value: bool = redis::cmd("EXISTS").arg(key).query_async(&mut conn).await?;
     info!("check key exists: {key}");
     Ok(value)
   }
 
   async fn get(&self, key: &str) -> Result<Option<String>, RedisError> {
-    let mut conn = self.get_async_connection().await?;
+    let mut conn = self.get_multiplexed_async_connection().await?;
     let value: Option<String> = redis::cmd("GET").arg(key).query_async(&mut conn).await?;
     info!("get value: {key}");
     Ok(value)
   }
 
   async fn del(&self, key: &str) -> Result<bool, RedisError> {
-    let mut conn = self.get_async_connection().await?;
+    let mut conn = self.get_multiplexed_async_connection().await?;
     let value: i32 = redis::cmd("DEL").arg(key).query_async(&mut conn).await?;
     info!("delete value: {key}");
     Ok(value == 1)
   }
   async fn ttl(&self, key: &str) -> Result<i64, RedisError> {
-    let mut conn = self.get_async_connection().await?;
+    let mut conn = self.get_multiplexed_async_connection().await?;
     let value: i64 = redis::cmd("TTL").arg(key).query_async(&mut conn).await?;
     info!("get TTL value: {key}");
     Ok(value)
