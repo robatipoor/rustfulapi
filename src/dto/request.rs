@@ -150,24 +150,24 @@ mod tests {
   #[test]
   fn test_invalid_email_register_request() {
     let req = RegisterRequest::new("username", "email", "password");
-    assert!(req.validate(&()).is_err());
+    assert!(req.validate().is_err());
   }
 
   #[test]
   fn test_invalid_pass_register_request() {
     let req = RegisterRequest::new("username", "email@test.com", "pass");
-    assert!(req.validate(&()).is_err());
+    assert!(req.validate().is_err());
   }
 
   #[test]
   fn test_valid_user_register_request() {
     let req = RegisterRequest::new("foo", "foo@bar.com", "password");
-    assert!(req.validate(&()).is_ok());
+    assert!(req.validate().is_ok());
   }
 
   #[test]
   fn test_valid_register_request() {
     let req = RegisterRequest::new("username", "email@test.com", "password");
-    assert!(req.validate(&()).is_ok());
+    assert!(req.validate().is_ok());
   }
 }

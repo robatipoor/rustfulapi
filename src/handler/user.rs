@@ -24,7 +24,7 @@ pub async fn register(
   Json(req): Json<RegisterRequest>,
 ) -> AppResult<Json<RegisterResponse>> {
   info!("Register new user with request: {req:?}");
-  req.validate(&())?;
+  req.validate()?;
   match service::user::register(state, req).await {
     Ok(user_id) => {
       info!("Successfully register user: {user_id}");

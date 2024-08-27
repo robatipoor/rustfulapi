@@ -54,7 +54,7 @@ pub async fn info(
   user: UserClaims,
   Json(req): Json<TokenInfoRequest>,
 ) -> AppResult<Json<UserClaims>> {
-  req.validate(&())?;
+  req.validate()?;
   info!("Get token information by user_id: {}.", user.uid);
   match service::token::info(&state, user, req).await {
     Ok(resp) => {
