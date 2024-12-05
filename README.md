@@ -18,7 +18,7 @@ Reusable template for building REST Web Services in Rust. Uses [Axum](https://gi
 - [rust](https://www.rust-lang.org/tools/install)
 - [postgres](https://www.postgresql.org/)
 - [docker](https://www.docker.com/)
-- [docker-compose](https://docs.docker.com/compose/)
+- [docker-compose](https://docs.docker.com/compose/install)
 
 ### How to use this template
 
@@ -73,8 +73,8 @@ settings
 ```
 #### Configure with environment variables
 ```bash
-export APP_SERVER__PORT=8080
-export APP_SERVER__ADDR=127.0.0.1
+export APP__SERVER__PORT=8080
+export APP__SERVER__ADDR=127.0.0.1
 ```
 #### Switching profiles
 Before running the application, export this variable:

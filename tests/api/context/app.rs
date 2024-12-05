@@ -13,6 +13,7 @@ use wiremock::MockServer;
 
 use crate::helper::{api::Api, email::MailHogClient, INIT_SUBSCRIBER};
 
+#[allow(dead_code)]
 pub struct AppTestContext {
   pub tasks: Vec<JoinHandle<AppResult>>,
   pub state: AppState,

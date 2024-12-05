@@ -1,10 +1,9 @@
-version: "3.9"
 services:
   application:
     image: "ghcr.io/robatipoor/rustfulapi:latest"
     container_name: application
     ports:
-      - "${APP_SERVER__PORT}:${APP_SERVER__PORT}"
+      - "${APP__SERVER__PORT}:${APP__SERVER__PORT}"
     networks:
       - server-side
     depends_on:
@@ -20,12 +19,12 @@ services:
     networks:
       - server-side
     environment:
-      - POSTGRES_USER=${APP_DB__USERNAME}
-      - POSTGRES_PASSWORD=${APP_DB__PASSWORD}
-      - POSTGRES_DB=${APP_DB__DATABASE_NAME}
-      - POSTGRES_HOST=${APP_DB__HOST}
+      - POSTGRES_USER=${APP__DB__USERNAME}
+      - POSTGRES_PASSWORD=${APP__DB__PASSWORD}
+      - POSTGRES_DB=${APP__DB__DATABASE_NAME}
+      - POSTGRES_HOST=${APP__DB__HOST}
     ports:
-      - "${APP_DB__PORT}:${APP_DB__PORT}"
+      - "${APP__DB__PORT}:${APP__DB__PORT}"
   redis-db:
     image: "redis:latest"
     container_name: redis-database
@@ -33,18 +32,18 @@ services:
     networks:
       - server-side
     environment:
-      - REDIS_USER=${APP_REDIS__USERNAME}
-      - REDIS_PASSWORD=${APP_REDIS__PASSWORD}
-      - REDIS_DB=${APP_REDIS__DATABASE_NAME}
+      - REDIS_USER=${APP__REDIS__USERNAME}
+      - REDIS_PASSWORD=${APP__REDIS__PASSWORD}
+      - REDIS_DB=${APP__REDIS__DATABASE_NAME}
     ports:
-      - "${APP_REDIS__PORT}:${APP_REDIS__PORT}"
+      - "${APP__REDIS__PORT}:${APP__REDIS__PORT}"
   mailhog:
     image: "mailhog/mailhog"
     networks:
       - server-side
     restart: always
     ports:
-      - "${APP_EMAIL__PORT}:${APP_EMAIL__PORT}"
+      - "${APP__EMAIL__PORT}:${APP__EMAIL__PORT}"
       - "8025:8025"
   pgadmin:
     image: dpage/pgadmin4
