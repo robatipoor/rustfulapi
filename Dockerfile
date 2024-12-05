@@ -21,8 +21,13 @@ COPY static static
 
 COPY settings settings
 
-# copy binary and configuration files
+COPY scripts/run .
+
+# copy app bin
 COPY --from=builder /workspace/target/release/app .
+
+# copy migration bin
+COPY --from=builder /workspace/target/release/migration .
 
 # expose port
 EXPOSE 8080
@@ -31,5 +36,5 @@ ENV APP_PROFILE prod
 
 ENV RUST_LOG info
 
-# run the binary
-ENTRYPOINT ["./app"]
+# run the app
+ENTRYPOINT ["./run"]
