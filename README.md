@@ -13,12 +13,19 @@ Reusable template for building REST Web Services in Rust. Uses [Axum](https://gi
 [![Codecov](https://codecov.io/gh/robatipoor/rustfulapi/branch/main/graph/badge.svg?token=BIMUKRJPE7)](https://codecov.io/gh/robatipoor/rustfulapi)
 [![Dependency status](https://deps.rs/repo/github/robatipoor/rustfulapi/status.svg)](https://deps.rs/repo/github/robatipoor/rustfulapi)
 ![RUSTfulapi-logo](/static/images/_logo.jpg)
-### Requirements
+### System Requirements
 
 - [rust](https://www.rust-lang.org/tools/install)
-- [postgres](https://www.postgresql.org/)
-- [docker](https://www.docker.com/)
+- [docker](https://docs.docker.com/engine/install/)
 - [docker-compose](https://docs.docker.com/compose/install)
+
+### Required Docker Services
+
+- [postgres](https://hub.docker.com/_/postgres)
+- [redis](https://hub.docker.com/_/redis)
+- [mailhog](https://hub.docker.com/r/mailhog/mailhog)
+- [mockserver](https://hub.docker.com/r/mockserver/mockserver)
+- [pgAdmin](https://hub.docker.com/r/dpage/pgadmin4)
 
 ### How to use this template
 
