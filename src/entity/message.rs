@@ -3,7 +3,6 @@ use fake::Dummy;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 use strum::Display;
-use utoipa::ToSchema;
 
 use crate::error::ResourceType;
 
@@ -53,7 +52,6 @@ impl ActiveModelBehavior for ActiveModel {}
   Ord,
   Deserialize,
   Serialize,
-  ToSchema,
   Dummy,
   Clone,
   Copy,
@@ -81,7 +79,6 @@ pub enum MessageKind {
   Ord,
   Deserialize,
   Serialize,
-  ToSchema,
   Dummy,
   Clone,
   Copy,

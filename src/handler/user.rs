@@ -3,7 +3,7 @@ use axum::Json;
 use garde::Validate;
 use tracing::{info, warn};
 
-use crate::error::AppResult;
+use crate::error::{AppResponseError, AppResult};
 use crate::server::state::AppState;
 use crate::util::claim::UserClaims;
 use crate::{dto::*, service};

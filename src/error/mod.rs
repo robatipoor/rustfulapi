@@ -6,13 +6,12 @@ use axum::{
 use serde::Deserialize;
 use serde::Serialize;
 use strum::EnumString;
-use utoipa::ToSchema;
 
 use crate::entity;
 
 pub type AppResult<T = ()> = std::result::Result<T, AppError>;
 
-#[derive(Debug, thiserror::Error, ToSchema)]
+#[derive(Debug, thiserror::Error)]
 pub enum AppError {
   #[error("{0} not found")]
   NotFoundError(Resource),

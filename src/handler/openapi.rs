@@ -1,14 +1,14 @@
 use utoipa::{
   openapi::security::{Http, HttpAuthScheme, SecurityScheme},
-  Modify, OpenApi,
+  Modify,
 };
 
 use crate::dto::*;
 use crate::entity::role::RoleUser;
-use crate::error::{AppError, AppResponseError};
+use crate::error::AppResponseError;
 use crate::util::claim::UserClaims;
 
-#[derive(OpenApi)]
+#[derive(utoipa::OpenApi)]
 #[openapi(
     info(
         version = "v0.1.0",
@@ -45,7 +45,7 @@ use crate::util::claim::UserClaims;
             LoginResponse,
             LoginRequest,
             AppResponseError,
-            AppError,
+            // AppError,
             MessageResponse,
             TokenInfoRequest,
             UserClaims,
