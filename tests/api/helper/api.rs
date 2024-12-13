@@ -89,7 +89,7 @@ impl Api {
     token: &str,
   ) -> anyhow::Result<(StatusCode, AppResponseResult<GetUserListResponse>)> {
     let resp = HTTP
-      .get(&format!("{}/api/v1/admin/user/list", self.addr))
+      .get(format!("{}/api/v1/admin/user/list", self.addr))
       .header(reqwest::header::AUTHORIZATION, format!("Bearer {token}"))
       .query(param)
       .send()
