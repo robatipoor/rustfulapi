@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{sync::LazyLock, time::Duration};
 
 use axum_extra::{
   headers::{authorization::Bearer, Authorization},
@@ -12,7 +12,6 @@ use chrono::Utc;
 use fake::Dummy;
 use jsonwebtoken::Header;
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, TokenData, Validation};
-use once_cell::sync::Lazy;
 use serde::Deserialize;
 use serde::Serialize;
 use utoipa::ToSchema;
@@ -22,8 +21,9 @@ use crate::error::{AppError, AppResult};
 use crate::{constant::ACCESS_TOKEN_DECODE_KEY, server::state::AppState};
 use crate::{entity::role::RoleUser, service};
 
-pub static DECODE_HEADER: Lazy<Validation> = Lazy::new(|| Validation::new(Algorithm::RS256));
-pub static ENCODE_HEADER: Lazy<Header> = Lazy::new(|| Header::new(Algorithm::RS256));
+pub static DECODE_HEADER: LazyLock<Validation> =
+  LazyLock::new(|| Validation::new(Algorithm::RS256));
+pub static ENCODE_HEADER: LazyLock<Header> = LazyLock::new(|| Header::new(Algorithm::RS256));
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Dummy, ToSchema)]
 pub struct UserClaims {

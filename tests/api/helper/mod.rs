@@ -1,5 +1,5 @@
-use once_cell::sync::Lazy;
 use rustfulapi::configure;
+use std::sync::LazyLock;
 use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Registry};
 
@@ -10,7 +10,7 @@ pub mod http;
 pub mod result;
 pub mod user;
 
-pub(crate) static INIT_SUBSCRIBER: Lazy<()> = Lazy::new(|| {
+pub(crate) static INIT_SUBSCRIBER: LazyLock<()> = LazyLock::new(|| {
   configure::tracing::init_subscriber(
     Registry::default()
       .with(EnvFilter::new("INFO"))

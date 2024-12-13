@@ -14,12 +14,11 @@ pub async fn store_file<P: AsRef<Path>>(file_path: &P, content: &[u8]) -> AppRes
 
 #[cfg(test)]
 mod tests {
-  use std::path::PathBuf;
+  use std::{path::PathBuf, sync::LazyLock};
 
   use super::store_file;
   use crate::constant::{APP_IMAGE, IMAGES_PATH};
 
-  use once_cell::sync::Lazy;
   use test_context::{test_context, AsyncTestContext};
   use tokio::fs;
   use uuid::Uuid;
@@ -32,9 +31,9 @@ mod tests {
 
   impl AsyncTestContext for FileTestContext {
     async fn setup() -> Self {
-      let image = Lazy::force(&APP_IMAGE);
+      let image = LazyLock::force(&APP_IMAGE);
       let content = fs::read(image).await.unwrap();
-      let path = Lazy::force(&IMAGES_PATH).join("tmp").join(format!(
+      let path = LazyLock::force(&IMAGES_PATH).join("tmp").join(format!(
         "{}_{}",
         Uuid::new_v4(),
         image.file_name().unwrap().to_str().unwrap()
