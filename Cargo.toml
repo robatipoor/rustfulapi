@@ -60,6 +60,8 @@ tera = "1.20.0"
 test-context = "0.3.0"
 thiserror = "2.0.6"
 tokio = { version = "1.42.0", features = ["full"] }
+tower = { version = "0.5.1", features = ["full"] }
+tower-http = { version = "0.6.2", features = ["full"] }
 tracing = { version = "0.1.41", features = ["attributes"] }
 tracing-appender = "0.2.3"
 tracing-bunyan-formatter = "0.3.10"
