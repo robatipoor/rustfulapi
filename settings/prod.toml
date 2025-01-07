@@ -3,6 +3,7 @@ profile = "prod"
 [server]
 addr = "0.0.0.0"
 port = 8_080
+grace_shutdown = 30
 
 [db]
 host = "127.0.0.1"
