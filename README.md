@@ -80,8 +80,8 @@ settings
 ```
 #### Configure with environment variables
 ```bash
-export APP__SERVER__PORT=8080
-export APP__SERVER__ADDR=127.0.0.1
+export PROD_APP__SERVER__PORT=8080
+export PROD_APP__SERVER__ADDR=127.0.0.1
 ```
 #### Switching profiles
 Before running the application, export this variable:

@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use reqwest::Response;
 use serde::Serialize;
 
@@ -34,7 +32,7 @@ impl ClientBuilder for HttpClient {
   fn build_from_config(config: &AppConfig) -> AppResult<Self> {
     Ok(
       reqwest::Client::builder()
-        .timeout(Duration::from_secs(config.http.timeout))
+        .timeout(config.http.timeout)
         .build()?,
     )
   }

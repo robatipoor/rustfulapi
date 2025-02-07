@@ -2,8 +2,7 @@ use std::sync::LazyLock;
 
 use rustfulapi::{
   client::database::{drop_database, migrate_database, setup_new_database, DatabaseClient},
-  configure::{env::get_env_source, AppConfig},
-  constant::ENV_PREFIX,
+  configure::{AppConfig, Profile},
   error::AppResult,
   server::{self, state::AppState, worker::MessengerTask},
 };
@@ -27,7 +26,7 @@ pub struct AppTestContext {
 impl AsyncTestContext for AppTestContext {
   async fn setup() -> Self {
     LazyLock::force(&INIT_SUBSCRIBER);
-    let mut config = AppConfig::read(get_env_source(ENV_PREFIX)).unwrap();
+    let mut config = AppConfig::read(Profile::Test).unwrap();
     let default_db = setup_new_database(&mut config).await.unwrap();
     let server = server::AppServer::new(config).await.unwrap();
     migrate_database(&server.state.db).await.unwrap();

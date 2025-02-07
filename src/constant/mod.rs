@@ -4,11 +4,10 @@ use utoipa::OpenApi;
 
 use crate::{
   client::{email::EmailClient, http::HttpClient, redis::RedisClient, ClientBuilder},
-  configure::{env::get_env_source, get_static_dir, template::TemplateEngine},
+  configure::{env::get_profile, get_static_dir, template::TemplateEngine},
   handler::openapi::ApiDoc,
 };
 
-pub const ENV_PREFIX: &str = "APP";
 pub const CODE_LEN: usize = 5;
 pub const CLIENT_TIMEOUT: Duration = Duration::from_secs(120);
 pub const EXPIRE_SESSION_CODE_SECS: Duration = Duration::from_secs(2000);
@@ -30,7 +29,7 @@ pub static IMAGES_PATH: LazyLock<PathBuf> =
 pub static APP_IMAGE: LazyLock<PathBuf> =
   LazyLock::new(|| get_static_dir().unwrap().join("images/logo.jpg"));
 pub static CONFIG: LazyLock<crate::configure::AppConfig> =
-  LazyLock::new(|| crate::configure::AppConfig::read(get_env_source(ENV_PREFIX)).unwrap());
+  LazyLock::new(|| crate::configure::AppConfig::read(get_profile().unwrap()).unwrap());
 pub static HTTP: LazyLock<reqwest::Client> =
   LazyLock::new(|| HttpClient::build_from_config(&CONFIG).unwrap());
 pub static REDIS: LazyLock<RedisClient> =

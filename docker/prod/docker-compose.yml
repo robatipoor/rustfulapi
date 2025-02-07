@@ -18,12 +18,12 @@ services:
     networks:
       - server-side
     environment:
-      - POSTGRES_USER=${APP__DB__USERNAME}
-      - POSTGRES_PASSWORD=${APP__DB__PASSWORD}
-      - POSTGRES_DB=${APP__DB__DATABASE_NAME}
-      - POSTGRES_HOST=${APP__DB__HOST}
+      - POSTGRES_USER=${PROD_APP__DB__USERNAME}
+      - POSTGRES_PASSWORD=${PROD_APP__DB__PASSWORD}
+      - POSTGRES_DB=${PROD_APP__DB__DATABASE_NAME}
+      - POSTGRES_HOST=${PROD_APP__DB__HOST}
     ports:
-      - "${APP_DB__PORT}:${APP_DB__PORT}"
+      - "${PROD_APP_DB__PORT}:${PROD_APP_DB__PORT}"
     volumes:
       - pg_data:/var/lib/postgresql/data
   redis-db:
@@ -33,11 +33,11 @@ services:
     networks:
       - server-side
     environment:
-      - REDIS_USER=${APP__REDIS__USERNAME}
-      - REDIS_PASSWORD=${APP__REDIS__PASSWORD}
-      - REDIS_DB=${APP__REDIS__DATABASE_NAME}
+      - REDIS_USER=${PROD_APP__REDIS__USERNAME}
+      - REDIS_PASSWORD=${PROD_APP__REDIS__PASSWORD}
+      - REDIS_DB=${PROD_APP__REDIS__DATABASE_NAME}
     ports:
-      - "${APP__REDIS__PORT}:${APP__REDIS__PORT}"
+      - "${PROD_APP__REDIS__PORT}:${PROD_APP__REDIS__PORT}"
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin

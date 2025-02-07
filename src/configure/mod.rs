@@ -1,7 +1,6 @@
-use std::str::FromStr;
-
 use ::tracing::info;
 use config::{ConfigError, Environment};
+use env::get_env_source;
 use serde::Deserialize;
 
 use crate::util::dir::get_project_root;
@@ -12,6 +11,7 @@ use self::{
 };
 
 pub mod db;
+pub mod deserialize;
 pub mod email;
 pub mod env;
 pub mod http;
@@ -25,7 +25,6 @@ pub mod worker;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct AppConfig {
-  pub profile: Profile,
   pub server: ServerConfig,
   pub db: DatabaseConfig,
   pub redis: RedisConfig,
@@ -37,16 +36,12 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-  pub fn read(env_src: Environment) -> Result<Self, config::ConfigError> {
+  pub fn read(profile: Profile) -> Result<Self, config::ConfigError> {
     let config_dir = get_settings_dir()?;
-    let profile = std::env::var("APP_PROFILE")
-      .map(|env| Profile::from_str(&env).map_err(|e| ConfigError::Message(e.to_string())))
-      .unwrap_or_else(|_e| Ok(Profile::Dev))?;
-    let profile_filename = format!("{profile}.toml");
     let config = config::Config::builder()
       .add_source(config::File::from(config_dir.join("base.toml")))
-      .add_source(config::File::from(config_dir.join(profile_filename)))
-      .add_source(env_src)
+      .add_source(config::File::from(config_dir.join(profile.filename())))
+      .add_source(profile.env_source())
       .build()?;
     info!("Successfully read config profile: {profile}.");
     config.try_deserialize()
@@ -84,15 +79,23 @@ pub enum Profile {
   Prod,
 }
 
+impl Profile {
+  fn filename(&self) -> String {
+    format!("{self}.toml")
+  }
+
+  fn env_source(&self) -> Environment {
+    get_env_source(&format!("{}_APP", self.to_string().to_uppercase()))
+  }
+}
+
 #[cfg(test)]
 mod tests {
-  use self::env::get_env_source;
-
   pub use super::*;
 
   #[test]
   pub fn test_read_app_config() {
-    let _config = AppConfig::read(get_env_source("TEST_APP")).unwrap();
+    let _config = AppConfig::read(Profile::Test).unwrap();
   }
 
   #[test]
