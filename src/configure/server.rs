@@ -6,6 +6,7 @@ use serde::Deserialize;
 pub struct ServerConfig {
   pub addr: String,
   pub port: u16,
+  pub grace_shutdown_secs: i64,
 }
 
 impl ServerConfig {
@@ -31,6 +32,7 @@ pub mod tests {
     let config = ServerConfig {
       addr: "127.0.0.1".to_string(),
       port: 1024,
+      grace_shutdown_secs: 10,
     };
     assert_eq!(config.get_http_addr(), "http://127.0.0.1:1024");
   }
