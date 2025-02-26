@@ -3,11 +3,11 @@ use std::sync::Arc;
 use tokio::sync::Notify;
 
 use crate::client::{
+  ClientBuilder,
   database::{DatabaseClient, DatabaseClientExt},
   email::EmailClient,
   http::HttpClient,
   redis::RedisClient,
-  ClientBuilder,
 };
 use crate::configure::AppConfig;
 use crate::error::AppResult;

@@ -1,6 +1,6 @@
 use utoipa::{
-  openapi::security::{Http, HttpAuthScheme, SecurityScheme},
   Modify,
+  openapi::security::{Http, HttpAuthScheme, SecurityScheme},
 };
 
 use crate::dto::*;

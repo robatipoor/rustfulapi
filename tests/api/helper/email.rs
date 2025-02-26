@@ -228,8 +228,8 @@ mod tests {
   use fake::{Fake, Faker};
   use rustfulapi::{
     client::{
-      email::{EmailClient, EmailClientExt},
       ClientBuilder,
+      email::{EmailClient, EmailClientExt},
     },
     constant::{CONFIG, TEMPLATE_ENGIN},
     dto::{Email, Template},

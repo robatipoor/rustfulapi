@@ -1,5 +1,5 @@
 use super::hash;
-use crate::error::{invalid_input_error, AppResult};
+use crate::error::{AppResult, invalid_input_error};
 use tracing::debug;
 
 pub async fn hash(password: String) -> AppResult<String> {

@@ -3,7 +3,7 @@ use std::{path::PathBuf, sync::LazyLock, time::Duration};
 use utoipa::OpenApi;
 
 use crate::{
-  client::{email::EmailClient, http::HttpClient, redis::RedisClient, ClientBuilder},
+  client::{ClientBuilder, email::EmailClient, http::HttpClient, redis::RedisClient},
   configure::{env::get_profile, get_static_dir, template::TemplateEngine},
   handler::openapi::ApiDoc,
 };

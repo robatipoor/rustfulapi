@@ -1,12 +1,12 @@
 use chrono::{DateTime, Utc};
-use fake::faker::internet::en::{FreeEmail, Password, Username};
 use fake::Dummy;
+use fake::faker::internet::en::{FreeEmail, Password, Username};
 use sea_orm::entity::prelude::*;
 
 use crate::error::ResourceType;
 
-use super::role::RoleUser;
 use super::AppEntity;
+use super::role::RoleUser;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Dummy, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]

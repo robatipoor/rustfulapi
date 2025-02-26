@@ -1,5 +1,5 @@
-use wiremock::{matchers::*, Request};
 use wiremock::{Mock, MockServer, ResponseTemplate};
+use wiremock::{Request, matchers::*};
 
 #[allow(dead_code)]
 pub async fn http_mock_server() -> MockServer {

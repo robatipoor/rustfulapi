@@ -1,5 +1,5 @@
 use fake::{Fake, Faker};
-use rustfulapi::dto::{request::*, LoginResponse};
+use rustfulapi::dto::{LoginResponse, request::*};
 use test_context::test_context;
 
 use crate::{assert_ok, context::app::AppTestContext};

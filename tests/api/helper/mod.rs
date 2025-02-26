@@ -1,7 +1,7 @@
 use rustfulapi::configure;
 use std::sync::LazyLock;
 use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
-use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Registry};
+use tracing_subscriber::{EnvFilter, Registry, layer::SubscriberExt};
 
 pub mod api;
 pub mod assert;

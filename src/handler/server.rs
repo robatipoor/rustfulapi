@@ -2,8 +2,8 @@ use crate::client::redis::RedisClientExt;
 use crate::dto::{MessageResponse, ServiceStatusResponse};
 use crate::error::{AppResponseError, AppResult};
 use crate::server::state::AppState;
-use axum::extract::State;
 use axum::Json;
+use axum::extract::State;
 use tracing::error;
 
 // Health check.

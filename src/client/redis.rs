@@ -1,5 +1,5 @@
 use crate::{
-  configure::{redis::RedisConfig, AppConfig},
+  configure::{AppConfig, redis::RedisConfig},
   constant::CONFIG,
   error::AppResult,
 };
@@ -22,7 +22,7 @@ pub trait RedisClientExt: ClientBuilder {
   ) -> impl std::future::Future<Output = Result<(), RedisError>>;
   fn exist(&self, key: &str) -> impl std::future::Future<Output = Result<bool, RedisError>>;
   fn get(&self, key: &str)
-    -> impl std::future::Future<Output = Result<Option<String>, RedisError>>;
+  -> impl std::future::Future<Output = Result<Option<String>, RedisError>>;
   fn del(&self, key: &str) -> impl std::future::Future<Output = Result<bool, RedisError>>;
   fn ttl(&self, key: &str) -> impl std::future::Future<Output = Result<i64, RedisError>>;
 }

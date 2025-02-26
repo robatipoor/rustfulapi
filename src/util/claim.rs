@@ -1,13 +1,13 @@
 use std::{sync::LazyLock, time::Duration};
 
 use axum_extra::{
-  headers::{authorization::Bearer, Authorization},
   TypedHeader,
+  headers::{Authorization, authorization::Bearer},
 };
 
+use axum::RequestPartsExt;
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
-use axum::RequestPartsExt;
 use chrono::Utc;
 use fake::Dummy;
 use jsonwebtoken::Header;
@@ -63,7 +63,6 @@ impl UserClaims {
   }
 }
 
-#[async_trait::async_trait]
 impl FromRequestParts<AppState> for UserClaims {
   type Rejection = AppError;
 

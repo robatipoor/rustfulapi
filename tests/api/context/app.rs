@@ -1,7 +1,7 @@
 use std::sync::LazyLock;
 
 use rustfulapi::{
-  client::database::{drop_database, migrate_database, setup_new_database, DatabaseClient},
+  client::database::{DatabaseClient, drop_database, migrate_database, setup_new_database},
   configure::{AppConfig, Profile},
   error::AppResult,
   server::{self, state::AppState, worker::MessengerTask},
@@ -11,7 +11,7 @@ use tokio::task::JoinHandle;
 use tracing::info;
 use wiremock::MockServer;
 
-use crate::helper::{api::Api, email::MailHogClient, INIT_SUBSCRIBER};
+use crate::helper::{INIT_SUBSCRIBER, api::Api, email::MailHogClient};
 
 #[allow(dead_code)]
 pub struct AppTestContext {

@@ -32,7 +32,7 @@ if [[ -n $RUNNING_CONTAINER ]]; then
   else
     echo >&2 "update exceptions"
     curl -X PUT -H "Content-Type: application/json" \
-    -d @"${SCRIPT_PATH}"/mockserver-expections/init.json \
+    -d @"${SCRIPT_PATH}"/mockserver-expectations/init.json \
     localhost:"${PORT}"/mockserver/expectation
     echo >&2 "you can kill container with command :"
     echo >&2 "docker kill ${RUNNING_CONTAINER}"

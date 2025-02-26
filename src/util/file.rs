@@ -19,7 +19,7 @@ mod tests {
   use super::store_file;
   use crate::constant::{APP_IMAGE, IMAGES_PATH};
 
-  use test_context::{test_context, AsyncTestContext};
+  use test_context::{AsyncTestContext, test_context};
   use tokio::fs;
   use uuid::Uuid;
 

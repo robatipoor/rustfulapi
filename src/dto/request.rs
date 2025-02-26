@@ -1,5 +1,5 @@
-use fake::faker::internet::en::{Password, SafeEmail, Username};
 use fake::Dummy;
+use fake::faker::internet::en::{Password, SafeEmail, Username};
 use garde::Validate;
 use serde::{Deserialize, Serialize};
 use strum::Display;

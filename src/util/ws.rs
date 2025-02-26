@@ -3,8 +3,8 @@ use crate::error::AppResult;
 use anyhow::anyhow;
 use futures::stream::{SplitSink, SplitStream};
 use futures::{SinkExt, StreamExt};
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{MaybeTlsStream, WebSocketStream};
 
@@ -23,7 +23,7 @@ where
   T: Serialize,
 {
   sender
-    .send(Message::Text(serde_json::to_string(msg)?))
+    .send(Message::Text(serde_json::to_string(msg)?.into()))
     .await?;
   Ok(())
 }
