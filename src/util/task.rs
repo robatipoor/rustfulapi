@@ -17,18 +17,20 @@ pub async fn join_all(tasks: Vec<Task>) -> AppResult {
     tokio::spawn(async {
       if let Err(e) = task.await {
         if let Some(sender) = sender {
-          sender
-            .send(e)
-            .await
-            .unwrap_or_else(|_| unreachable!("This channel never closed."));
+          let _ = sender.send(e).await;
         } else {
           error!("A task failed: {e}.");
         }
       }
     });
   }
+
+  // Explicitly drop the sender to close the channel.
+  drop(sender);
+
+  // Return Ok(()) if all futures are completed without error.
   match receiver.recv().await {
     Some(err) => Err(err),
-    None => unreachable!("This channel never closed."),
+    None => Ok(()),
   }
 }
